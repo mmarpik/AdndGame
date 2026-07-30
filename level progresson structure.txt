@@ -1,0 +1,105 @@
+Use Core for all level logic, Data for persistence, Game for UX only.
+Suggested structure
+Adnd.Core (rules engine)
+Create a leveling module:
+•	Characters/Progression/ExperienceTable.cs
+•	AD&D XP thresholds per class (and later per multiclass/dual-class rules).
+•	Characters/Progression/LevelUpService.cs
+•	ApplyExperienceAndAutoLevel(Character c, int gainedXp).
+•	loops while XP >= next threshold.
+•	applies per-level gains.
+•	Characters/Progression/LevelUpResult.cs
+•	old/new level, HP gain, new spells, etc.
+•	Characters/Progression/HitPointProgression.cs
+•	class HD rules, max level for HD, fixed HP after name level.
+•	Characters/Progression/SpellProgressionService.cs
+•	grants spell slots / known spells by class+level.
+Keep AD&D tables and logic here only.
+---
+Adnd.Data (storage)
+No rules. Just persist updated characters.
+Optional:
+•	JSON tables for progression if you want data-driven thresholds:
+•	Data/Progression/*.json
+•	Repository for those tables.
+---
+Adnd.Game (application flow)
+Use services from Core and display results.
+Where to call auto-level:
+•	after combat XP reward in CombatCoordinator
+•	optionally quest/shop/event rewards too
+Flow:
+1.	Grant XP
+2.	Call LevelUpService.ApplyExperienceAndAutoLevel
+3.	Save character
+4.	Show summary dialog for each level-up
+---
+Practical integration points in your current code
+You already grant XP in CombatCoordinator.ApplyVictoryRewards.
+Add here:
+•	inject/use LevelUpService
+•	for each survivor:
+•	apply XP + auto-level
+•	collect LevelUpResult
+•	show one combined “Level Up” message.
+---
+AD&D-specific considerations to support
+•	Different XP tables by class.
+•	Multiclass XP split across classes.
+•	Dual-class gating/rules.
+•	HP gain by class and level caps.
+•	Fighter exceptional progression and class attack progression.
+•	Spell slot progression per class/level.
+
+
+
+What was added
+Adnd.Core (leveling rules)
+Created full progression module under Adnd.Core/Characters/Progression/:
+•	ExperienceTable.cs
+•	XP thresholds by class.
+•	Supports:
+•	single-class progression,
+•	multiclass XP split (shared level using split XP),
+•	dual-class active class fallback.
+•	LevelUpService.cs
+•	ApplyExperienceAndAutoLevel(Character c, int gainedXp)
+•	Adds XP, loops level-ups while threshold is met,
+•	Applies HP gains per level,
+•	Applies spell slot progression updates.
+•	LevelUpResult.cs
+•	Old/new level,
+•	XP before/after,
+•	HP gained,
+•	spell slot changes.
+•	HitPointProgression.cs
+•	Class hit die rules,
+•	“name level” style fixed HP after cap,
+•	Constitution HP modifier handling.
+•	SpellProgressionService.cs
+•	Updates SpellcastingState slot tracks based on class+level progression tables in SpellProgression.
+---
+Adnd.Data
+No rules added (kept as persistence/data layer).
+---
+Adnd.Game integration
+Updated Adnd.Game/Combat/CombatCoordinator.cs:
+•	Injected and used LevelUpService.
+•	In victory rewards flow:
+1.	compute XP shares,
+2.	call ApplyExperienceAndAutoLevel per survivor,
+3.	keep treasure handling,
+4.	show one combined summary including:
+•	XP gains,
+•	treasure,
+•	level-up details,
+•	spell slot changes.
+---
+Build status
+Code-level checks are clean.
+Full build was blocked by a running Adnd.Game process locking output DLLs.
+Close running game instance(s) and rebuild to verify end-to-end.
+If you want, next I can refine AD&D fidelity for:
+•	exact per-class high-level XP tables,
+•	true per-class levels for multiclass,
+•	stricter dual-class gating behavior.

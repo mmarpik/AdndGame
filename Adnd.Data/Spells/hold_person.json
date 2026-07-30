@@ -1,0 +1,12 @@
+{
+  "Id": "hold_person",
+  "Name": "Hold Person",
+  "Class": "Cleric",
+  "Level": 2,
+  "Description": "Paralyzes one humanoid target.",
+  "RangeType": "Enemy",
+  "Targeting": "Single",
+  "CastContext": "Combat",
+  "EffectType": "Damage",
+  "EffectDescription": "Divine force locks a humanoid target in place."
+}

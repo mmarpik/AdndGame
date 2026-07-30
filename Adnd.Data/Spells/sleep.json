@@ -1,0 +1,12 @@
+{
+  "Id": "sleep",
+  "Name": "Sleep",
+  "Class": "MagicUser",
+  "Level": 1,
+  "Description": "Puts creatures into a magical slumber.",
+  "RangeType": "Enemy",
+  "Targeting": "Multiple",
+  "CastContext": "Combat",
+  "EffectType": "Damage",
+  "EffectDescription": "A wave of enchantment causes affected enemies to fall asleep."
+}

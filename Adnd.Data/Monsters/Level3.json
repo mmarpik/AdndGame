@@ -1,0 +1,49 @@
+{
+  "Level": 3,
+  "Monsters": [
+    {
+      "Name": "Troll",
+      "Type": "Giant",
+      "ArmorClass": 4,
+      "HitDice": 6,
+      "HitPoints": 33,
+      "Movement": {
+        "Walk": 40,
+        "Fly": 0,
+        "Swim": 0,
+        "Burrow": 0,
+        "Climb": 0
+      },
+      "SavingThrows": {
+        "ParalyzationPoisonDeath": 10,
+        "RodStaffWand": 11,
+        "PetrificationPolymorph": 12,
+        "BreathWeapon": 13,
+        "Spell": 13
+      },
+      "Morale": {
+        "Value": 10
+      },
+      "Attacks": [
+        {
+          "Name": "Claw",
+          "NumberOfAttacks": 2,
+          "Damage": "1d6"
+        },
+        {
+          "Name": "Bite",
+          "NumberOfAttacks": 1,
+          "Damage": "1d10"
+        }
+      ],
+      "SpecialAbilities": [
+        {
+          "Name": "Regeneration",
+          "Description": "Regenerates 3 HP per round unless damaged by fire or acid."
+        }
+      ],
+      "XPValue": 600,
+      "TreasureType": "D"
+    }
+  ]
+}

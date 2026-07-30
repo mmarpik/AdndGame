@@ -1,0 +1,44 @@
+Suggested structure:
+1.	SpellDefinition + metadata (already partly there)
+•	Add fields like:
+•	RangeType (Self, Ally, Enemy)
+•	Targeting (Single, Multiple)
+•	CastContext (Combat, Exploration, Both)
+•	EffectType (Damage, Heal)
+2.	Spell effect executor layer
+•	Create an interface, e.g. ISpellEffectHandler:
+•	CanHandle(spellId)
+•	Resolve(SpellCastRequest request)
+•	Implement handlers:
+•	MagicMissileHandler
+•	CureLightWoundsHandler
+•	Add a central SpellResolver that dispatches to correct handler.
+3.	Shared cast pipeline
+•	One service for both combat and inspect menus:
+•	Validate caster knows/prepared spell
+•	Validate slot available
+•	Validate target rules
+•	Execute effect via resolver
+•	Consume slot
+•	Return result/events for UI
+4.	Combat integration
+•	In combat action selection, add action type CastSpell.
+•	Action payload: caster, spell, target.
+•	In round resolution, process spell actions with initiative order and append combat log events.
+5.	Inspect menu integration (start with healing)
+•	In character inspect flow, add Cast submenu for non-combat.
+•	For Cure Light Wounds:
+•	choose ally target
+•	apply healing
+•	consume slot
+•	save character/party state
+•	print result
+6.	Data model additions (minimal)
+•	SpellCastRequest (Caster, Targets, SpellId, Context, RNG)
+•	SpellCastResult (Success, Events, HpChanges, SlotConsumed)
+Recommended incremental rollout:
+1.	Implement only Cure Light Wounds in inspect flow
+2.	Reuse same pipeline in combat
+3.	Add Magic Missile combat handler
+4.	Expand with more spells
+If you want, I can draft the exact class skeletons and where to wire them in your current files (CombatCoordinator, combat UI/action model, and PartyMenu inspect flow).

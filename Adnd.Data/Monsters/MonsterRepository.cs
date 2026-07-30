@@ -1,0 +1,46 @@
+﻿// Monsters/MonsterRepository.cs
+//Läser alla JSON‑filer i en mapp och returnerar riktiga Core‑monster.
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using Adnd.Core.Monsters;
+
+namespace Adnd.Data.Monsters;
+
+public class MonsterRepository
+{
+    public IEnumerable<Monster> GetAll()
+    {
+        var monsters = new List<Monster>();
+
+        if (!Directory.Exists(MonsterDataPaths.MonsterJsonFolder))
+            return monsters;
+
+        var files = Directory.GetFiles(MonsterDataPaths.MonsterJsonFolder, "*.json");
+
+        foreach (var file in files)
+        {
+            var jsonText = File.ReadAllText(file);
+
+            var grouped = JsonSerializer.Deserialize<MonsterLevelJsonModel>(jsonText);
+            if (grouped?.Monsters != null && grouped.Monsters.Count > 0)
+            {
+                foreach (var m in grouped.Monsters)
+                {
+                    if (m != null)
+                        monsters.Add(MonsterImporter.Convert(m));
+                }
+
+                continue;
+            }
+
+            var jsonModel = JsonSerializer.Deserialize<MonsterJsonModel>(jsonText);
+            if (jsonModel != null)
+            {
+                monsters.Add(MonsterImporter.Convert(jsonModel));
+            }
+        }
+
+        return monsters;
+    }
+}

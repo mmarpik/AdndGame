@@ -1,0 +1,52 @@
+1) Extend monster data model
+Add to Monster:
+•	TreasureType (string or enum; support combos like A, B, A,B, None)
+•	optional TreasureChanceOverride (if needed later)
+Update:
+•	Adnd.Core monster model
+•	Adnd.Data monster JSON parsing
+•	monster JSON files incrementally
+2) Keep treasure tables in data
+You already have Adnd.Data/Treasure/Treasure_A.json etc.
+Define one canonical schema per table, e.g.:
+•	coins dice expressions (cp, sp, ep, gp, pp)
+•	gems/jewelry/art chances + value ranges
+•	magic item rolls (later)
+This keeps rules editable without code changes.
+3) Add TreasureService in Adnd.Core
+Create service boundaries:
+•	RollTreasureForEncounter(IEnumerable<MonsterInstance>)
+•	internally:
+•	map monster treasure type(s) → table definitions
+•	roll per AD&D rules
+•	aggregate totals
+Return a structured result object, e.g. TreasureResult:
+•	coin totals
+•	gem list/value
+•	jewelry/art list/value
+•	magic placeholders
+•	log lines
+4) Add repository for treasure tables
+In Adnd.Data:
+•	TreasureTableRepository
+•	load by code (A, B, C…)
+Keep it similar to SpellRepository/MonsterRepository.
+5) Integrate at combat reward point
+Hook into CombatCoordinator.ApplyVictoryRewards:
+•	derive treasure from defeated monsters’ TreasureType
+•	merge with current reward display
+•	distribute to party using existing split logic
+This replaces/augments current random encounter treasure logic cleanly.
+6) Make rollout incremental
+Suggested order:
+1.	Implement coin-only treasure from table codes
+2.	Add gems/jewelry values
+3.	Add magic item entries (as placeholders first)
+4.	Add advanced AD&D rules (lair/individual %, % in lair, etc.)
+7) Design for extensibility
+Use handler pattern per treasure component:
+•	ICoinTreasureRoller
+•	IGemTreasureRoller
+•	IMagicTreasureRoller
+or one ITreasureComponentResolver pipeline.
+This mirrors your spell-handler architecture and scales well.

@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Adnd.Core/Adnd.Core.csproj" />
+  <Project Path="Adnd.Data/Adnd.Data.csproj" />
+  <Project Path="Adnd.Game/Adnd.Game.csproj" />
+</Solution>

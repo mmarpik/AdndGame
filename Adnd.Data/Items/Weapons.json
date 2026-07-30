@@ -1,0 +1,122 @@
+{
+  "Category": "Weapon",
+  "Items": [
+    {
+      "Name": "Dagger",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 3,
+      "Weight": 1,
+      "ArmorClassBonus": 0,
+      "Damage": "1d4",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk"]
+    },
+    {
+      "Name": "Club",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 1,
+      "Weight": 2,
+      "ArmorClassBonus": 0,
+      "Damage": "1d6",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk"]
+    },
+    {
+      "Name": "Mace",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 8,
+      "Weight": 6,
+      "ArmorClassBonus": 0,
+      "Damage": "1d6",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Monk"]
+    },
+    {
+      "Name": "Spear",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 3,
+      "Weight": 5,
+      "ArmorClassBonus": 0,
+      "Damage": "1d6",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk"]
+    },
+    {
+      "Name": "Quarterstaff",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 1,
+      "Weight": 4,
+      "ArmorClassBonus": 0,
+      "Damage": "1d6",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk"]
+    },
+    {
+      "Name": "Short Sword",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 10,
+      "Weight": 3,
+      "ArmorClassBonus": 0,
+      "Damage": "1d6",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk"]
+    },
+    {
+      "Name": "Long Sword",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 15,
+      "Weight": 4,
+      "ArmorClassBonus": 0,
+      "Damage": "1d8",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Thief", "Assassin", "Bard"]
+    },
+    {
+      "Name": "Battle Axe",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 7,
+      "Weight": 7,
+      "ArmorClassBonus": 0,
+      "Damage": "1d8",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
+    },
+    {
+      "Name": "Long Sword +1",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 250,
+      "Weight": 4,
+      "ToHitBonus": 1,
+      "StockQuantity": 1,
+      "ArmorClassBonus": 0,
+      "Damage": "1d8+1",
+      "AllowedClasses": ["All"]
+    },
+    {
+      "Name": "Long Sword +2",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 750,
+      "Weight": 4,
+      "ToHitBonus": 2,
+      "StockQuantity": 1,
+      "ArmorClassBonus": 0,
+      "Damage": "1d8+2",
+      "AllowedClasses": ["All"]
+    },
+    {
+      "Name": "Long Sword +7",
+      "Type": "Weapon",
+      "Slot": "",
+      "Cost": 5,
+      "Weight": 4,
+      "ToHitBonus": 7,
+      "IsShopBuyable": false,
+      "StockQuantity": 1,
+      "ArmorClassBonus": 0,
+      "Damage": "1d8+7",
+      "AllowedClasses": ["All"]
+    }
+  ]
+}

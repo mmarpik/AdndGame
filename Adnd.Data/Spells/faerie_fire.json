@@ -1,0 +1,12 @@
+{
+  "Id": "faerie_fire",
+  "Name": "Faerie Fire",
+  "Class": "Druid",
+  "Level": 1,
+  "Description": "Outlines targets with pale light, negating concealment.",
+  "RangeType": "Enemy",
+  "Targeting": "Multiple",
+  "CastContext": "Combat",
+  "EffectType": "Damage",
+  "EffectDescription": "Pale flames outline enemies, making them easier to strike."
+}

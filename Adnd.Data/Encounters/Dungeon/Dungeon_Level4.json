@@ -1,0 +1,29 @@
+{
+  "Name": "Dungeon Level 4",
+  "Entries": [
+    {
+      "Monster": "Goblin",
+      "Chance": 25
+    },
+    {
+      "Monster": "Orc",
+      "Chance": 20
+    },
+    {
+      "Monster": "Giant Rat",
+      "Chance": 20
+    },
+    {
+      "Monster": "Skeleton",
+      "Chance": 15
+    },
+    {
+      "Monster": "Kobold",
+      "Chance": 10
+    },
+    {
+      "Monster": "No Encounter",
+      "Chance": 10
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+Good direction. For this solution, split combat into three layers and keep MazeForm as a caller only.
+1) Domain/combat engine (Adnd.Core)
+Put all battle rules here (no UI, no file access).
+•	CombatSession
+•	Holds parties, monsters, round, initiative order, active combatant.
+•	CombatantSnapshot
+•	Read-only battle stats (HP, AC, attacks, status, morale).
+•	CombatAction (enum + payload)
+•	Fight, Parry, Spell, UseItem, Run.
+•	CombatResolver
+•	Applies actions, rolls hit/damage/saves, updates status.
+•	CombatStateMachine
+•	Phases: Setup -> Initiative -> DeclareActions -> ResolveRound -> Morale/Retreat -> Victory/Defeat.
+•	CombatEvent
+•	Output events for UI: “X hits Y for 4”, “Y is dead”, etc.
+Use an RNG interface:
+•	IRandomSource in Core (injectable for tests).
+2) Data/adapters (Adnd.Data)
+Convert JSON models into battle-ready inputs.
+•	MonsterRepository already exists; add:
+•	EncounterMonsterFactory (build N instances from monster template).
+•	Optional:
+•	EncounterTableRepository for dungeon-level encounter lists.
+3) UI/orchestration (Adnd.Game)
+Keep forms thin.
+•	MazeForm
+•	Detects encounter only.
+•	Calls CombatCoordinator.StartEncounter(...).
+•	EncounterForm
+•	Collects party commands per round.
+•	Displays CombatEvent log and updated table.
+•	CombatCoordinator (new)
+•	Bridges UI and Core engine.
+•	Loop:
+1.	ask actions for party members,
+2.	call CombatResolver,
+3.	render results,
+4.	continue until terminal state.
+---
+Suggested minimal flow
+1.	MazeForm rolls encounter.
+2.	Build monster group via MonsterRepository.
+3.	Build CombatSession from party + monsters.
+4.	While session not ended:
+•	UI gets action for each conscious party member.
+•	Core resolves full round.
+•	UI shows results + updated HP/status.
+5.	Return CombatResult (Victory, Defeat, Escaped) to MazeForm.
+---
+Keep this rule
+No AD&D math in EncounterForm or MazeForm.
+All rules in Adnd.Core only.
+If wanted, next step can be a concrete class skeleton for these types with method signatures.

@@ -1,0 +1,181 @@
+for every step the party takes, give it a chanse of 1/10 to encounter a group of randoms level 1 monsters according to classical adnd rules.. When monsters are encountered, show a picture of the monsters, then number of mosters and the name of the mosters. go through all party members and ask if they want to F)ight P)arry, T)ake Back U)se item or R)un
+
+
+when reaching square 0,0 ask in a dialog "Stairs up, take them?" with a yes and no button. if yes is pressed, close the form and enter the town again
+
+when encountering mosters, show a picture of the monster and loop through all charates in the party and ask for their actions like shown in this screenshot:
+
+only let the 3 first charaters have the option of fight
+
+make the only two possible encounters gobiln and skeleton, when encountered, show the corresponding picture at 	Adnd.Game/Assets/Monsters
+
+How do you suggest I structure the code if I want to implement a feature to carry out a combat session between the party and the enocountered monsters
+
+can you implement all these parts for me so I can get a functional combat feature in my game?
+
+when a character dies, change the status do dead and put him last in the party and don't let him perform any action
+
+when creating a charater, add ac bonus depending on dex according to classical adnd rules
+
+add an attribute for each character on what level and cell in the dungeon that the charater is located. when defeated save the positions for the different charaters , remove all charaters from the party, close the maze and return to town
+
+add items plate mail and longsword +7 to the shop
+
+when pool gold is pressed, tranfer all the gold from all the characters into the active charater also have this option in the shop after a charter is selected
+
+after victory make sure all the surviving charaters get xp and if lucky let them find some treasure all according to classical adnd rules and also inform about the details to the user
+
+when removing member, also show additional information, for example what charaters are dead and not
+
+can you make the probability that some treasure is found 90%
+
+how do you suggest that I structure the project if I want to introduce level progression, where the charater automatically gains a level once he gets enough xp according to classical adnd rules?
+
+when one charater dies, it should immeadetly be put last in the order, so for example if the 1 st charater dies, he should be last and the charater that used to be in place 4 will be in place 3 and allowed to attack mosters
+
+impement RaiseDead. Ask who wants to be raied and who will pay, check if enough money, since it cost 100 gp before raising
+
+how do you suggest i implement one common place where i can adjust preferences, such as prorbabliyt to find treasure, chanse to enounter monsters, method to randomize abilities
+
+create a new class GameRules with public class GameRules 
+make sure that that probablity to find treasure and AbilityRollMethod and MonsterEncounterChance is affected by the settings
+
+create a SettingsMenu class where the user an uppdate all the current game settings. also introduce an ai skill so that if more settings are added in the future, the settings class is updated accordingly
+
+introduce a xp multiplier factor defined in game rules, configurable in settings and used to multiply the xp that charaters get after winning a battle
+
+Do not allow the user to select optoin C)hurch, B)oltax or M)aze if no member exist in the party
+
+introduce settings for minimum gold and maximum gold that the user gets when creating a charater
+
+json files for items, let "AllowedClasses": ["All"] mean all classes
+
+In PartyMenu.cs implement ChangeOrderOfMembers that allows the user to reorder the members. This method should be possible to reuse later on when camping in the dungeon.
+
+in the  CHANGE PARTY ORDER show also info about class, hp, ac and status of the members. only have two alternatives: R)eorder and L<-eave. if selecting R then ask the user to specify the new order by typing numbers from 1-6. as the numbers are typed show the new order in real time.
+
+when reordering show both the old order and the new order at the same time. so obviously the old order is not updated real time and the new order starts empty and grows as the user presses numbers
+
+when Choose who will enter the shop: also show the class of the charaters in the list
+when showing the combat reward also use the xp multiplier factor on total xp
+
+when selecting charataer to inspect also show
+#   Name            Race       Class              Lvl      HP  AC Status
+
+when in dungeon and c pressed, party is camped and is offered to inspect or reorder party
+
+when reordering show a dialog that implements the same reorder functinoality as from the party admin 
+
+remove the i)nspect and s)tatus text in the dungeon. and move the c)amp A-W-D K to be above the dungeon and explain what A-W-D does. K means Kick
+
+change o)off to Esc=Toggle full dungeon view and the short cut accordingly
+change c)amp to C=Camp in header of dungon
+
+let the dungeon with the party view be shown as default when entering the dungeon. In the view that does not show the dungeon, remonve the B=Back option and introduce text Esc = Toggle full dungeon view
+
+in the maze: display pos and facing in both views. harmonize the awd texts between the views
+
+after a raise dead reduce con stat with 1
+
+när man försöker väcka en person till liv, slår en 100 sidig tärning, visa resultatet för användaren och använd adnd system shock tabel som beror på con för att avgöra om raise dead lyckades. ifall den inte lyckades ändra status för karaktären från dead till ashes.
+
+ifall man väljer att göra raise dead på en person som är ashes konstar det 500 gp, personen måste göra en system roll igen. ifall den lyckas blir han levande om inte får han status lost och kan aldrig väckas till liv igen.
+
+when showing party in maze also show status
+
+ifall man försöker göra raise dead eller resurect på en charatär som har con 0 blir den automatisk lost
+
+when healing the party, it will cost 10 gp per person that need healing, inform about that and only heal the charaters that can affort it
+
+con should be reduced with 1 both for raise dead and for resurect
+
+if I want to make it possible to cast a spell, for example magic missile or cure light wounds during combat and cure light wounds when inspecting c char for a start, how would you structure it? 
+
+can you add this to the spell definition and update the spell jsons to fit it •	RangeType (Self, Ally, Enemy) •	Targeting (Single, Multiple) •	CastContext (Combat, Exploration, Both) •	EffectType (Damage, Heal) and also a string that is a Description of effect when casting it
+
+can you implement all this 2,3,4,5 and 6 below for cure light wounds and magic missile in detail and in such a way that more spells with their specific different functions could easily be added later see attachment
+
+it is not possible to heal hit points for charaters that are dead, ashes or lost
+
+När en användare väljer att kasta en spell under combat vill jag att det visas en dialog där användare får välja vilken spell som ska kastas om det finns flera spells memorerade
+
+when entering the maze, remove all charaters from party that are dead, ashes or lost
+
+then trying to delete a charater that is above level 1 or has more gold then maximum starting gold, ask for confirmation.
+
+If I want to introduce adnd treasure type for mosters, how do you suggest that i structure that work? (See attachment) implement step by step according to structure
+
+when bless is cast all party members get one less ac and one less in thac0 during the battle after battle the bonus goes away. bless can only be cast the first round of the battle.
+
+//when creating a new charater introduce a thac0 bonus for strength according to adnd 1e rules//No need, done already
+
+expand the charater to be able to have not only gold pieces, but also copper pieces, silver pieces, electrum pieces and platinum pieces. correct my spelling if needed
+
+Det finns 20 st olika typer av jewlry med olika värden eligt adnd, lägg till dem i items listan, de ska gå att sälja i shoppen men inte dyka up i listan över saker som går att köpa
+
+I affären ska inte allt gå att köpa och en del saker ska ha begränsat antal som går att köpa. När en charatär köper något ska lagret minska med 1. när man säljer ska det öka. skriv ut hur många som finns i stock i affären brevid namnet på namnet och priset om det finns någon i stock och det går att köpa. om det finns obegränsat som det gör av t ex dagger kan du skriva - istället för antal
+
+when exiting the dungeon or when in town all spells points are restored like it is a new day
+
+bless should affect all party members so no target needs to be selected and after it is cast the list of charaters should be refreshed so the user can see the uppdated ac
+
+when inspecting a charater from camp in dungeon, the same information should be shown and the same actions should be possible as when inspecting a charater from party view in town. only difference is that when inspecting the charater in the maze, a form with buttons for for example equip are shown
+
+introduce a new setting: "Automatically memorize all Magic-User/Illustionists spells" with options yes and no. also if yes, then Automatically memorize all Magic-User/Illustionists spells
+
+i roster vyn lägg till ett nytt alternativ: delete all charaters och implementera det
+
+möjliggör för karatärer att ha flera olika levels och olika xp, en level och en xp för varje klass. man ska ha lika många olika levels och xp som man är klasser, så det är bara multiklasser som har flera olika levels och xp. när en mulitklass får xp delas xpn upp lika mellan de olika klasser som karaktären har. det gör att en karaktär i vissa fall kan gå upp i level för en klass men inte för en annan beroende på att de har olika xp tabeller
+
+lägg attribut för hur mycket karaktärerna max kan bära som beror på str och hur mycket som de för närvarande bär. Lägg till ett Weight attribut på alla items. När en karaktär försöker köp något eller på annat sätt få något item ska spelet först utvärdera om karaktären kan bära mer innan köpet eller överföringen av item sker 
+
+when inspecting a charater an T)rade is selected, then open a new forrm  asking what party member you want to trade with and what item you want to trade. This shoule both be applicable from instecting in town and in dungeon
+
+can you restructue the items json files, so all item of the same category are in the same json file
+can you add armor for head, legs feet hands, neck, back and belt
+can you add more armor from adnd?
+let long sword +7 also affect THAC0 with -7
+in shop use only A-Z and a-z no special charaters to select item
+instead of giving the party place holder magic items, give them real items
+
+can you update the buttons in camp dialog to be Reorder, Inspect, Cancel
+in camp dialog introduce short cuts R)eorder I)nspect L<-eave
+
+after reorder maka refresh of the maze so the new order can be seen
+
+introduce maze level 2 to 10 with unique set of connected corridor and rooms for every 10 levels. also add more corridors and rooms to level 1. introduce an elevator in cell 1,0 where the party starts, make sure cell 1,0 is clear on all 10 levels and connected to a corridor. when entering cell 1,0 show a dialog and ask what level the party wish to travel to.
+
+only show stairs up? dialog when on level 1 and in position 0,0
+let the starting position be 0,0
+make all level much less clear, more corridors and less rooms
+only 40% to 60% of the walls should be carved. exception is for level 1 that should look like this picture
+forget atbout level 1 beeing carved according to the picture carv max 40% of the cells on all floors
+
+can you display the number in settings with . instead of ,
+
+change the elevator postion to 1, 2
+use Dungeon_Level1.json to determine what monsters to encounter on level 1 and add the mosters missing into Monsters/Level1.json
+
+find insperation of how i designed level 1 and design level 2 in a similar way but not identical, with the same amount of corridors and rooms connected to the corridors
+
+add one more room and one more corridor to level 1 and level 2
+
+in the maze form also add info on what level the paryt is
+
+when on level 2 use  Dungeon_Level2.json to determine what mosters to encounter and add the mosters missing into Monsters/Level2.json
+
+make the mosters on level2 different from the mosters on level 1
+
+add level 2 spells for all 4 classes
+
+add sleep level 1 spell for magic users and fi cast on the mosters, the mosters should individually roll a savethrow against magic, if the save fails the moster should fall asslep between 1-4 rounds. the mosterss could also besides asleep also be poisoned, paralyzed, confused and cursed if the party casts certain other spells on the monsters to be implemented later
+
+New context: introduce a setting for magic-users/illutionists that all spells are automticlly memorized every day
+
+Always make magic-user have the spell sleep
+
+New contect: let gigant rat have the special ability poison and let the skelton have the special ability paralyze
+
+implement sleep during combat, no need to ask what orc to target since sleep affects the whole group of mosters
+
+in the encounter view, show how many mosters that are asleep

@@ -1,0 +1,1577 @@
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Windows.Forms;
+using Adnd.Core.Characters;
+using Adnd.Core.Combat.Sessions;
+using Adnd.Core.Config;
+using Adnd.Data.Characters;
+using Adnd.Data.Encounters;
+using Adnd.Data.Party;
+using Adnd.Game.Combat;
+
+namespace Adnd.Game;
+
+public sealed class MazeForm : Form
+{
+    private enum Direction
+    {
+        North,
+        East,
+        South,
+        West
+    }
+
+    private enum CellType { Wall, Floor }
+
+    private const int MaxVisibilityDepth = 5;
+    private const int DepthLevels = MaxVisibilityDepth - 1;
+    private const int StraightAhead = MaxVisibilityDepth - 1;
+    private const int PositionCount = (StraightAhead * 2) + 1;
+    private const int TopLeft = 0;
+    private const int BottomRight = 1;
+  //  private const int EncounterChanceDenominator = 4;
+
+    private static readonly string[] LevelOneMonsters =
+    {
+        "Goblin",
+        "Skeleton"
+    };
+
+    private readonly PointF[,,] _backWallCoords = new PointF[DepthLevels, PositionCount, 2];
+
+    private CellType[,] _maze;
+    private Point _position = new(0, 0);
+    private Direction _direction = Direction.North;
+    private readonly Random _random = new();
+    private readonly PartyRepository _partyRepository = new();
+    private readonly CharacterRepository _characterRepository = new("Data/Characters");
+    private readonly CombatCoordinator _combatCoordinator = new();
+    private bool _partyOverlayVisible = true;
+    private int _currentDungeonLevel = 1;
+
+    private void BuildMazeForLevel(int level)
+    {
+        _maze = new CellType[22, 22];
+
+        for (int y = 0; y < 22; y++)
+            for (int x = 0; x < 22; x++)
+                _maze[x, y] = CellType.Wall;
+
+        // Elevator/start and stairs-up area must always be clear.
+        CarveCell(1, 0);
+        CarveCell(0, 2);
+        CarveCell(1, 2);
+        CarveCell(0, 0);
+
+        if (level == 1)
+        {
+            // Level 1: manually carved layout
+            CarveVertical(0, 0, 20);
+            CarveVertical(20, 0, 20);
+            CarveHorizontal(0, 0, 20);
+            CarveHorizontal(20, 0, 20);
+            CarveVertical(6, 0, 20);// go east to find this corridor
+            CarveVertical(12, 0, 20);// go furhter east to find this corridor
+            CarveCell(1, 2);//see this when facing south from start
+            CarveCell(4, 2);
+            CarveCell(4, 4);
+            CarveCell(4, 5);
+            CarveCell(4, 5);
+            CarveCell(5, 5);
+            CarveCell(3, 5);
+            CarveCell(7, 5);//corridor to room1
+            CarveCell(8, 5);//corridor to room1
+            CarveCell(10, 5);//room1
+            CarveCell(10, 4);//room1
+            CarveCell(10, 6);//room1
+            CarveCell(9, 5);//room1
+            CarveCell(9, 4);//room1
+            CarveCell(9, 6);//room1
+            CarveCell(13,5);//short corridor to room1
+            CarveCell(14, 5);//room2
+            CarveCell(14, 4);//room2
+            CarveCell(14, 6);//room2
+            CarveCell(15, 5);//room2
+            CarveCell(15, 4);//room2
+            CarveCell(15, 6);//room2
+            CarveCell(2, 14);//corridor to room3
+            CarveCell(1, 14);//corridor to room3
+            CarveCell(3, 15);//room3
+            CarveCell(3, 14);//room3
+            CarveCell(3, 16);//room3
+            CarveCell(4, 15);//room3
+            CarveCell(4, 14);//room3
+            CarveCell(4, 16);//room3
+            CarveCell(2, 9);//random corridor
+            CarveCell(1, 9);//
+            CarveCell(1, 10);//
+            CarveCell(3, 9);//random corridor
+            CarveCell(3, 8);//random corridor
+            CarveCell(4, 8);//random corridor
+            CarveCell(4, 9);//random corridor
+            CarveCell(4, 10);//random corridor
+            CarveCell(5, 9);//random corridor
+            CarveCell(5, 10);//random corridor
+            CarveCell(6, 9);//random corridor
+
+            // Extra corridor + extra room (connected)
+            CarveCell(6, 10);
+            CarveCell(7, 10);
+            CarveCell(8, 10);
+            CarveCell(8, 11);
+            CarveCell(8, 12);
+            CarveCell(9, 11);
+            CarveCell(9, 12);
+            CarveCell(10, 11);
+            CarveCell(10, 12);
+
+            // One more corridor + one more room (connected)
+            CarveCell(10, 13);
+            CarveCell(10, 14);
+            CarveCell(10, 15);
+            CarveCell(11, 14);
+            CarveCell(11, 15);
+            CarveCell(12, 14);
+            CarveCell(12, 15);
+
+            return;
+        }
+
+        if (level == 2)
+        {
+            // Level 2: similar style/density to level 1, but different geometry.
+            CarveVertical(0, 0, 20);
+            CarveVertical(20, 0, 20);
+            CarveHorizontal(0, 0, 20);
+            CarveHorizontal(20, 0, 20);
+
+            CarveVertical(5, 0, 20);
+            CarveVertical(14, 0, 20);
+
+            // Entry/elevator linkage and west branch
+            CarveCell(1, 2);
+            CarveCell(2, 2);
+            CarveCell(3, 2);
+            CarveCell(3, 4);
+            CarveCell(3, 5);
+            CarveCell(4, 5);
+
+            // Room A near left spine
+            CarveCell(7, 6);
+            CarveCell(8, 6);
+            CarveCell(7, 7);
+            CarveCell(8, 7);
+            CarveCell(6, 7);
+
+            // Mid connector and Room B near right spine
+            CarveCell(9, 10);
+            CarveCell(10, 10);
+            CarveCell(11, 10);
+            CarveCell(12, 10);
+            CarveCell(15, 9);
+            CarveCell(16, 9);
+            CarveCell(15, 10);
+            CarveCell(16, 10);
+            CarveCell(15, 11);
+            CarveCell(16, 11);
+
+            // Lower-left room cluster
+            CarveCell(2, 15);
+            CarveCell(3, 15);
+            CarveCell(4, 15);
+            CarveCell(3, 16);
+            CarveCell(4, 16);
+            CarveCell(2, 16);
+
+            // Lower-middle-right room cluster
+            CarveCell(11, 15);
+            CarveCell(12, 15);
+            CarveCell(13, 15);
+            CarveCell(12, 16);
+            CarveCell(13, 16);
+            CarveCell(12, 14);
+
+            // Random connector pockets, similar count to level 1 details.
+            CarveCell(6, 3);
+            CarveCell(7, 3);
+            CarveCell(8, 3);
+            CarveCell(14, 4);
+            CarveCell(15, 4);
+            CarveCell(14, 5);
+            CarveCell(5, 12);
+            CarveCell(6, 12);
+            CarveCell(14, 12);
+            CarveCell(15, 12);
+
+            // Extra corridor + extra room (connected)
+            CarveCell(16, 12);
+            CarveCell(17, 12);
+            CarveCell(18, 12);
+            CarveCell(18, 13);
+            CarveCell(18, 14);
+            CarveCell(17, 13);
+            CarveCell(17, 14);
+            CarveCell(16, 13);
+            CarveCell(16, 14);
+
+            // One more corridor + one more room (connected)
+            CarveCell(10, 6);
+            CarveCell(11, 6);
+            CarveCell(12, 6);
+            CarveCell(12, 5);
+            CarveCell(13, 5);
+            CarveCell(12, 4);
+            CarveCell(13, 4);
+
+            return;
+        }
+
+        // Deterministic unique connected layout per level.
+        var seed = (level * 7919) + 1337;
+        var layoutRandom = new Random(seed);
+
+        int xPos = 1;
+        int yPos = 1;
+        CarveCell(xPos, yPos);
+
+        // Corridor-biased carving for all levels.
+        int steps = 180 + (level * 8);
+        for (int i = 0; i < steps; i++)
+        {
+            // small room pockets only
+            if (i % 55 == 0)
+            {
+                var roomW = 2 + layoutRandom.Next(0, 2);
+                var roomH = 2 + layoutRandom.Next(0, 2);
+                CarveRoom(xPos - (roomW / 2), yPos - (roomH / 2), roomW, roomH);
+            }
+
+            var directionRoll = layoutRandom.Next(4);
+            var (dx, dy) = directionRoll switch
+            {
+                0 => (1, 0),
+                1 => (-1, 0),
+                2 => (0, 1),
+                _ => (0, -1)
+            };
+
+            var nextX = xPos + dx;
+            var nextY = yPos + dy;
+
+            if (nextX < 1 || nextX > 20 || nextY < 1 || nextY > 20)
+                continue;
+
+            xPos = nextX;
+            yPos = nextY;
+            CarveCell(xPos, yPos);
+
+            if (layoutRandom.Next(100) < 30)
+            {
+                var branchLen = 2 + layoutRandom.Next(0, 5);
+                CarveBranch(xPos, yPos, layoutRandom, branchLen);
+            }
+        }
+
+        // Ensure elevator cell at (1,2) is connected to interior corridor.
+        CarveVertical(1, 0, 3);
+
+        // Keep carved ratio under max 40% on every floor.
+        EnforceCarvedRatio(layoutRandom, minRatio: 0.0, maxRatio: 0.40);
+
+        // Re-ensure mandatory connectivity after ratio adjustment.
+        CarveVertical(1, 0, 3);
+    }
+
+    private void EnforceCarvedRatio(Random random, double minRatio, double maxRatio)
+    {
+        int total = 22 * 22;
+        int carved = CountCarvedCells();
+
+        int targetMin = (int)Math.Ceiling(total * minRatio);
+        int targetMax = (int)Math.Floor(total * maxRatio);
+
+        while (carved < targetMin)
+        {
+            if (!TryCarveRandomWallCell(random))
+                break;
+
+            carved++;
+        }
+
+        while (carved > targetMax)
+        {
+            if (!TryFillRandomFloorCell(random))
+                break;
+
+            carved--;
+        }
+    }
+
+    private bool TryFillRandomFloorCell(Random random)
+    {
+        for (int attempt = 0; attempt < 300; attempt++)
+        {
+            int x = random.Next(1, 21);
+            int y = random.Next(1, 21);
+
+            if (_maze[x, y] != CellType.Floor)
+                continue;
+
+            // Preserve mandatory start/elevator access path.
+            bool protectedCell = (x == 0 && y == 0)
+                                 || (x == 1 && y == 0)
+                                 || (x == 1 && y == 1)
+                                 || (x == 1 && y == 2)
+                                 || (x == 1 && y == 3);
+
+            if (protectedCell)
+                continue;
+
+            _maze[x, y] = CellType.Wall;
+            return true;
+        }
+
+        return false;
+    }
+
+    private int CountCarvedCells()
+    {
+        int count = 0;
+        for (int y = 0; y < 22; y++)
+        {
+            for (int x = 0; x < 22; x++)
+            {
+                if (_maze[x, y] == CellType.Floor)
+                    count++;
+            }
+        }
+
+        return count;
+    }
+
+    private bool TryCarveRandomWallCell(Random random)
+    {
+        for (int attempt = 0; attempt < 200; attempt++)
+        {
+            int x = random.Next(1, 21);
+            int y = random.Next(1, 21);
+
+            if (_maze[x, y] == CellType.Floor)
+                continue;
+
+            _maze[x, y] = CellType.Floor;
+            return true;
+        }
+
+        return false;
+    }
+
+    private void CarveBranch(int startX, int startY, Random random, int length)
+    {
+        int x = startX;
+        int y = startY;
+
+        var directionRoll = random.Next(4);
+        var (dx, dy) = directionRoll switch
+        {
+            0 => (1, 0),
+            1 => (-1, 0),
+            2 => (0, 1),
+            _ => (0, -1)
+        };
+
+        for (int i = 0; i < length; i++)
+        {
+            var nx = x + dx;
+            var ny = y + dy;
+
+            if (nx < 1 || nx > 20 || ny < 1 || ny > 20)
+                break;
+
+            x = nx;
+            y = ny;
+            CarveCell(x, y);
+        }
+    }
+
+    private void CarveHorizontal(int y, int fromX, int toX)
+    {
+        if (y < 0 || y >= 22)
+            return;
+
+        var min = Math.Max(0, Math.Min(fromX, toX));
+        var max = Math.Min(21, Math.Max(fromX, toX));
+        for (int x = min; x <= max; x++)
+            CarveCell(x, y);
+    }
+
+    private void CarveVertical(int x, int fromY, int toY)
+    {
+        if (x < 0 || x >= 22)
+            return;
+
+        var min = Math.Max(0, Math.Min(fromY, toY));
+        var max = Math.Min(21, Math.Max(fromY, toY));
+        for (int y = min; y <= max; y++)
+            CarveCell(x, y);
+    }
+
+    private void CarveRoom(int x, int y, int width, int height)
+    {
+        for (int yy = y; yy < y + height; yy++)
+        {
+            for (int xx = x; xx < x + width; xx++)
+            {
+                CarveCell(xx, yy);
+            }
+        }
+    }
+
+    private void CarveCell(int x, int y)
+    {
+        if (x < 0 || y < 0 || x >= 22 || y >= 22)
+            return;
+
+        _maze[x, y] = CellType.Floor;
+    }
+
+    private void BuildMaze()
+    {
+        _maze = new CellType[22, 22];
+
+        for (int y = 0; y < 22; y++)
+            for (int x = 0; x < 22; x++)
+                _maze[x, y] = CellType.Wall;
+
+        for (int y = 1; y <= 8; y++)
+            _maze[3, y] = CellType.Floor;
+
+        for (int y = 0; y <= 8; y++)
+            _maze[0, y] = CellType.Floor;
+
+        for (int x = 0, y = 0; x <= 8; x++, y++)
+            _maze[x, y] = CellType.Floor;
+    }
+
+    public MazeForm()
+    {
+        Text = "Maze";
+        ClientSize = new Size(1200, 820);
+        KeyPreview = true;
+        BackColor = Color.Black;
+        ForeColor = Color.White;
+
+        SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint, true);
+
+        PruneUnavailablePartyMembers();
+        BuildMazeForLevel(_currentDungeonLevel);
+        KeyDown += MazeForm_KeyDown;
+
+        Shown += (_, _) =>
+        {
+            if (_position.X == 1 && _position.Y == 2)
+            {
+                ShowElevatorDialog();
+                Invalidate();
+            }
+        };
+    }
+
+    private void PruneUnavailablePartyMembers()
+    {
+        var party = _partyRepository.Load();
+        var roster = _characterRepository.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+        var filtered = party.Members
+            .Where(name =>
+                roster.TryGetValue(name, out var c)
+                && !c.HasStatus(CharacterStatus.Dead)
+                && !c.HasStatus(CharacterStatus.Ashes)
+                && !c.HasStatus(CharacterStatus.Lost))
+            .ToList();
+
+        if (filtered.Count == party.Members.Count)
+            return;
+
+        party.Members = filtered;
+
+        if (party.CurrentShopperIndex >= party.Members.Count)
+            party.CurrentShopperIndex = party.Members.Count > 0 ? party.Members.Count - 1 : -1;
+
+        _partyRepository.Save(party);
+    }
+
+    private void ShowCampDialog()
+    {
+        var party = _partyRepository.Load();
+        var roster = _characterRepository.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+        var activeMembers = party.Members.Where(m => roster.ContainsKey(m)).ToList();
+
+        if (activeMembers.Count == 0)
+        {
+            MessageBox.Show(this, "No party members to camp with.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        using var form = new Form();
+        form.Text = "Camp";
+        form.FormBorderStyle = FormBorderStyle.FixedDialog;
+        form.StartPosition = FormStartPosition.CenterParent;
+        form.ClientSize = new Size(420, 170);
+        form.MinimizeBox = false;
+        form.MaximizeBox = false;
+        form.KeyPreview = true;
+
+        var label = new Label
+        {
+            Left = 12,
+            Top = 12,
+            Width = 396,
+            Height = 90,
+            Text = "The party camps.\n\nR)eorder   I)nspect   L<-eave"
+        };
+
+        var reorderBtn = new Button
+        {
+            Text = "Reorder",
+            Left = 12,
+            Top = 106,
+            Width = 120,
+            DialogResult = DialogResult.No
+        };
+
+        var inspectBtn = new Button
+        {
+            Text = "Inspect",
+            Left = 148,
+            Top = 106,
+            Width = 120,
+            DialogResult = DialogResult.Yes
+        };
+
+        var cancelBtn = new Button
+        {
+            Text = "Cancel",
+            Left = 284,
+            Top = 106,
+            Width = 120,
+            DialogResult = DialogResult.Cancel
+        };
+
+        form.KeyDown += (_, e) =>
+        {
+            if (e.KeyCode == Keys.R)
+            {
+                form.DialogResult = DialogResult.No;
+                form.Close();
+            }
+            else if (e.KeyCode == Keys.I)
+            {
+                form.DialogResult = DialogResult.Yes;
+                form.Close();
+            }
+            else if (e.KeyCode == Keys.L || e.KeyCode == Keys.Escape)
+            {
+                form.DialogResult = DialogResult.Cancel;
+                form.Close();
+            }
+        };
+
+        form.Controls.Add(label);
+        form.Controls.Add(reorderBtn);
+        form.Controls.Add(inspectBtn);
+        form.Controls.Add(cancelBtn);
+        form.CancelButton = cancelBtn;
+
+        var choice = form.ShowDialog(this);
+
+        if (choice == DialogResult.Yes)
+        {
+            InspectPartyMemberFromCamp(activeMembers, roster);
+            return;
+        }
+
+        if (choice == DialogResult.No)
+        {
+            ShowReorderCampDialog(party, activeMembers, roster);
+        }
+    }
+
+    private void ShowReorderCampDialog(Adnd.Data.Party.Party party, List<string> activeMembers, Dictionary<string, Character> roster)
+    {
+        if (activeMembers.Count < 2)
+        {
+            MessageBox.Show(this, "Need at least two party members to reorder.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        List<string>? reorderedResult = null;
+        var picked = new List<int>();
+        var remaining = Enumerable.Range(0, activeMembers.Count).ToList();
+
+        using var form = new Form();
+        form.Text = "Camp - Reorder Party";
+        form.FormBorderStyle = FormBorderStyle.FixedDialog;
+        form.StartPosition = FormStartPosition.CenterParent;
+        form.ClientSize = new Size(860, 215);
+        form.MinimizeBox = false;
+        form.MaximizeBox = false;
+        form.KeyPreview = true;
+
+        var instructions = new Label
+        {
+            Left = 12,
+            Top = 10,
+            Width = 836,
+            Height = 24,
+            Text = "Select a member and use > to add to new order, < to remove. Enter = confirm, Esc = cancel"
+        };
+
+        var oldLabel = new Label
+        {
+            Left = 12,
+            Top = 38,
+            Width = 370,
+            Height = 24,
+            Text = "Old order"
+        };
+
+        var newLabel = new Label
+        {
+            Left = 478,
+            Top = 38,
+            Width = 370,
+            Height = 24,
+            Text = "New order"
+        };
+
+        var oldList = new ListBox
+        {
+            Left = 12,
+            Top = 62,
+            Width = 370,
+            Height = 110,
+            Font = new Font("Consolas", 10f)
+        };
+
+        var newList = new ListBox
+        {
+            Left = 478,
+            Top = 62,
+            Width = 370,
+            Height = 110,
+            Font = new Font("Consolas", 10f)
+        };
+
+        var moveRightBtn = new Button
+        {
+            Text = ">",
+            Left = 400,
+            Top = 82,
+            Width = 60,
+            Height = 30
+        };
+
+        var moveLeftBtn = new Button
+        {
+            Text = "<",
+            Left = 400,
+            Top = 122,
+            Width = 60,
+            Height = 30
+        };
+
+        var confirmBtn = new Button
+        {
+            Text = "Confirm",
+            Left = 692,
+            Top = 178,
+            Width = 75,
+            DialogResult = DialogResult.None
+        };
+
+        var cancelBtn = new Button
+        {
+            Text = "Cancel",
+            Left = 773,
+            Top = 178,
+            Width = 75,
+            DialogResult = DialogResult.Cancel
+        };
+
+        string Row(Character c, int row)
+        {
+            var cls = c.Classes.Count > 0 ? string.Join("/", c.Classes.Select(x => x.ToDisplayString())) : c.Class.ToDisplayString();
+            var hp = $"{c.CurrentHitPoints}/{c.MaxHitPoints}";
+            return $"{row,2}. {c.Name,-12} {cls,-14} HP {hp,-7} AC {c.ArmorClass,2}";
+        }
+
+        void RefreshLists()
+        {
+            oldList.Items.Clear();
+            newList.Items.Clear();
+
+            for (int i = 0; i < remaining.Count; i++)
+            {
+                var c = roster[activeMembers[remaining[i]]];
+                oldList.Items.Add(Row(c, i + 1));
+            }
+
+            for (int i = 0; i < picked.Count; i++)
+            {
+                var c = roster[activeMembers[picked[i]]];
+                newList.Items.Add(Row(c, i + 1));
+            }
+        }
+
+        void MoveRight()
+        {
+            if (oldList.SelectedIndex < 0 || oldList.SelectedIndex >= remaining.Count)
+                return;
+
+            var idx = remaining[oldList.SelectedIndex];
+            remaining.RemoveAt(oldList.SelectedIndex);
+            picked.Add(idx);
+            RefreshLists();
+        }
+
+        void MoveLeft()
+        {
+            if (newList.SelectedIndex < 0 || newList.SelectedIndex >= picked.Count)
+                return;
+
+            var idx = picked[newList.SelectedIndex];
+            picked.RemoveAt(newList.SelectedIndex);
+            remaining.Add(idx);
+            remaining.Sort();
+            RefreshLists();
+        }
+
+        void TryConfirm()
+        {
+            if (picked.Count != activeMembers.Count)
+            {
+                MessageBox.Show(form, "Move all members into New order before confirming.", "Reorder Party", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            reorderedResult = picked.Select(i => activeMembers[i]).ToList();
+            form.DialogResult = DialogResult.OK;
+            form.Close();
+        }
+
+        moveRightBtn.Click += (_, _) => MoveRight();
+        moveLeftBtn.Click += (_, _) => MoveLeft();
+        confirmBtn.Click += (_, _) => TryConfirm();
+
+        form.KeyDown += (s, e) =>
+        {
+            if (e.KeyCode == Keys.Escape)
+            {
+                form.DialogResult = DialogResult.Cancel;
+                form.Close();
+                return;
+            }
+
+            if (e.KeyCode == Keys.Enter)
+            {
+                TryConfirm();
+                e.Handled = true;
+                return;
+            }
+        };
+
+        form.Controls.Add(instructions);
+        form.Controls.Add(oldLabel);
+        form.Controls.Add(newLabel);
+        form.Controls.Add(oldList);
+        form.Controls.Add(newList);
+        form.Controls.Add(moveRightBtn);
+        form.Controls.Add(moveLeftBtn);
+        form.Controls.Add(confirmBtn);
+        form.Controls.Add(cancelBtn);
+        form.CancelButton = cancelBtn;
+
+        RefreshLists();
+
+        var result = form.ShowDialog(this);
+        if (result != DialogResult.OK || reorderedResult == null)
+            return;
+
+        if (reorderedResult.SequenceEqual(activeMembers, StringComparer.OrdinalIgnoreCase))
+            return;
+
+        party.Members = reorderedResult;
+        _partyRepository.Save(party);
+        MessageBox.Show(this, "Party order updated.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        Invalidate();
+    }
+
+    private void InspectPartyMemberFromCamp(List<string> activeMembers, Dictionary<string, Character> roster)
+    {
+        var prompt = new StringBuilder();
+        prompt.AppendLine("Choose party member to inspect:");
+        prompt.AppendLine();
+
+        for (int i = 0; i < activeMembers.Count; i++)
+        {
+            var c = roster[activeMembers[i]];
+            var cls = c.Classes.Count > 0 ? string.Join("/", c.Classes.Select(x => x.ToDisplayString())) : c.Class.ToDisplayString();
+            prompt.AppendLine($"{i + 1}. {c.Name} ({cls})");
+        }
+
+        var selected = PromptForNumber("Camp - Inspect", prompt.ToString(), 1, activeMembers.Count);
+        if (!selected.HasValue)
+            return;
+
+        var selectedCharacter = roster[activeMembers[selected.Value - 1]];
+
+        using var inspect = new CampCharacterInspectForm(selectedCharacter.Name, activeMembers);
+inspect.ShowDialog(this);
+//        MessageBox.Show(this, selectedCharacter.ToString(), $"Inspect - {selectedCharacter.Name}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    private int? PromptForNumber(string title, string text, int min, int max)
+    {
+        var input = PromptForText(title, text);
+        if (string.IsNullOrWhiteSpace(input))
+            return null;
+
+        if (!int.TryParse(input.Trim(), out var value))
+            return null;
+
+        if (value < min || value > max)
+            return null;
+
+        return value;
+    }
+
+    private string? PromptForText(string title, string text)
+    {
+        using var form = new Form();
+        form.Text = title;
+        form.FormBorderStyle = FormBorderStyle.FixedDialog;
+        form.StartPosition = FormStartPosition.CenterParent;
+        form.ClientSize = new Size(520, 320);
+        form.MinimizeBox = false;
+        form.MaximizeBox = false;
+
+        var label = new Label
+        {
+            Left = 12,
+            Top = 12,
+            Width = 496,
+            Height = 220,
+            AutoSize = false,
+            Text = text
+        };
+
+        var input = new TextBox
+        {
+            Left = 12,
+            Top = 244,
+            Width = 496
+        };
+
+        var ok = new Button
+        {
+            Text = "OK",
+            Left = 352,
+            Top = 278,
+            Width = 75,
+            DialogResult = DialogResult.OK
+        };
+
+        var cancel = new Button
+        {
+            Text = "Cancel",
+            Left = 433,
+            Top = 278,
+            Width = 75,
+            DialogResult = DialogResult.Cancel
+        };
+
+        form.Controls.Add(label);
+        form.Controls.Add(input);
+        form.Controls.Add(ok);
+        form.Controls.Add(cancel);
+        form.AcceptButton = ok;
+        form.CancelButton = cancel;
+
+        return form.ShowDialog(this) == DialogResult.OK ? input.Text : null;
+    }
+
+    private void MazeForm_KeyDown(object? sender, KeyEventArgs e)
+    {
+        if (_partyOverlayVisible)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Escape:
+                    _partyOverlayVisible = false;
+                    Invalidate();
+                    return;
+                case Keys.C:
+                    ShowCampDialog();
+                    return;
+                case Keys.S:
+                    ShowPartyPopup("Party Status");
+                    return;
+                case Keys.I:
+                    ShowPartyPopup("Party Inspect");
+                    return;
+            }
+
+            // When overlay is visible, any other keys should still be processed below
+            // so movement and turning continue to work while party stats are shown.
+        }
+
+        switch (e.KeyCode)
+        {
+            case Keys.W:
+            case Keys.Up:
+                TryMoveForward();
+                Invalidate();
+                break;
+            case Keys.A:
+            case Keys.Left:
+                _direction = TurnLeft(_direction);
+                Invalidate();
+                break;
+            case Keys.D:
+            case Keys.Right:
+                _direction = TurnRight(_direction);
+                Invalidate();
+                break;
+            case Keys.O:
+                _partyOverlayVisible = true;
+                Invalidate();
+                break;
+            case Keys.Escape:
+                _partyOverlayVisible = !_partyOverlayVisible;
+                Invalidate();
+                break;
+        }
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+
+        e.Graphics.Clear(Color.Black);
+        e.Graphics.SmoothingMode = SmoothingMode.None;
+
+        using var pen = new Pen(Color.White, 2f);
+        var topHudSpace = _partyOverlayVisible ? 34f : 12f;
+        var footerSpace = _partyOverlayVisible ? 220f : 80f;
+        var viewport = new RectangleF(12f, topHudSpace, ClientSize.Width - 24f, ClientSize.Height - footerSpace - (topHudSpace - 12f));
+        e.Graphics.DrawRectangle(pen, viewport.X, viewport.Y, viewport.Width, viewport.Height);
+
+        InitWallCoords(viewport);
+        DrawScene(e.Graphics, pen, viewport);
+
+        if (_partyOverlayVisible)
+        {
+            DrawOverlayLegend(e.Graphics);
+            DrawPartyInfo(e.Graphics, viewport);
+        }
+        else
+        {
+            DrawStatus(e.Graphics);
+        }
+    }
+
+    private void InitWallCoords(RectangleF viewport)
+    {
+        var frames = BuildFrames(viewport, DepthLevels);
+
+        for (int depth = 0; depth < DepthLevels; depth++)
+        {
+            var centerRect = frames[depth + 1];
+            SetWallRect(depth, StraightAhead, centerRect);
+
+            float wallWidth = centerRect.Width;
+            for (int offset = 1; offset <= StraightAhead; offset++)
+            {
+                SetWallRect(depth, StraightAhead - offset, ShiftRect(centerRect, -(wallWidth * offset)));
+                SetWallRect(depth, StraightAhead + offset, ShiftRect(centerRect, wallWidth * offset));
+            }
+        }
+    }
+
+    private void DrawScene(Graphics graphics, Pen pen, RectangleF viewport)
+    {
+        for (int depth = DepthLevels - 1; depth >= 0; depth--)
+        {
+            var centerCell = GetCellFartherAway(_position, _direction, depth);
+            DrawCellContents(graphics, pen, viewport, centerCell, depth, StraightAhead);
+
+            for (int i = 1; i <= depth + 1; i++)
+            {
+                var leftCell = GetCellToTheLeft(centerCell, _direction, i);
+                DrawCellContents(graphics, pen, viewport, leftCell, depth, StraightAhead - i);
+
+                var rightCell = GetCellToTheRight(centerCell, _direction, i);
+                DrawCellContents(graphics, pen, viewport, rightCell, depth, StraightAhead + i);
+            }
+        }
+    }
+
+    private void DrawCellContents(Graphics graphics, Pen pen, RectangleF viewport, Point cell, int depth, int position)
+    {
+        if (!IsOpen(cell) || depth < 0 || depth >= DepthLevels || position < 0 || position >= PositionCount)
+            return;
+
+        var back = GetWallRect(depth, position);
+        if (back.Height < 2f)
+            return;
+
+        bool backWallDrawn = false;
+        bool leftWallDrawn = false;
+        bool rightWallDrawn = false;
+
+        var frontCell = GetCellFartherAway(cell, _direction, 1);
+        if (!IsOpen(frontCell))
+        {
+            using var wallBrush = new SolidBrush(Color.Black);
+            graphics.FillRectangle(wallBrush, back);
+            graphics.DrawRectangle(pen, back.X, back.Y, back.Width, back.Height);
+            backWallDrawn = true;
+        }
+
+        if (position <= StraightAhead)
+        {
+            var leftCell = GetCellToTheLeft(cell, _direction, 1);
+            if (!IsOpen(leftCell))
+            {
+                DrawLeftWall(graphics, pen, viewport, depth, position, back);
+                leftWallDrawn = true;
+            }
+        }
+
+        if (position >= StraightAhead)
+        {
+            var rightCell = GetCellToTheRight(cell, _direction, 1);
+            if (!IsOpen(rightCell))
+            {
+                DrawRightWall(graphics, pen, viewport, depth, position, back);
+                rightWallDrawn = true;
+            }
+        }
+
+        var frontLeft = GetCellToTheLeft(frontCell, _direction, 1);
+        var frontRight = GetCellToTheRight(frontCell, _direction, 1);
+
+        bool drawLeftVertical = (backWallDrawn && (leftWallDrawn || !IsOpen(frontLeft))) ||
+                                (leftWallDrawn && !IsOpen(frontLeft));
+        bool drawRightVertical = (backWallDrawn && (rightWallDrawn || !IsOpen(frontRight))) ||
+                                 (rightWallDrawn && !IsOpen(frontRight));
+
+        if (drawLeftVertical)
+        {
+            graphics.DrawLine(pen,
+                new PointF(back.Left, back.Top),
+                new PointF(back.Left, back.Bottom));
+        }
+
+        if (drawRightVertical)
+        {
+            graphics.DrawLine(pen,
+                new PointF(back.Right, back.Top),
+                new PointF(back.Right, back.Bottom));
+        }
+    }
+
+    private void DrawLeftWall(Graphics graphics, Pen pen, RectangleF viewport, int depth, int position, RectangleF back)
+    {
+        PointF nearTop;
+        PointF nearBottom;
+
+        if (depth == 0)
+        {
+            nearTop = new PointF(viewport.Left, viewport.Top);
+            nearBottom = new PointF(viewport.Left, viewport.Bottom);
+        }
+        else
+        {
+            var nearRect = GetWallRect(depth - 1, position);
+            nearTop = new PointF(nearRect.Left, nearRect.Top);
+            nearBottom = new PointF(nearRect.Left, nearRect.Bottom);
+        }
+
+        var farTop = new PointF(back.Left, back.Top);
+        var farBottom = new PointF(back.Left, back.Bottom);
+
+        var wall = new[] { nearTop, farTop, farBottom, nearBottom };
+        using var wallBrush = new SolidBrush(Color.Black);
+        graphics.FillPolygon(wallBrush, wall);
+
+        graphics.DrawLine(pen, nearTop, farTop);
+        graphics.DrawLine(pen, nearBottom, farBottom);
+        graphics.DrawLine(pen, nearTop, nearBottom);
+        graphics.DrawLine(pen, farTop, farBottom);
+    }
+
+    private void DrawRightWall(Graphics graphics, Pen pen, RectangleF viewport, int depth, int position, RectangleF back)
+    {
+        PointF nearTop;
+        PointF nearBottom;
+
+        if (depth == 0)
+        {
+            nearTop = new PointF(viewport.Right, viewport.Top);
+            nearBottom = new PointF(viewport.Right, viewport.Bottom);
+        }
+        else
+        {
+            var nearRect = GetWallRect(depth - 1, position);
+            nearTop = new PointF(nearRect.Right, nearRect.Top);
+            nearBottom = new PointF(nearRect.Right, nearRect.Bottom);
+        }
+
+        var farTop = new PointF(back.Right, back.Top);
+        var farBottom = new PointF(back.Right, back.Bottom);
+
+        var wall = new[] { nearTop, farTop, farBottom, nearBottom };
+        using var wallBrush = new SolidBrush(Color.Black);
+        graphics.FillPolygon(wallBrush, wall);
+
+        graphics.DrawLine(pen, nearTop, farTop);
+        graphics.DrawLine(pen, nearBottom, farBottom);
+        graphics.DrawLine(pen, nearTop, nearBottom);
+        graphics.DrawLine(pen, farTop, farBottom);
+    }
+
+    private void SetWallRect(int depth, int position, RectangleF rect)
+    {
+        _backWallCoords[depth, position, TopLeft] = new PointF(rect.Left, rect.Top);
+        _backWallCoords[depth, position, BottomRight] = new PointF(rect.Right, rect.Bottom);
+    }
+
+    private RectangleF GetWallRect(int depth, int position)
+    {
+        var tl = _backWallCoords[depth, position, TopLeft];
+        var br = _backWallCoords[depth, position, BottomRight];
+        return RectangleF.FromLTRB(tl.X, tl.Y, br.X, br.Y);
+    }
+
+    private static RectangleF ShiftRect(RectangleF rect, float dx) =>
+        RectangleF.FromLTRB(rect.Left + dx, rect.Top, rect.Right + dx, rect.Bottom);
+
+    private void DrawStatus(Graphics graphics)
+    {
+        var heading = _direction switch
+        {
+            Direction.North => "North",
+            Direction.East => "East",
+            Direction.South => "South",
+            _ => "West"
+        };
+
+        var status = $"A/D or ←/→: Turn   W or ↑: Move   Esc: Toggle full dungeon view   Level: {_currentDungeonLevel}   Pos: ({_position.X},{_position.Y})   Facing: {heading}";
+        graphics.DrawString(status, Font, Brushes.White, new PointF(16f, ClientSize.Height - 54f));
+    }
+
+    private void DrawOverlayLegend(Graphics graphics)
+    {
+        var heading = _direction switch
+        {
+            Direction.North => "North",
+            Direction.East => "East",
+            Direction.South => "South",
+            _ => "West"
+        };
+
+        var legend = $"A/D or ←/→: Turn   W or ↑: Move   C: Camp   K: Kick   Esc: Toggle full dungeon view   Level: {_currentDungeonLevel}   Pos: ({_position.X},{_position.Y})   Facing: {heading}";
+        graphics.DrawString(legend, Font, Brushes.White, new PointF(16f, 8f));
+    }
+
+    private void DrawPartyInfo(Graphics graphics, RectangleF viewport)
+    {
+        float y = viewport.Bottom + 8f;
+        float x = 16f;
+
+        // Headings
+        graphics.DrawString("Name", Font, Brushes.White, new PointF(x, y));
+        graphics.DrawString("Class", Font, Brushes.White, new PointF(x + 190f, y));
+        graphics.DrawString("Lvl", Font, Brushes.White, new PointF(x + 360f, y));
+        graphics.DrawString("HP", Font, Brushes.White, new PointF(x + 420f, y));
+        graphics.DrawString("AC", Font, Brushes.White, new PointF(x + 520f, y));
+        graphics.DrawString("Status", Font, Brushes.White, new PointF(x + 600f, y));
+
+        y += 18f;
+        graphics.DrawLine(Pens.White, x, y - 2f, viewport.Right - 8f, y - 2f);
+
+        var party = _partyRepository.Load();
+        var roster = _characterRepository.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+        if (party.Members.Count == 0)
+        {
+            graphics.DrawString("No party members.", Font, Brushes.White, new PointF(x, y));
+            return;
+        }
+
+        foreach (var memberName in party.Members)
+        {
+            if (!roster.TryGetValue(memberName, out var c))
+            {
+                graphics.DrawString(memberName, Font, Brushes.White, new PointF(x, y));
+                graphics.DrawString("(missing)", Font, Brushes.White, new PointF(x + 190f, y));
+                y += 18f;
+                continue;
+            }
+
+            var classes = c.Classes.Count > 0
+                ? string.Join("/", c.Classes.Select(m => m.ToDisplayString()))
+                : c.Class.ToDisplayString();
+
+            var status = c.Status != CharacterStatus.None ? GetStatusDisplay(c) : "-";
+
+            graphics.DrawString(c.Name, Font, Brushes.White, new PointF(x, y));
+            graphics.DrawString(classes, Font, Brushes.White, new PointF(x + 190f, y));
+            graphics.DrawString(GetLevelDisplay(c), Font, Brushes.White, new PointF(x + 360f, y));
+            graphics.DrawString($"{c.CurrentHitPoints}/{c.MaxHitPoints}", Font, Brushes.White, new PointF(x + 420f, y));
+            graphics.DrawString(c.ArmorClass.ToString(), Font, Brushes.White, new PointF(x + 520f, y));
+            graphics.DrawString(status, Font, Brushes.White, new PointF(x + 600f, y));
+
+            y += 18f;
+        }
+    }
+
+    private List<string> GetPartyLines()
+    {
+        var result = new List<string>();
+        var party = _partyRepository.Load();
+        var roster = _characterRepository.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+        if (party.Members.Count == 0)
+        {
+            result.Add("No party members.");
+            return result;
+        }
+
+        foreach (var memberName in party.Members)
+        {
+            if (!roster.TryGetValue(memberName, out var c))
+            {
+                result.Add($"{memberName} (missing)");
+                continue;
+            }
+
+            var classes = c.Classes.Count > 0
+                ? string.Join("/", c.Classes.Select(x => x.ToDisplayString()))
+                : c.Class.ToDisplayString();
+
+            result.Add($"{c.Name}  {classes}  L{GetLevelDisplay(c)}  HP {c.CurrentHitPoints}/{c.MaxHitPoints}  AC {c.ArmorClass}");
+        }
+
+        return result;
+    }
+
+    private static string GetLevelDisplay(Character c)
+    {
+        c.EnsureClassProgressions();
+
+        if (c.Classes == null || c.Classes.Count <= 1)
+            return c.Level.ToString();
+
+        return string.Join("/", c.Classes.Select(c.GetClassLevel));
+    }
+
+    private void ShowPartyPopup(string title)
+    {
+        var sb = new StringBuilder();
+        foreach (var line in GetPartyLines())
+            sb.AppendLine(line);
+
+        MessageBox.Show(this, sb.ToString(), title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+    }
+
+    private static RectangleF[] BuildFrames(RectangleF viewport, int maxDepth)
+    {
+        var frames = new RectangleF[maxDepth + 1];
+        float cx = viewport.Left + (viewport.Width / 2f);
+        float cy = viewport.Top + (viewport.Height / 2f);
+
+        for (int d = 0; d <= maxDepth; d++)
+        {
+            float u = d / (float)(maxDepth + 1);
+            float t = 1f - (float)Math.Pow(1f - u, 1.8f);
+
+            float left = Lerp(viewport.Left + 160f, cx, t);
+            float right = Lerp(viewport.Right - 160f, cx, t);
+            float top = Lerp(viewport.Top + 100f, cy, t);
+            float bottom = Lerp(viewport.Bottom - 100f, cy, t);
+
+            frames[d] = RectangleF.FromLTRB(left, top, right, bottom);
+        }
+
+        return frames;
+    }
+
+    private bool IsOpen(Point tile)
+    {
+        if (tile.X < 0 || tile.Y < 0 || tile.X >= _maze.GetLength(0) || tile.Y >= _maze.GetLength(1))
+            return false;
+
+        return _maze[tile.X, tile.Y] == CellType.Floor;
+    }
+
+    private void TryMoveForward()
+    {
+        var v = GetForwardVector(_direction);
+        var candidate = new Point(_position.X + v.X, _position.Y + v.Y);
+        if (IsOpen(candidate))
+        {
+            _position = candidate;
+
+            if (_position.X == 1 && _position.Y == 2)
+            {
+                ShowElevatorDialog();
+            }
+
+            if (_currentDungeonLevel == 1 && _position.X == 0 && _position.Y == 0)
+            {
+                var result = MessageBox.Show(
+                    this,
+                    "Stairs up, take them?",
+                    "Stairs",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    Close();
+                    return;
+                }
+            }
+
+            TryRandomEncounter();
+        }
+    }
+
+    private void TryRandomEncounter()
+    {
+        var configuredChance = GameRulesProvider.ClampChance(GameRulesProvider.Current.MonsterEncounterChance);
+
+        bool shouldEncounter;
+
+        if (configuredChance > 0)
+        {
+            shouldEncounter = _random.NextDouble() < configuredChance;
+        }
+        else
+        {
+            shouldEncounter = false;
+        }
+
+        if (!shouldEncounter)
+            return;
+
+        var monsterName = RollDungeonMonsterForLevel(_currentDungeonLevel);
+        if (string.IsNullOrWhiteSpace(monsterName))
+            monsterName = LevelOneMonsters[_random.Next(LevelOneMonsters.Length)];
+
+        if (string.Equals(monsterName, "No Encounter", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        var numberOfMonsters = _random.Next(1, 7); // 1d6
+
+        var party = LoadEncounterParty();
+        if (party.Count == 0)
+        {
+            MessageBox.Show(
+                this,
+                $"Encounter!\n\n{numberOfMonsters} x {monsterName}\n\n(No active party members found)",
+                "Monsters",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            return;
+        }
+
+        var outcome = _combatCoordinator.StartEncounter(this, monsterName, numberOfMonsters, party, _characterRepository);
+        if (outcome == CombatOutcome.Defeat)
+        {
+            HandlePartyDefeatAtCurrentCell();
+        }
+    }
+
+    private string? RollDungeonMonsterForLevel(int level)
+    {
+        var table = LoadDungeonEncounterTable(level);
+        if (table == null || table.Entries == null || table.Entries.Count == 0)
+            return null;
+
+        var totalChance = table.Entries.Sum(e => Math.Max(0, e.Chance));
+        if (totalChance <= 0)
+            return null;
+
+        var roll = _random.Next(1, totalChance + 1);
+        var cumulative = 0;
+
+        foreach (var entry in table.Entries)
+        {
+            cumulative += Math.Max(0, entry.Chance);
+            if (roll <= cumulative)
+                return entry.Monster;
+        }
+
+        return table.Entries.Last().Monster;
+    }
+
+    private static EncounterJsonModel? LoadDungeonEncounterTable(int level)
+    {
+        var fileName = $"Dungeon_Level{level}.json";
+
+        var runtimePath = Path.Combine("Data", "Encounters", "Dungeon", fileName);
+        if (File.Exists(runtimePath))
+        {
+            var json = File.ReadAllText(runtimePath);
+            return JsonSerializer.Deserialize<EncounterJsonModel>(json);
+        }
+
+        var sourcePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../Adnd.Data/Encounters/Dungeon", fileName));
+        if (File.Exists(sourcePath))
+        {
+            var json = File.ReadAllText(sourcePath);
+            return JsonSerializer.Deserialize<EncounterJsonModel>(json);
+        }
+
+        return null;
+    }
+
+    private void HandlePartyDefeatAtCurrentCell()
+    {
+        var partyData = _partyRepository.Load();
+        var roster = _characterRepository.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var memberName in partyData.Members)
+        {
+            if (!roster.TryGetValue(memberName, out var character))
+                continue;
+
+            character.DungeonLevel = _currentDungeonLevel;
+            character.DungeonCellX = _position.X;
+            character.DungeonCellY = _position.Y;
+            _characterRepository.Save(character);
+        }
+
+        partyData.Members.Clear();
+        partyData.CurrentShopperIndex = -1;
+        _partyRepository.Save(partyData);
+
+        Close();
+    }
+
+    private List<Character> LoadEncounterParty()
+    {
+        var party = _partyRepository.Load();
+        var roster = _characterRepository.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+        var result = new List<Character>();
+
+        foreach (var memberName in party.Members)
+        {
+            if (roster.TryGetValue(memberName, out var c))
+                result.Add(c);
+        }
+
+        return result;
+    }
+
+    private static string GetStatusDisplay(Character c)
+    {
+        var statuses = new List<string>();
+        if (c.HasStatus(CharacterStatus.Dead)) statuses.Add("Dead");
+        if (c.HasStatus(CharacterStatus.Poisoned)) statuses.Add("Poisoned");
+        if (c.HasStatus(CharacterStatus.Paralyzed)) statuses.Add("Paralyzed");
+        if (c.HasStatus(CharacterStatus.Petrified)) statuses.Add("Petrified");
+        if (c.HasStatus(CharacterStatus.Asleep)) statuses.Add("Asleep");
+        if (c.HasStatus(CharacterStatus.Ashes)) statuses.Add("Ashes");
+        if (c.HasStatus(CharacterStatus.Lost)) statuses.Add("Lost");
+        return string.Join(", ", statuses);
+    }
+
+    private static Point GetCellFartherAway(Point referencePoint, Direction direction, int distance)
+    {
+        return direction switch
+        {
+            Direction.North => new Point(referencePoint.X, referencePoint.Y - distance),
+            Direction.South => new Point(referencePoint.X, referencePoint.Y + distance),
+            Direction.East => new Point(referencePoint.X + distance, referencePoint.Y),
+            _ => new Point(referencePoint.X - distance, referencePoint.Y)
+        };
+    }
+
+    private static Point GetCellToTheLeft(Point referencePoint, Direction referenceDirection, int distance)
+    {
+        return referenceDirection switch
+        {
+            Direction.North => new Point(referencePoint.X - distance, referencePoint.Y),
+            Direction.South => new Point(referencePoint.X + distance, referencePoint.Y),
+            Direction.East => new Point(referencePoint.X, referencePoint.Y - distance),
+            _ => new Point(referencePoint.X, referencePoint.Y + distance)
+        };
+    }
+
+    private static Point GetCellToTheRight(Point referencePoint, Direction referenceDirection, int distance)
+    {
+        return referenceDirection switch
+        {
+            Direction.North => new Point(referencePoint.X + distance, referencePoint.Y),
+            Direction.South => new Point(referencePoint.X - distance, referencePoint.Y),
+            Direction.East => new Point(referencePoint.X, referencePoint.Y + distance),
+            _ => new Point(referencePoint.X, referencePoint.Y - distance)
+        };
+    }
+
+    private static Direction TurnLeft(Direction direction) => direction switch
+    {
+        Direction.North => Direction.West,
+        Direction.West => Direction.South,
+        Direction.South => Direction.East,
+        _ => Direction.North
+    };
+
+    private static Direction TurnRight(Direction direction) => direction switch
+    {
+        Direction.North => Direction.East,
+        Direction.East => Direction.South,
+        Direction.South => Direction.West,
+        _ => Direction.North
+    };
+
+    private static Point GetForwardVector(Direction direction) => direction switch
+    {
+        Direction.North => new Point(0, -1),
+        Direction.East => new Point(1, 0),
+        Direction.South => new Point(0, 1),
+        _ => new Point(-1, 0)
+    };
+
+    private static float Lerp(float start, float end, float t) => start + ((end - start) * t);
+
+    private void ShowElevatorDialog()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("Dungeon elevator");
+        sb.AppendLine();
+        sb.AppendLine($"Current level: {_currentDungeonLevel}");
+        sb.AppendLine("Choose destination level (1-10):");
+
+        var selected = PromptForNumber("Elevator", sb.ToString(), 1, 10);
+        if (!selected.HasValue)
+            return;
+
+        var targetLevel = selected.Value;
+        if (targetLevel == _currentDungeonLevel)
+            return;
+
+        _currentDungeonLevel = targetLevel;
+        BuildMazeForLevel(_currentDungeonLevel);
+        _position = new Point(1, 2);
+        _direction = Direction.North;
+    }
+}

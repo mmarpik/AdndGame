@@ -1,0 +1,15 @@
+{
+  "Category": "Shield",
+  "Items": [
+    {
+      "Name": "Shield",
+      "Type": "Shield",
+      "Slot": "OffHand",
+      "Cost": 10,
+      "Weight": 6,
+      "ArmorClassBonus": 1,
+      "Damage": "",
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard"]
+    }
+  ]
+}

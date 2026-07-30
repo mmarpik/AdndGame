@@ -1,0 +1,12 @@
+{
+  "Id": "entangle",
+  "Name": "Entangle",
+  "Class": "Druid",
+  "Level": 1,
+  "Description": "Plants ensnare creatures in an area.",
+  "RangeType": "Enemy",
+  "Targeting": "Multiple",
+  "CastContext": "Combat",
+  "EffectType": "Damage",
+  "EffectDescription": "Twisting plants restrain enemies in the affected area."
+}

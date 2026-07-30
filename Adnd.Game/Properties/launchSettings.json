@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Adnd.Game": {
+      "commandName": "Project",
+      "dotnetRunMessages": true
+    }
+  }
+}

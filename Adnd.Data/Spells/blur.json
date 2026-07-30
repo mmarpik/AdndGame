@@ -1,0 +1,12 @@
+{
+  "Id": "blur",
+  "Name": "Blur",
+  "Class": "Illusionist",
+  "Level": 2,
+  "Description": "Distorts the caster's image to confuse attackers.",
+  "RangeType": "Self",
+  "Targeting": "Single",
+  "CastContext": "Combat",
+  "EffectType": "Heal",
+  "EffectDescription": "Shifting illusion makes the caster harder to hit."
+}
