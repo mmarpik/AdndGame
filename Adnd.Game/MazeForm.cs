@@ -77,6 +77,8 @@ public sealed class MazeForm : Form
             CarveVertical(12, 0, 20);// go furhter east to find this corridor
             CarveCell(1, 2);//see this when facing south from start
             CarveCell(4, 2);
+            CarveCell(3, 3);
+
             CarveCell(4, 4);
             CarveCell(4, 5);
             CarveCell(4, 5);
