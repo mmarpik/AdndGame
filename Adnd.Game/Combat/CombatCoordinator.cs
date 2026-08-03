@@ -46,7 +46,7 @@ public sealed class CombatCoordinator
         _treasureService = new TreasureService(treasureRepo, _random);
     }
 
-    public CombatOutcome StartEncounter(IWin32Window owner, string monsterName, int monsterCount, List<Character> party, CharacterRepository characterRepository)
+    public CombatOutcome StartEncounter(IWin32Window owner, string monsterName, int monsterCount, List<Character> party, CharacterRepository characterRepository, int? dungeonLevel = null)
     {
         var monsters = _monsterFactory.CreateGroup(monsterName, monsterCount);
         var session = new CombatSession(party, monsters);
@@ -59,7 +59,7 @@ public sealed class CombatCoordinator
                 break;
             }
 
-            using var encounterForm = new EncounterForm(monsterName, session.AliveMonsters.Count(), session.Party, session.RoundNumber);
+            using var encounterForm = new EncounterForm(monsterName, session.AliveMonsters.Count(), session.Party, session.RoundNumber, dungeonLevel);
             var dialogResult = encounterForm.ShowDialog(owner);
             if (dialogResult != DialogResult.OK)
             {

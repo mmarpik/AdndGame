@@ -1,29 +1,33 @@
 {
-  "Name": "Dungeon Level 5",
-  "Entries": [
-    {
-      "Monster": "Goblin",
-      "Chance": 25
-    },
-    {
-      "Monster": "Orc",
-      "Chance": 20
-    },
-    {
-      "Monster": "Giant Rat",
-      "Chance": 20
-    },
-    {
-      "Monster": "Skeleton",
-      "Chance": 15
-    },
-    {
-      "Monster": "Kobold",
-      "Chance": 10
-    },
-    {
-      "Monster": "No Encounter",
-      "Chance": 10
-    }
-  ]
+    "Name": "Dungeon Level 5",
+    "Entries": [
+        {
+            "Monster": "Troll",
+            "Chance": 25
+        },
+        {
+            "Monster": "Wight Captain",
+            "Chance": 20
+        },
+        {
+            "Monster": "Giant Boar",
+            "Chance": 15
+        },
+        {
+            "Monster": "Ogre Mage",
+            "Chance": 15
+        },
+        {
+            "Monster": "Giant Snake (Constrictor)",
+            "Chance": 10
+        },
+        {
+            "Monster": "Gargoyle",
+            "Chance": 10
+        },
+        {
+            "Monster": "No Encounter",
+            "Chance": 5
+        }
+    ]
 }

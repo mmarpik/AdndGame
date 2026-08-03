@@ -1,29 +1,33 @@
 {
-  "Name": "Dungeon Level 7",
-  "Entries": [
-    {
-      "Monster": "Goblin",
-      "Chance": 25
-    },
-    {
-      "Monster": "Orc",
-      "Chance": 20
-    },
-    {
-      "Monster": "Giant Rat",
-      "Chance": 20
-    },
-    {
-      "Monster": "Skeleton",
-      "Chance": 15
-    },
-    {
-      "Monster": "Kobold",
-      "Chance": 10
-    },
-    {
-      "Monster": "No Encounter",
-      "Chance": 10
-    }
-  ]
+    "Name": "Dungeon Level 7",
+    "Entries": [
+        {
+            "Monster": "Manticore",
+            "Chance": 25
+        },
+        {
+            "Monster": "Owlbear",
+            "Chance": 20
+        },
+        {
+            "Monster": "Giant Troll",
+            "Chance": 15
+        },
+        {
+            "Monster": "Lamia",
+            "Chance": 15
+        },
+        {
+            "Monster": "Giant Spider (Huge)",
+            "Chance": 10
+        },
+        {
+            "Monster": "Giant Hyena",
+            "Chance": 10
+        },
+        {
+            "Monster": "No Encounter",
+            "Chance": 5
+        }
+    ]
 }

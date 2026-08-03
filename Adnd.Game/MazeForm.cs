@@ -1,9 +1,3 @@
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Windows.Forms;
 using Adnd.Core.Characters;
 using Adnd.Core.Combat.Sessions;
 using Adnd.Core.Config;
@@ -11,6 +5,12 @@ using Adnd.Data.Characters;
 using Adnd.Data.Encounters;
 using Adnd.Data.Party;
 using Adnd.Game.Combat;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Windows.Forms;
 
 namespace Adnd.Game;
 
@@ -228,6 +228,237 @@ public sealed class MazeForm : Form
 
             return;
         }
+        /* 
+        I want to define level 3 in my dungeon in the same way as I defined level 1, but I want level 3 to look differently, 
+        but with the same number of rooms and corridors as level 1. Here is the code for level 1
+redesign level 3 to have only one boarder corridor and to have 2 more rooms and look totaly differntly layoutwise
+         add a coriodors to level 3 and 4 so cell 1,2 is connected to the rest of the map
+         
+         */
+
+        if (level == 3)
+        {
+            // --- ONLY ONE BORDER CORRIDOR ---
+            CarveHorizontal(0, 0, 20);   // single top border corridor
+
+            // Connect entry cell (1,2) to the main layout.
+            CarveHorizontal(1, 3, 15);
+            CarveVertical(1, 3, 15);
+            CarveCell(1, 3);
+            CarveVertical(1, 0, 2);
+
+
+            // --- MAIN SPINE CORRIDORS (no border) ---
+            CarveVertical(5, 2, 18);     // main north-south spine
+            CarveVertical(14, 2, 18);    // secondary spine
+            CarveHorizontal(2, 10, 18);  // central east-west corridor
+
+            // --- ROOM 1 (connected to main spine) ---
+            CarveCell(5, 6);
+            CarveCell(5, 5);
+            CarveCell(5, 7);
+            CarveCell(6, 6);
+            CarveCell(6, 5);
+            CarveCell(6, 7);
+
+            // --- ROOM 2 (connected to east-west corridor) ---
+            CarveCell(10, 10);
+            CarveCell(10, 9);
+            CarveCell(10, 11);
+            CarveCell(11, 10);
+            CarveCell(11, 9);
+            CarveCell(11, 11);
+
+            // --- ROOM 3 (connected to secondary spine) ---
+            CarveCell(14, 14);
+            CarveCell(14, 13);
+            CarveCell(14, 15);
+            CarveCell(15, 14);
+            CarveCell(15, 13);
+            CarveCell(15, 15);
+
+            // --- EXTRA ROOM 4 (new, connected to central corridor) ---
+            CarveCell(8, 3);
+            CarveCell(8, 2);
+            CarveCell(8, 4);
+            CarveCell(9, 3);
+            CarveCell(9, 2);
+            CarveCell(9, 4);
+
+            // --- EXTRA ROOM 5 (new, connected to secondary spine) ---
+            CarveCell(16, 7);
+            CarveCell(16, 6);
+            CarveCell(16, 8);
+            CarveCell(17, 7);
+            CarveCell(17, 6);
+            CarveCell(17, 8);
+
+            // --- RANDOM CORRIDOR CLUSTER (same count, but new shape) ---
+            CarveCell(3, 10);
+            CarveCell(3, 11);
+            CarveCell(4, 11);
+            CarveCell(4, 12);
+            CarveCell(5, 12);
+            CarveCell(6, 12);
+            CarveCell(7, 12);
+            CarveCell(7, 11);
+            CarveCell(7, 10);
+            CarveCell(6, 10);
+            CarveCell(5, 10);
+
+            // --- EXTRA CORRIDOR #1 (not border) ---
+            CarveCell(12, 5);
+            CarveCell(13, 5);
+            CarveCell(14, 5);
+
+            // --- EXTRA CORRIDOR #2 (not border) ---
+            CarveCell(4, 15);
+            CarveCell(5, 15);
+            CarveCell(6, 15);
+
+            return;
+        }
+
+        if (level == 4)
+        {
+            // Connect entry cell (1,2) to the main layout.
+            CarveHorizontal(1, 3, 15);
+            CarveVertical(1, 3, 15);
+            CarveCell(1, 3);
+            CarveVertical(1, 0, 2);
+
+            // Elevator connection
+            CarveVertical(1, 0, 2);
+            CarveCell(1, 3);
+
+            // --- MAIN CROSS CORRIDOR NETWORK ---
+            CarveVertical(10, 2, 18);   // main north-south
+            CarveHorizontal(2, 10, 18); // main east-west
+
+            // --- ROOM 1 (north branch) ---
+            CarveCell(10, 6);
+            CarveCell(10, 5);
+            CarveCell(10, 7);
+            CarveCell(11, 6);
+            CarveCell(11, 5);
+            CarveCell(11, 7);
+
+            // --- ROOM 2 (east branch) ---
+            CarveCell(15, 10);
+            CarveCell(15, 9);
+            CarveCell(15, 11);
+            CarveCell(16, 10);
+            CarveCell(16, 9);
+            CarveCell(16, 11);
+
+            // --- ROOM 3 (south branch) ---
+            CarveCell(10, 15);
+            CarveCell(10, 14);
+            CarveCell(10, 16);
+            CarveCell(11, 15);
+            CarveCell(11, 14);
+            CarveCell(11, 16);
+
+            // --- ROOM 4 (west branch) ---
+            CarveCell(5, 10);
+            CarveCell(5, 9);
+            CarveCell(5, 11);
+            CarveCell(6, 10);
+            CarveCell(6, 9);
+            CarveCell(6, 11);
+
+            // --- ROOM 5 (northwest branch) ---
+            CarveCell(6, 6);
+            CarveCell(6, 5);
+            CarveCell(6, 7);
+            CarveCell(7, 6);
+            CarveCell(7, 5);
+            CarveCell(7, 7);
+
+            // --- EXTRA CORRIDOR #1 ---
+            CarveCell(7, 10);
+
+            // --- EXTRA CORRIDOR #2 ---
+            CarveCell(8, 6);
+            CarveCell(9, 6);
+
+            // --------------------------------------------------------------------
+            // 🔥 NEW CORRIDORS TO ENSURE FULL CONNECTIVITY
+            // --------------------------------------------------------------------
+
+            // --- RANDOM CLUSTER (Level 1 style) ---
+            CarveCell(2, 9);
+            CarveCell(3, 9);
+            CarveCell(3, 8);
+            CarveCell(4, 8);
+            CarveCell(4, 9);
+            CarveCell(4, 10);
+            CarveCell(5, 9);
+            CarveCell(5, 10);
+            CarveCell(6, 9);
+
+            // Loop cluster into west branch
+            CarveCell(6, 10);
+            CarveCell(7, 10);
+            CarveCell(8, 10);
+
+            // --- ROOM 4 CLUSTER ---
+            CarveCell(8, 11);
+            CarveCell(8, 12);
+            CarveCell(9, 11);
+            CarveCell(9, 12);
+            CarveCell(10, 11);
+            CarveCell(10, 12);
+
+            // Connect room 4 cluster to east-west spine
+            CarveCell(9, 10);
+
+            // --- ROOM 5 CLUSTER ---
+            CarveCell(10, 14);
+            CarveCell(10, 15);
+            CarveCell(11, 14);
+            CarveCell(11, 15);
+            CarveCell(12, 14);
+            CarveCell(12, 15);
+
+            // Connect room 5 cluster to east-west spine
+            CarveCell(12, 10);
+
+            // --------------------------------------------------------------------
+            // 🔥 FINAL CONNECTIVITY FIXES (NEW)
+            // --------------------------------------------------------------------
+
+            // Connect northwest room cluster fully
+            CarveCell(7, 8);   // connects (7,7) → (7,10)
+            CarveCell(7, 9);
+
+            // Connect west cluster fully
+            CarveCell(5, 8);   // connects (5,9) → (5,10)
+            CarveCell(6, 8);
+
+            // Connect south cluster fully
+            CarveCell(10, 13); // connects (10,14) → (10,10)
+            CarveCell(10, 12); // already carved but ensures loop
+
+            // Connect east cluster fully
+            CarveCell(13, 10); // connects (15,10) → main spine
+            CarveCell(14, 10); // already carved but ensures loop
+
+            // Connect north cluster fully
+            CarveCell(10, 8);  // connects (10,6) → (10,10)
+
+            return;
+        }
+
+
+
+
+        //        bygg level 4 ochså, men skippa korridorerna som går runt om, men gör två extra korridorer som inte går runt om och ett extra rum
+        /*
+           * 
+           * */
+
+
 
         // Deterministic unique connected layout per level.
         var seed = (level * 7919) + 1337;
@@ -534,7 +765,7 @@ public sealed class MazeForm : Form
             Text = "The party camps.\n\nR)eorder   I)nspect   L<-eave"
         };
 
-        var reorderBtn = new Button
+        var reorderBtn = new System.Windows.Forms.Button
         {
             Text = "Reorder",
             Left = 12,
@@ -543,7 +774,7 @@ public sealed class MazeForm : Form
             DialogResult = DialogResult.No
         };
 
-        var inspectBtn = new Button
+        var inspectBtn = new System.Windows.Forms.Button
         {
             Text = "Inspect",
             Left = 148,
@@ -552,7 +783,7 @@ public sealed class MazeForm : Form
             DialogResult = DialogResult.Yes
         };
 
-        var cancelBtn = new Button
+        var cancelBtn = new System.Windows.Forms.Button
         {
             Text = "Cancel",
             Left = 284,
@@ -1392,7 +1623,7 @@ inspect.ShowDialog(this);
             return;
         }
 
-        var outcome = _combatCoordinator.StartEncounter(this, monsterName, numberOfMonsters, party, _characterRepository);
+        var outcome = _combatCoordinator.StartEncounter(this, monsterName, numberOfMonsters, party, _characterRepository, _currentDungeonLevel);
         if (outcome == CombatOutcome.Defeat)
         {
             HandlePartyDefeatAtCurrentCell();

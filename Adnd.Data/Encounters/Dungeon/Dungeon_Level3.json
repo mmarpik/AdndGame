@@ -1,29 +1,33 @@
 {
-  "Name": "Dungeon Level 3",
-  "Entries": [
-    {
-      "Monster": "Goblin",
-      "Chance": 25
-    },
-    {
-      "Monster": "Orc",
-      "Chance": 20
-    },
-    {
-      "Monster": "Giant Rat",
-      "Chance": 20
-    },
-    {
-      "Monster": "Skeleton",
-      "Chance": 15
-    },
-    {
-      "Monster": "Kobold",
-      "Chance": 10
-    },
-    {
-      "Monster": "No Encounter",
-      "Chance": 10
-    }
-  ]
+    "Name": "Dungeon Level 3",
+    "Entries": [
+        {
+            "Monster": "Ghoul",
+            "Chance": 25
+        },
+        {
+            "Monster": "Wight",
+            "Chance": 20
+        },
+        {
+            "Monster": "Troll",
+            "Chance": 15
+        },
+        {
+            "Monster": "Hobgoblin Captain",
+            "Chance": 15
+        },
+        {
+            "Monster": "Giant Bat",
+            "Chance": 10
+        },
+        {
+            "Monster": "Giant Toad",
+            "Chance": 10
+        },
+        {
+            "Monster": "No Encounter",
+            "Chance": 5
+        }
+    ]
 }

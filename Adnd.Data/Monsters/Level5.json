@@ -1,0 +1,283 @@
+{
+    "Level": 5,
+    "Monsters": [
+        {
+            "Name": "Troll",
+            "Type": "Giant",
+            "ArmorClass": 4,
+            "HitDice": 6,
+            "HitPoints": 33,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 11,
+                "RodStaffWand": 12,
+                "PetrificationPolymorph": 13,
+                "BreathWeapon": 14,
+                "Spell": 14
+            },
+            "Morale": { "Value": 11 },
+            "Attacks": [
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d4+2"
+                },
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d8"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Regeneration",
+                    "Description": "Heals 3 hp per round; only fire/acid prevents regeneration."
+                }
+            ],
+            "XPValue": 450,
+            "TreasureType": "E"
+        },
+        {
+            "Name": "Wight Captain",
+            "Type": "Undead",
+            "ArmorClass": 4,
+            "HitDice": 5,
+            "HitPoints": 28,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 10,
+                "RodStaffWand": 11,
+                "PetrificationPolymorph": 12,
+                "BreathWeapon": 13,
+                "Spell": 13
+            },
+            "Morale": { "Value": 12 },
+            "Attacks": [
+                {
+                    "Name": "Energy Drain Touch",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Energy Drain",
+                    "Description": "Target loses 1 level unless save vs death."
+                },
+                {
+                    "Name": "Command Undead",
+                    "Description": "Leads lesser undead; they gain +1 morale."
+                }
+            ],
+            "XPValue": 650,
+            "TreasureType": "D"
+        },
+        {
+            "Name": "Giant Boar",
+            "Type": "Animal",
+            "ArmorClass": 6,
+            "HitDice": 5,
+            "HitPoints": 30,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 12,
+                "RodStaffWand": 13,
+                "PetrificationPolymorph": 14,
+                "BreathWeapon": 15,
+                "Spell": 15
+            },
+            "Morale": { "Value": 10 },
+            "Attacks": [
+                {
+                    "Name": "Gore",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Ferocious Charge",
+                    "Description": "On a charge, damage increases to 3d6."
+                }
+            ],
+            "XPValue": 300,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Ogre Mage",
+            "Type": "Giant",
+            "ArmorClass": 5,
+            "HitDice": 5,
+            "HitPoints": 27,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 11,
+                "RodStaffWand": 12,
+                "PetrificationPolymorph": 13,
+                "BreathWeapon": 14,
+                "Spell": 14
+            },
+            "Morale": { "Value": 11 },
+            "Attacks": [
+                {
+                    "Name": "Katana",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d10"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Innate Spells",
+                    "Description": "Can cast invisibility, charm person, and sleep 1/day each."
+                }
+            ],
+            "XPValue": 700,
+            "TreasureType": "F"
+        },
+        {
+            "Name": "Giant Snake (Constrictor)",
+            "Type": "Animal",
+            "ArmorClass": 5,
+            "HitDice": 5,
+            "HitPoints": 32,
+            "Movement": {
+                "Walk": 20,
+                "Fly": 0,
+                "Swim": 10,
+                "Burrow": 0,
+                "Climb": 10
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 12,
+                "RodStaffWand": 13,
+                "PetrificationPolymorph": 14,
+                "BreathWeapon": 15,
+                "Spell": 15
+            },
+            "Morale": { "Value": 9 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d6"
+                },
+                {
+                    "Name": "Constrict",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Constricting Coils",
+                    "Description": "On hit, target is held; must win STR check to escape."
+                }
+            ],
+            "XPValue": 350,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Giant Beetle (Fire)",
+            "Type": "Vermin",
+            "ArmorClass": 4,
+            "HitDice": 4,
+            "HitPoints": 24,
+            "Movement": {
+                "Walk": 20,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 12,
+                "RodStaffWand": 13,
+                "PetrificationPolymorph": 14,
+                "BreathWeapon": 15,
+                "Spell": 15
+            },
+            "Morale": { "Value": 8 },
+            "Attacks": [
+                {
+                    "Name": "Mandibles",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d4"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Glowing Glands",
+                    "Description": "Sheds light in 20 ft radius; can blind on a failed save (1 round)."
+                }
+            ],
+            "XPValue": 250,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Gargoyle",
+            "Type": "Monstrous",
+            "ArmorClass": 5,
+            "HitDice": 4,
+            "HitPoints": 22,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 30,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 11,
+                "RodStaffWand": 12,
+                "PetrificationPolymorph": 13,
+                "BreathWeapon": 14,
+                "Spell": 14
+            },
+            "Morale": { "Value": 11 },
+            "Attacks": [
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d4"
+                },
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Stone Skin",
+                    "Description": "Half damage from non-magical weapons."
+                }
+            ],
+            "XPValue": 300,
+            "TreasureType": "C"
+        }
+    ]
+}

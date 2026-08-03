@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assets\Monsters\Level3\" />
+    <Folder Include="Assets\Monsters\Level4\" />
+    <Folder Include="Assets\Monsters\Level4\" />
+    <Folder Include="Assets\Monsters\Level7\" />
+    <Folder Include="Assets\Monsters\Level8\" />
+    <Folder Include="Assets\Monsters\Level10\" />
     <Folder Include="Input\" />
     <Folder Include="Entities\" />
     <Folder Include="UI\" />
@@ -39,6 +49,17 @@
     <Content Include="Assets\Monsters\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\..\..\..\..\dev\Images\Monsters\Level6\basilisk.jpg" Link="Assets\Monsters\Level6\basilisk.jpg" />
+    <Content Include="..\..\..\..\..\..\dev\Images\Monsters\Level6\giantant(warrior).png" Link="Assets\Monsters\Level6\giantant%28warrior%29.png" />
+    <Content Include="..\..\..\..\..\..\dev\Images\Monsters\Level6\minotaur.jpg" Link="Assets\Monsters\Level6\minotaur.jpg" />
+    <Content Include="..\..\..\..\..\..\dev\Images\Monsters\Level6\wraith.png" Link="Assets\Monsters\Level6\wraith.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\..\..\dev\Images\Monsters\Level6\giant crocodile.webp" Link="Assets\Monsters\Level6\giant crocodile.webp" />
   </ItemGroup>
 
 </Project>

@@ -6,6 +6,9 @@ using Adnd.Core.Combat.Actions;
 using Adnd.Core.Spells;
 using Adnd.Core.Spells.Casting;
 using Adnd.Data.Spells;
+using ImageSharpImage = SixLabors.ImageSharp.Image;
+using ImageSharpRgba32 = SixLabors.ImageSharp.PixelFormats.Rgba32;
+using ImageSharpPngEncoder = SixLabors.ImageSharp.Formats.Png.PngEncoder;
 
 namespace Adnd.Game;
 
@@ -29,13 +32,13 @@ public sealed class EncounterForm : Form
     private readonly Panel _monsterPanel;
     private readonly ListView _partyList;
 
-    public EncounterForm(string monsterName, int monsterCount, List<Character> party, int roundNumber)
+    public EncounterForm(string monsterName, int monsterCount, List<Character> party, int roundNumber, int? dungeonLevel = null)
     {
         _monsterName = monsterName;
         _monsterCount = monsterCount;
         _roundNumber = roundNumber;
         _party = party;
-        _monsterImage = TryLoadMonsterImage(monsterName);
+        _monsterImage = TryLoadMonsterImage(monsterName, dungeonLevel);
 
         Text = "Encounter";
         StartPosition = FormStartPosition.CenterParent;
@@ -527,33 +530,92 @@ public sealed class EncounterForm : Form
         g.DrawImage(image, new Rectangle(drawX, drawY, drawWidth, drawHeight));
     }
 
-    private static Image? TryLoadMonsterImage(string monsterName)
+    private static System.Drawing.Image? TryLoadMonsterImage(string monsterName, int? dungeonLevel = null)
     {
         var slug = monsterName.Trim().ToLowerInvariant().Replace(" ", "_");
-        var exts = new[] { ".png", ".bmp", ".gif", ".jpg", ".jpeg" };
+        var camelCase = monsterName.Trim().Replace(" ", "");
+        var exts = new[] { ".webp", ".png", ".bmp", ".gif", ".jpg", ".jpeg" };
 
         var baseDir = AppContext.BaseDirectory;
         var candidates = new List<string>();
 
+        // If dungeonLevel is provided, search in level-specific folder first
+        if (dungeonLevel.HasValue)
+        {
+            var levelFolder = $"Level{dungeonLevel.Value}";
+
+            foreach (var ext in exts)
+            {
+                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, slug + ext));
+                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, camelCase + ext));
+                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, monsterName + ext));
+            }
+
+            foreach (var ext in exts)
+            {
+                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, slug + ext));
+                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, camelCase + ext));
+                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, slug + ext));
+                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, camelCase + ext));
+            }
+        }
+
+        // Also search in all level folders (Level1-Level10) if not found yet
+        for (int level = 1; level <= 10; level++)
+        {
+            var levelFolder = $"Level{level}";
+
+            foreach (var ext in exts)
+            {
+                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, slug + ext));
+                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, camelCase + ext));
+                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, monsterName + ext));
+            }
+
+            foreach (var ext in exts)
+            {
+                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, slug + ext));
+                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, camelCase + ext));
+                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, slug + ext));
+                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, camelCase + ext));
+            }
+        }
+
+        // Fallback: search in root Monsters folder
         foreach (var ext in exts)
         {
             candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", slug + ext));
+            candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", camelCase + ext));
             candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", monsterName + ext));
         }
 
         foreach (var ext in exts)
         {
             candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", slug + ext));
+            candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", camelCase + ext));
             candidates.Add(Path.Combine("Assets", "Monsters", slug + ext));
+            candidates.Add(Path.Combine("Assets", "Monsters", camelCase + ext));
         }
 
         var path = candidates.FirstOrDefault(File.Exists);
         if (path is null)
             return null;
 
-        using var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-        using var loaded = Image.FromStream(fs);
-        return new Bitmap(loaded);
+        try
+        {
+            // Use ImageSharp to load the image (supports WebP)
+            using var imageSharp = ImageSharpImage.Load<ImageSharpRgba32>(path);
+
+            // Convert ImageSharp image to System.Drawing.Bitmap
+            using var ms = new MemoryStream();
+            imageSharp.Save(ms, new ImageSharpPngEncoder());
+            ms.Position = 0;
+            return new System.Drawing.Bitmap(ms);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static void DrawSkeleton(Graphics g, Pen pen, float cx, float cy)
