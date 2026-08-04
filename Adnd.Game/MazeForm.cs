@@ -78,7 +78,7 @@ public sealed class MazeForm : Form
             CarveCell(1, 2);//see this when facing south from start
             CarveCell(4, 2);
             CarveCell(3, 3);
-            CarveCell(3, 13);
+            CarveCell(3, 12);
 
             CarveCell(4, 4);
             CarveCell(4, 5);
