@@ -1,0 +1,9 @@
+
+git clone https://github.com/rpikas/AdndGame.git 
+if git not installed: winget install Git.Git
+make a change. 
+If not registered. Username rpikas, email robert.pikas@gmail.com
+git tab, write comment, press Commit all
+Git → Pull then push.
+New change can be found at
+AdndGame/Adnd.Game at master · rpikas/AdndGame 
