@@ -16,9 +16,6 @@
     <Folder Include="Assets\Monsters\Level3\" />
     <Folder Include="Assets\Monsters\Level4\" />
     <Folder Include="Assets\Monsters\Level4\" />
-    <Folder Include="Assets\Monsters\Level7\" />
-    <Folder Include="Assets\Monsters\Level8\" />
-    <Folder Include="Assets\Monsters\Level10\" />
     <Folder Include="Input\" />
     <Folder Include="Entities\" />
     <Folder Include="UI\" />
