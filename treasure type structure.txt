@@ -50,3 +50,54 @@ Use handler pattern per treasure component:
 •	IMagicTreasureRoller
 or one ITreasureComponentResolver pipeline.
 This mirrors your spell-handler architecture and scales well.
+___________________________
+Updates 260807
+after killing a group of mosters i want to add the probablity that a number of random item is found. Use the method int GetNumberOfSuccesses(int numberOfTries, float probabilityEachTry) to randomize hwo many items that are found and use GameRules.NumberOfItemsThatCouldBeFound and GameRules.ProbabilityFindingEachItem as input to the method
+
+Summary
+I've successfully added the probability of finding random items after killing a group of monsters. Here's what was implemented:
+Changes Made:
+1.	Fixed GameRules.cs:
+•	Changed ProbabilityFindingEachItem from int to float to properly work with probability values (0.0 - 1.0)
+2.	Updated CombatCoordinator.cs:
+•	Added using Adnd.Core.Dices; namespace
+•	Added a new field _dice of type IDice (SystemDice instance)
+•	Created a new method AwardRandomItemsAfterCombat() that:
+•	Uses _dice.GetNumberOfSuccesses() with GameRules.NumberOfItemsThatCouldBeFound and GameRules.ProbabilityFindingEachItem as parameters
+•	Randomly selects items from the item repository (only shop-buyable items)
+•	Distributes found items to surviving party members using the same round-robin logic as magic items
+•	Tracks items that couldn't be carried
+•	Integrated the random item finding into the ApplyVictoryRewards() method
+•	Added display of random items found in the victory rewards message
+How It Works:
+After killing monsters, the system will:
+1.	Roll for the number of items found using the configured probability
+2.	Randomly select items from the available item pool
+3.	Distribute them to surviving party members
+4.	Display the results in the combat rewards dialog
+You can configure this feature by setting:
+•	GameRules.NumberOfItemsThatCouldBeFound - maximum number of items that could be found (default: 5)
+•	GameRules.ProbabilityFindingEachItem - probability of finding each item (0.0 to 1.0, default: 0.0 which means disabled)
+
+
+Original treasure type:
+  "Magic": {
+    "Rolls": [
+      { "Table": "Potion", "Amount": "1", "Chance": 40 },
+      { "Table": "Scroll", "Amount": "1", "Chance": 30 },
+      { "Table": "Weapon", "Amount": "1", "Chance": 20 },
+      { "Table": "Armor", "Amount": "1", "Chance": 10 }
+    ]
+  }
+
+updated to 
+  "Magic": {
+    "Rolls": [
+      { "Table": "Potion", "Amount": "1", "Chance": 15 },
+      { "Table": "Scroll", "Amount": "1", "Chance": 15 },
+      { "Table": "Weapon", "Amount": "1", "Chance": 30 },
+      { "Table": "Armor", "Amount": "1", "Chance": 40 }
+    ]
+  }
+
+to be more like eq or wizardry
