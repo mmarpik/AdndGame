@@ -179,3 +179,12 @@ New contect: let gigant rat have the special ability poison and let the skelton 
 implement sleep during combat, no need to ask what orc to target since sleep affects the whole group of mosters
 
 in the encounter view, show how many mosters that are asleep
+
+updates 260807
+in the Trade With dialog also shown the class of the other charaters, not just the name
+
+when parsing json in Monsters make sure NumberOfAppearancesMin and all other attibutes I added populate the Monster class NumberOfAppearancesMin and other attributes. Currently when running for example NumberOfAppearancesMin is always 0
+
+"Manually added most attriubes from monster manual to the monster class and told ai to parse it inderectly when fixing a bug"
+
+when selling somthing in the shop instead of showing  [Out of stock] don't show the item at all, and when something has StockQuantity >0 in the  shop show the item even if IsShopBuyable is false
