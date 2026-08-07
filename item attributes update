@@ -1,0 +1,65 @@
+item attributes update
+update the json parser for all items, so for example the following json would populete corresponding fileds in the item class
+{
+        "Name": "Club",
+        "Type": "Weapon",
+        "Slot": "Hand",
+        "Cost": 1,
+        "Weight": 2,
+        "Damage": "1d6",
+        "DamageVsLarge": "1d3",
+        "DamageType": "Bludgeoning",
+        "SpeedFactor": 4,
+        "WeaponLength": "Short",
+        "IsTwoHanded": false,
+        "Range": "10/20/30",
+        "ArmorClassBonus": 0,
+        "MagicBonus": 0,
+        "SpecialAbilities": [],
+        "IsCursed": false,
+        "IsShopBuyable": false,
+        "AllowedClasses": [ "Fighter", "Cleric", "Druid", "Thief" ],
+        "Rarity": "Common",
+        "Description": "A simple wooden club.",
+        "Source": "PHB",
+        "Version": "1e"
+    },
+When radomizing an item found give different probablity depending on the item attribute Rarity.  use something similar to this to calculate the proabilty var rarityWeights = new Dictionary<RarityType, int> { { RarityType.Common, 58 }, { RarityType.Uncommon, 25 }, { RarityType.Rare, 10 }, { RarityType.VeryRare, 4 }, { RarityType.Legendary, 2 }, { RarityType.Unique, 1 } };
+
+Summary
+I've successfully implemented weighted probability for random item finding based on item rarity. Here's what was implemented:
+Changes Made in CombatCoordinator.cs:
+1.	Modified AwardRandomItemsAfterCombat method:
+•	Changed line 311 from allItems[_random.Next(allItems.Count)] to SelectItemByRarityWeight(allItems)
+•	Now uses weighted selection instead of uniform random selection
+2.	Added new SelectItemByRarityWeight method:
+•	Uses the rarity weights you specified:
+•	Common: 58% probability
+•	Uncommon: 25% probability
+•	Rare: 10% probability
+•	VeryRare: 4% probability
+•	Legendary: 2% probability
+•	Unique: 1% probability
+•	Implements weighted random selection algorithm:
+1.	Calculates total weight by summing all item weights
+2.	Generates a random number between 0 and total weight
+3.	Iterates through items cumulatively until reaching the random value
+4.	Returns the selected item
+How It Works:
+When random items are found after combat:
+1.	The system determines how many items to find using the existing dice roll mechanism
+2.	For each item to be found, SelectItemByRarityWeight is called
+3.	The method assigns each item a weight based on its rarity
+4.	Common items have the highest weight (58), making them most likely to be selected
+5.	Unique items have the lowest weight (1), making them extremely rare
+6.	Items with undefined rarity default to Common weight
+Example:
+If there are 100 items with the following rarities:
+•	60 Common items (60 × 58 = 3,480 total weight)
+•	30 Uncommon items (30 × 25 = 750 total weight)
+•	10 Rare items (10 × 10 = 100 total weight)
+The probability of selecting:
+•	A Common item: ~82.5%
+•	An Uncommon item: ~14.2%
+•	A Rare item: ~3.3%
+This creates a natural progression where common items are found frequently, while legendary and unique items are truly special discoveries!
