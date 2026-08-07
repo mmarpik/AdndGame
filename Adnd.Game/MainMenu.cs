@@ -65,7 +65,7 @@ public class MainMenu
                         break;
                     }
 
-                    _shopMenu.Show(0);
+                    _shopMenu.Show(0,10,true);
                     break;
 
                 case ConsoleKey.M:

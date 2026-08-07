@@ -6,9 +6,20 @@ public class MonsterJsonModel
 {
     public string Name { get; set; } = "";
     public string Type { get; set; } = "";
-
+    public string ClimateTerain { get; set; } = "";
+    public string Frequency { get; set; } = "";
+    public string ActivityCycle { get; set; } = "";
+    public string Intelligence { get; set; } = "";
+    public string Alignment { get; set; } = "";
+    public int NumberOfAppearancesMin { get; set; }
+    public int NumberOfAppearancesMax { get; set; }
     public int ArmorClass { get; set; }
+    public string MovementRate { get; set; } = "";
     public int HitDice { get; set; }
+    public int THAC0 { get; set; }
+    public int NumberOfAttacks { get; set; }
+    public string MagicResistance { get; set; } = "";
+    public string Size { get; set; } = "";
     public int HitPoints { get; set; }
 
     public MonsterMovementJson Movement { get; set; } = new();

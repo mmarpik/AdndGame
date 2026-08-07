@@ -3,23 +3,23 @@
   "Entries": [
     {
       "Monster": "Goblin",
-      "Chance": 25
+      "Chance": 5
     },
     {
       "Monster": "Orc",
-      "Chance": 20
+      "Chance": 50
     },
     {
       "Monster": "Giant Rat",
-      "Chance": 20
+      "Chance": 4
     },
     {
       "Monster": "Skeleton",
-      "Chance": 15
+      "Chance": 3
     },
     {
       "Monster": "Kobold",
-      "Chance": 10
+      "Chance": 40
     },
     {
       "Monster": "No Encounter",

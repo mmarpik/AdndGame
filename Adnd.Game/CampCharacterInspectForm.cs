@@ -579,7 +579,7 @@ public sealed class CampCharacterInspectForm : Form
             return;
         }
 
-        var recipientIdx = PromptChoice("Trade With", recipients.Select(r => r.Name).ToList());
+        var recipientIdx = PromptChoice("Trade With", recipients.Select(r => $"{r.Name} ({r.Class})").ToList());
         if (!recipientIdx.HasValue)
             return;
 

@@ -4,7 +4,7 @@ public enum EquipmentSlot
 {
     Head,
     Body,
-    Legs,
+  //  Legs,
     Feet,
     Hands,
     MainHand,

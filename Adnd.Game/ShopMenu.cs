@@ -52,7 +52,7 @@ public class ShopMenu
         // If entering shop and there are at least two party members,
         // always ask which member should enter the shop.
         var initialParty = _partyRepo.Load();
-        if ((initialParty.Members.Count >= 2) && (startIndex == 1) && selectShopper)
+        if ((initialParty.Members.Count >= 2) && (startIndex == 0) && selectShopper)
             SelectShopper();
 
         while (true)
@@ -70,7 +70,10 @@ public class ShopMenu
             else
                 Console.WriteLine("No party members.\n");
 
-            var items = _itemRepo.LoadAll().Where(i => i.IsShopBuyable).Take(52).ToList();
+            var items = _itemRepo.LoadAll()
+                .Where(i => i.IsShopBuyable || (i.StockQuantity.HasValue && i.StockQuantity.Value > 0))
+                .Where(i => !i.StockQuantity.HasValue || i.StockQuantity.Value > 0)
+                .Take(52).ToList();
 
             Console.WriteLine("Items available for purchase:\n");
 
@@ -78,11 +81,10 @@ public class ShopMenu
           //      for (int i = 0; (i < items.Count && i < numberOfItems); i++)
                 {
                     var it = items[i];
-                var notEquipableTag = shopper != null && !IsEquipableBy(shopper, it) ? " - (Not Equipable)" : string.Empty;
-                var stockText = GetStockDisplay(it);
-                var soldOutText = it.StockQuantity.HasValue && it.StockQuantity.Value <= 0 ? " [Out of stock]" : string.Empty;
-                var label = GetShopLabel(i);
-                Console.WriteLine($"{label}. {it.Name}{notEquipableTag} - Cost: {it.Cost} gp - Stock: {stockText}{soldOutText}");
+                    var notEquipableTag = shopper != null && !IsEquipableBy(shopper, it) ? " - (Not Equipable)" : string.Empty;
+                    var stockText = GetStockDisplay(it);
+                    var label = GetShopLabel(i);
+                    Console.WriteLine($"{label}. {it.Name}{notEquipableTag} - Cost: {it.Cost} gp - Stock: {stockText}");
             }
 
             Console.WriteLine("\nB)uy Items");
@@ -90,9 +92,9 @@ public class ShopMenu
             Console.WriteLine("E)quip/unequip Items");
             Console.WriteLine("P)ool Gold");
             Console.WriteLine("C)hoose a Different Shopper");
-            Console.WriteLine("N)ext items in shop");
-            if (startIndex > 1) Console.WriteLine("G)o to previous items in shop");
-            Console.WriteLine("B)ack to first items in shop");
+            if (startIndex + numberOfItems < items.Count) Console.WriteLine("N)ext items in shop");
+            if (startIndex > 0) Console.WriteLine("G)o to previous items in shop");
+            Console.WriteLine("I)nitial items in shop");
             Console.WriteLine("F)ilther items in shop");
             Console.WriteLine("L<-eave");
 
@@ -104,8 +106,8 @@ public class ShopMenu
             else if (key == ConsoleKey.P) PoolGoldToCurrentShopper();
             else if (key == ConsoleKey.C) SelectShopper();
             else if (key == ConsoleKey.N) Show(startIndex+numberOfItems, numberOfItems, false);
-            else if ((key == ConsoleKey.G) && (startIndex > 1)) Show(startIndex - numberOfItems, numberOfItems, false);
-            else if (key == ConsoleKey.B) Show(1, numberOfItems, false);
+            else if ((key == ConsoleKey.G) && (startIndex > 0)) Show(startIndex - numberOfItems, numberOfItems, false);
+            else if (key == ConsoleKey.I) Show(0, numberOfItems, false);
         //    else if (key == ConsoleKey.F) FilterItemsa();
             else if (key == ConsoleKey.L || key == ConsoleKey.Enter) break;
 

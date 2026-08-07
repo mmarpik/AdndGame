@@ -640,7 +640,9 @@ public class PartyMenu
 
         Console.WriteLine("\nTrade with:");
         for (int i = 0; i < recipients.Count; i++)
-            Console.WriteLine($"{i + 1}. {recipients[i].Name}");
+            Console.WriteLine($"{i + 1}. {recipients[i].Name} ({recipients[i].Class})");
+  //      Console.WriteLine($"{i + 1}. {recipients[i].Name}");
+//        var recipientIdx = PromptChoice("Trade With", recipients.Select(r => $"{r.Name} ({r.Class})").ToList());
 
         Console.Write("Choose #: ");
         var recipientSelection = InputHelper.ReadNumber(1, recipients.Count);

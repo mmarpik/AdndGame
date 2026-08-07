@@ -145,7 +145,20 @@ public class ItemRepository
             StockQuantity = model.StockQuantity,
             ArmorClassBonus = model.ArmorClassBonus,
             Damage = model.Damage,
-            AllowedClasses = ResolveAllowedClasses(model.AllowedClasses)
+            DamageVsLarge = model.DamageVsLarge,
+            DamageType = model.DamageType,
+            SpeedFactor = model.SpeedFactor,
+            WeaponLength = model.WeaponLength,
+            IsTwoHanded = model.IsTwoHanded,
+            Range = model.Range,
+            MagicBonus = model.MagicBonus,
+            SpecialAbilities = model.SpecialAbilities ?? new List<string>(),
+            IsCursed = model.IsCursed,
+            AllowedClasses = ResolveAllowedClasses(model.AllowedClasses),
+            Rarity = ResolveRarity(model.Rarity),
+            Description = model.Description,
+            Source = model.Source,
+            Version = model.Version
         };
     }
 
@@ -169,5 +182,16 @@ public class ItemRepository
         }
 
         return list;
+    }
+
+    private static RarityType ResolveRarity(string? rarity)
+    {
+        if (string.IsNullOrWhiteSpace(rarity))
+            return RarityType.Common;
+
+        if (Enum.TryParse<RarityType>(rarity.Trim(), ignoreCase: true, out var parsed))
+            return parsed;
+
+        return RarityType.Common;
     }
 }

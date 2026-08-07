@@ -13,9 +13,20 @@ public static class MonsterImporter
         {
             Name = json.Name,
             Type = Enum.TryParse<MonsterType>(json.Type, out var t) ? t : MonsterType.Other,
-
+            ClimateTerain = json.ClimateTerain,
+            Frequency = json.Frequency,
+            ActivityCycle = json.ActivityCycle,
+            Intelligence = json.Intelligence,
+            Alignment = json.Alignment,
+            NumberOfAppearancesMin = json.NumberOfAppearancesMin,
+            NumberOfAppearancesMax = json.NumberOfAppearancesMax,
             ArmorClass = json.ArmorClass,
+            MovementRate = json.MovementRate,
             HitDice = json.HitDice,
+            THAC0 = json.THAC0,
+            NumberOfAttacks = json.NumberOfAttacks,
+            MagicResistance = json.MagicResistance,
+            Size = json.Size,
             HitPoints = json.HitPoints,
 
             XPValue = json.XPValue,

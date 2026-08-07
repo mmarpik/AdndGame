@@ -13,26 +13,28 @@
       "AllowedClasses": ["All"]
     },
     {
-      "Name": "Scroll of Shield",
-      "Type": "Scroll",
-      "Slot": "",
-      "Cost": 125,
-      "Weight": 1,
-      "StockQuantity": 1,
-      "ArmorClassBonus": 0,
-      "Damage": "",
-      "AllowedClasses": ["MagicUser", "Illusionist"]
+        "Name": "Scroll of Shield",
+        "Type": "Scroll",
+        "Slot": "",
+        "Cost": 125,
+        "Weight": 1,
+        "StockQuantity": 0,
+        "ArmorClassBonus": 0,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "MagicUser", "Illusionist" ]
     },
     {
-      "Name": "Scroll of Bless",
-      "Type": "Scroll",
-      "Slot": "",
-      "Cost": 100,
-      "Weight": 1,
-      "StockQuantity": 1,
-      "ArmorClassBonus": 0,
-      "Damage": "",
-      "AllowedClasses": ["Cleric", "Druid"]
+        "Name": "Scroll of Bless",
+        "Type": "Scroll",
+        "Slot": "",
+        "Cost": 100,
+        "Weight": 1,
+        "StockQuantity": 0,
+        "ArmorClassBonus": 0,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Cleric", "Druid" ]
     }
   ]
 }

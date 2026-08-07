@@ -5,6 +5,7 @@ using Adnd.Core.Characters.Progression;
 using Adnd.Core.Combat.Resolution;
 using Adnd.Core.Combat.Sessions;
 using Adnd.Core.Config;
+using Adnd.Core.Dices;
 using Adnd.Core.Items;
 using Adnd.Core.Spells.Casting;
 using Adnd.Core.Spells.Casting.Handlers;
@@ -27,6 +28,7 @@ public sealed class CombatCoordinator
     private readonly TreasureService _treasureService;
     private readonly ItemRepository _itemRepository = new("Data/Items");
     private readonly Random _random = new();
+    private readonly IDice _dice = new SystemDice();
 
     public CombatCoordinator()
     {
@@ -144,6 +146,9 @@ public sealed class CombatCoordinator
 
         var magicAward = AwardMagicItemsFromPlaceholders(survivors, treasure.MagicPlaceholders);
 
+        // Random item finding after killing monsters
+        var randomItemsAward = AwardRandomItemsAfterCombat(survivors);
+
         var sb = new StringBuilder();
         sb.AppendLine("Victory Rewards");
         sb.AppendLine();
@@ -185,6 +190,20 @@ public sealed class CombatCoordinator
         {
             sb.AppendLine("- Unclaimed magic items:");
             foreach (var unassigned in magicAward.UnassignedItems)
+                sb.AppendLine($"    {unassigned}");
+        }
+
+        if (randomItemsAward.AssignedItems.Count > 0)
+        {
+            sb.AppendLine("- Random items found:");
+            foreach (var assigned in randomItemsAward.AssignedItems)
+                sb.AppendLine($"    {assigned.ReceiverName}: {assigned.ItemName}");
+        }
+
+        if (randomItemsAward.UnassignedItems.Count > 0)
+        {
+            sb.AppendLine("- Unclaimed random items:");
+            foreach (var unassigned in randomItemsAward.UnassignedItems)
                 sb.AppendLine($"    {unassigned}");
         }
 
@@ -264,6 +283,97 @@ public sealed class CombatCoordinator
         }
 
         return result;
+    }
+
+    private MagicAwardResult AwardRandomItemsAfterCombat(List<Character> survivors)
+    {
+        var result = new MagicAwardResult();
+
+        if (survivors.Count == 0)
+            return result;
+
+        var gameRules = GameRulesProvider.Current;
+        var numberOfItems = _dice.GetNumberOfSuccesses(
+            gameRules.NumberOfItemsThatCouldBeFound, 
+            gameRules.ProbabilityFindingEachItem);
+
+        if (numberOfItems <= 0)
+            return result;
+
+        var allItems = _itemRepository.LoadAll().Where(i => i.IsShopBuyable).ToList();
+        if (allItems.Count == 0)
+            return result;
+
+        var nextReceiverIndex = 0;
+
+        for (int i = 0; i < numberOfItems; i++)
+        {
+            var randomItem = SelectItemByRarityWeight(allItems);
+            var item = CloneItem(randomItem);
+
+            var assigned = false;
+            for (int attempt = 0; attempt < survivors.Count; attempt++)
+            {
+                var idx = (nextReceiverIndex + attempt) % survivors.Count;
+                var receiver = survivors[idx];
+                if (!receiver.CanCarry(item))
+                    continue;
+
+                receiver.Inventory.Add(item);
+                result.AssignedItems.Add(new AssignedMagicItem
+                {
+                    ReceiverName = receiver.Name,
+                    ItemName = item.Name
+                });
+
+                nextReceiverIndex = (idx + 1) % survivors.Count;
+                assigned = true;
+                break;
+            }
+
+            if (!assigned)
+                result.UnassignedItems.Add(item.Name + " (no one can carry)");
+        }
+
+        return result;
+    }
+
+    private Item SelectItemByRarityWeight(List<Item> items)
+    {
+        var rarityWeights = new Dictionary<RarityType, int>
+        {
+            { RarityType.Common, 58 },
+            { RarityType.Uncommon, 25 },
+            { RarityType.Rare, 10 },
+            { RarityType.VeryRare, 4 },
+            { RarityType.Legendary, 2 },
+            { RarityType.Unique, 1 }
+        };
+
+        // Calculate total weight
+        var totalWeight = 0;
+        var itemWeights = new List<(Item item, int weight)>();
+
+        foreach (var item in items)
+        {
+            var weight = rarityWeights.ContainsKey(item.Rarity) ? rarityWeights[item.Rarity] : rarityWeights[RarityType.Common];
+            itemWeights.Add((item, weight));
+            totalWeight += weight;
+        }
+
+        // Select random item based on weight
+        var randomValue = _random.Next(totalWeight);
+        var cumulativeWeight = 0;
+
+        foreach (var (item, weight) in itemWeights)
+        {
+            cumulativeWeight += weight;
+            if (randomValue < cumulativeWeight)
+                return item;
+        }
+
+        // Fallback (should never reach here)
+        return items[_random.Next(items.Count)];
     }
 
     private static List<Item> GetItemPoolForMagicTable(List<Item> allItems, string table)

@@ -15,5 +15,7 @@ public class GameRules
     public double XpMultiplier { get; set; } = 1.0;
     public int CharacterCreationMinGold { get; set; } = 31;
     public int CharacterCreationMaxGold { get; set; } = 210;
-    public bool AutoMemorizeArcaneSpellsDaily { get; set; } = false;
+    public bool AutoMemorizeArcaneSpellsDaily { get; set; } = true;
+    public int NumberOfItemsThatCouldBeFound { get; set; } = 5;
+    public float ProbabilityFindingEachItem { get; set; } = 0.0f;
 }

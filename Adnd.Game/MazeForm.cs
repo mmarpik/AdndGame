@@ -1,8 +1,10 @@
 using Adnd.Core.Characters;
 using Adnd.Core.Combat.Sessions;
 using Adnd.Core.Config;
+using Adnd.Core.Monsters;
 using Adnd.Data.Characters;
 using Adnd.Data.Encounters;
+using Adnd.Data.Monsters;
 using Adnd.Data.Party;
 using Adnd.Game.Combat;
 using System.Drawing;
@@ -48,6 +50,7 @@ public sealed class MazeForm : Form
     private readonly Random _random = new();
     private readonly PartyRepository _partyRepository = new();
     private readonly CharacterRepository _characterRepository = new("Data/Characters");
+    private readonly MonsterRepository _monsterRepository = new();
     private readonly CombatCoordinator _combatCoordinator = new();
     private bool _partyOverlayVisible = true;
     private int _currentDungeonLevel = 1;
@@ -1612,7 +1615,16 @@ inspect.ShowDialog(this);
         if (string.Equals(monsterName, "No Encounter", StringComparison.OrdinalIgnoreCase))
             return;
 
-        var numberOfMonsters = _random.Next(1, 7); // 1d6
+        var monster = _monsterRepository.GetAll().FirstOrDefault(m => string.Equals(m.Name, monsterName, StringComparison.OrdinalIgnoreCase));
+        int numberOfMonsters;
+        if (monster != null)
+        {
+            numberOfMonsters = _random.Next(monster.NumberOfAppearancesMin, monster.NumberOfAppearancesMax + 1);
+        }
+        else
+        {
+            numberOfMonsters = _random.Next(1, 7); // 1d6 fallback
+        }
 
         var party = LoadEncounterParty();
         if (party.Count == 0)

@@ -20,37 +20,40 @@
       "Weight": 15,
       "ArmorClassBonus": 2,
       "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk"]
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard",  "Monk"]
     },
     {
-      "Name": "Studded Leather",
-      "Type": "Armor",
-      "Slot": "Body",
-      "Cost": 20,
-      "Weight": 25,
-      "ArmorClassBonus": 3,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk"]
+        "Name": "Studded Leather",
+        "Type": "Armor",
+        "Slot": "Body",
+        "Cost": 20,
+        "Weight": 25,
+        "ArmorClassBonus": 3,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "Monk" ]
     },
     {
-      "Name": "Ring Mail",
-      "Type": "Armor",
-      "Slot": "Body",
-      "Cost": 30,
-      "Weight": 30,
-      "ArmorClassBonus": 3,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
+        "Name": "Ring Mail",
+        "Type": "Armor",
+        "Slot": "Body",
+        "Cost": 30,
+        "Weight": 30,
+        "ArmorClassBonus": 3,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric" ]
     },
     {
-      "Name": "Scale Mail",
-      "Type": "Armor",
-      "Slot": "Body",
-      "Cost": 45,
-      "Weight": 40,
-      "ArmorClassBonus": 4,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
+        "Name": "Scale Mail",
+        "Type": "Armor",
+        "Slot": "Body",
+        "Cost": 45,
+        "Weight": 40,
+        "ArmorClassBonus": 4,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric" ]
     },
     {
       "Name": "Chain Mail",
@@ -63,24 +66,26 @@
       "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
     },
     {
-      "Name": "Splint Mail",
-      "Type": "Armor",
-      "Slot": "Body",
-      "Cost": 80,
-      "Weight": 45,
-      "ArmorClassBonus": 5,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
+        "Name": "Splint Mail",
+        "Type": "Armor",
+        "Slot": "Body",
+        "Cost": 80,
+        "Weight": 45,
+        "ArmorClassBonus": 5,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric" ]
     },
     {
-      "Name": "Banded Mail",
-      "Type": "Armor",
-      "Slot": "Body",
-      "Cost": 90,
-      "Weight": 45,
-      "ArmorClassBonus": 5,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
+        "Name": "Banded Mail",
+        "Type": "Armor",
+        "Slot": "Body",
+        "Cost": 90,
+        "Weight": 45,
+        "ArmorClassBonus": 5,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric" ]
     },
     {
       "Name": "Plate Mail",
@@ -99,28 +104,20 @@
       "Cost": 15,
       "Weight": 5,
       "ArmorClassBonus": 1,
+      "IsShopBuyable": false,
       "Damage": "",
       "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
     },
     {
-      "Name": "Plated Greaves",
-      "Type": "Armor",
-      "Slot": "Legs",
-      "Cost": 20,
-      "Weight": 8,
-      "ArmorClassBonus": 1,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
-    },
-    {
-      "Name": "Reinforced Boots",
-      "Type": "Armor",
-      "Slot": "Feet",
-      "Cost": 10,
-      "Weight": 4,
-      "ArmorClassBonus": 1,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Thief", "Assassin", "Bard", "Monk"]
+        "Name": "Reinforced Boots",
+        "Type": "Armor",
+        "Slot": "Feet",
+        "Cost": 10,
+        "Weight": 4,
+        "ArmorClassBonus": 1,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric", "Thief", "Assassin", "Bard", "Monk" ]
     },
     {
       "Name": "Gauntlets",
@@ -129,18 +126,20 @@
       "Cost": 12,
       "Weight": 3,
       "ArmorClassBonus": 1,
+      "IsShopBuyable": false,
       "Damage": "",
       "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Thief", "Assassin", "Bard", "Monk"]
     },
     {
-      "Name": "Steel Gorget",
-      "Type": "Armor",
-      "Slot": "Neck",
-      "Cost": 18,
-      "Weight": 2,
-      "ArmorClassBonus": 1,
-      "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric"]
+        "Name": "Steel Gorget",
+        "Type": "Armor",
+        "Slot": "Neck",
+        "Cost": 18,
+        "Weight": 2,
+        "ArmorClassBonus": 1,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric" ]
     },
     {
       "Name": "Cloak of Protection",
@@ -153,14 +152,15 @@
       "AllowedClasses": ["All"]
     },
     {
-      "Name": "War Belt",
-      "Type": "Armor",
-      "Slot": "Belt",
-      "Cost": 8,
-      "Weight": 2,
-      "ArmorClassBonus": 1,
-      "Damage": "",
-      "AllowedClasses": ["All"]
+        "Name": "War Belt",
+        "Type": "Armor",
+        "Slot": "Belt",
+        "Cost": 8,
+        "Weight": 2,
+        "ArmorClassBonus": 1,
+        "IsShopBuyable": false,
+        "Damage": "",
+        "AllowedClasses": [ "All" ]
     }
   ]
 }
