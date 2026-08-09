@@ -15,16 +15,42 @@ public sealed class SleepHandler : ISpellEffectHandler
         if (request.Context != SpellUseContext.Combat)
             return SpellCastResult.Failure("Sleep can only be cast in combat.");
 
-        var targets = request.Targets
-            .Where(t => t.Type == SpellCastTargetType.Enemy && t.MonsterIndex.HasValue)
-            .Select(t => request.MonsterTargets.FirstOrDefault(m => m.Index == t.MonsterIndex!.Value && m.IsAlive))
-            .Where(m => m != null)
-            .Cast<MonsterInstance>()
-            .DistinctBy(m => m.Index)
-            .ToList();
+        var session = request.CombatSession;
 
-        if (targets.Count == 0)
-            targets = request.MonsterTargets.Where(m => m.IsAlive).ToList();
+        // Determine target group
+        string targetGroupId = "default";
+        var firstTarget = request.Targets.FirstOrDefault();
+        if (firstTarget?.TargetGroupId != null)
+        {
+            targetGroupId = firstTarget.TargetGroupId;
+        }
+        else if (session != null && session.GetDistinctGroupIds().Count() > 1)
+        {
+            // If multiple groups exist and no target specified, target the first group with alive monsters
+            targetGroupId = session.GetDistinctGroupIds()
+                .FirstOrDefault(g => session.GetAliveCountByGroup(g) > 0) ?? "default";
+        }
+
+        // Get targets from the specified group
+        List<MonsterInstance> targets;
+        if (session != null)
+        {
+            targets = session.GetAliveMonstersByGroup(targetGroupId).ToList();
+        }
+        else
+        {
+            // Fallback to old behavior if no session
+            targets = request.Targets
+                .Where(t => t.Type == SpellCastTargetType.Enemy && t.MonsterIndex.HasValue)
+                .Select(t => request.MonsterTargets.FirstOrDefault(m => m.Index == t.MonsterIndex!.Value && m.IsAlive))
+                .Where(m => m != null)
+                .Cast<MonsterInstance>()
+                .DistinctBy(m => m.Index)
+                .ToList();
+
+            if (targets.Count == 0)
+                targets = request.MonsterTargets.Where(m => m.IsAlive).ToList();
+        }
 
         if (targets.Count == 0)
             return SpellCastResult.Failure("No valid enemy targets for Sleep.");

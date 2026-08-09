@@ -13,6 +13,13 @@ public enum SpellTargeting
     Multiple
 }
 
+public enum SpellTargetingScope
+{
+    SingleTarget,      // Affects one specific creature (like Magic Missile, Hold Person)
+    SingleGroup,       // Affects all creatures in one group (like Fireball, Sleep)
+    AllGroups          // Affects all creatures in all groups (like Mass Cure, Earthquake)
+}
+
 public enum SpellCastContext
 {
     Combat,
@@ -35,6 +42,7 @@ public class Spell
     public string Description { get; set; } = "";
     public SpellRangeType RangeType { get; set; } = SpellRangeType.Enemy;
     public SpellTargeting Targeting { get; set; } = SpellTargeting.Single;
+    public SpellTargetingScope TargetingScope { get; set; } = SpellTargetingScope.SingleTarget;
     public SpellCastContext CastContext { get; set; } = SpellCastContext.Both;
     public SpellEffectType EffectType { get; set; } = SpellEffectType.Damage;
     public string EffectDescription { get; set; } = "";

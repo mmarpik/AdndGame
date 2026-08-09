@@ -13,6 +13,7 @@ public sealed class SpellCastTarget
     public SpellCastTargetType Type { get; set; }
     public string? CharacterName { get; set; }
     public int? MonsterIndex { get; set; }
+    public string? TargetGroupId { get; set; }
 
     public static SpellCastTarget Ally(Character character) => new()
     {
@@ -24,5 +25,11 @@ public sealed class SpellCastTarget
     {
         Type = SpellCastTargetType.Enemy,
         MonsterIndex = monsterIndex
+    };
+
+    public static SpellCastTarget EnemyGroup(string groupId) => new()
+    {
+        Type = SpellCastTargetType.Enemy,
+        TargetGroupId = groupId
     };
 }

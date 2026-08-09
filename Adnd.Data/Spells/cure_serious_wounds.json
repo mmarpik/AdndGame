@@ -1,0 +1,12 @@
+{
+  "Id": "cure_serious_wounds",
+  "Name": "Cure Serious Wounds",
+  "Class": "Cleric",
+  "Level": 4,
+  "Description": "Heals serious wounds.",
+  "RangeType": "Ally",
+  "Targeting": "Single",
+  "CastContext": "Both",
+  "EffectType": "Heal",
+  "EffectDescription": "Restores a significant amount of hit points (2d8+1) to one ally."
+}

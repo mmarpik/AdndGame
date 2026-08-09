@@ -23,4 +23,13 @@ public sealed class CombatSession
 
     public IEnumerable<Character> AliveParty => Party.Where(p => p.CurrentHitPoints > 0 && !p.HasStatus(CharacterStatus.Dead));
     public IEnumerable<MonsterInstance> AliveMonsters => Monsters.Where(m => m.IsAlive);
+
+    // Helper methods for group-based monster tracking
+    public IEnumerable<string> GetDistinctGroupIds() => Monsters.Select(m => m.GroupId).Distinct();
+
+    public IEnumerable<MonsterInstance> GetMonstersByGroup(string groupId) => Monsters.Where(m => m.GroupId == groupId);
+
+    public IEnumerable<MonsterInstance> GetAliveMonstersByGroup(string groupId) => AliveMonsters.Where(m => m.GroupId == groupId);
+
+    public int GetAliveCountByGroup(string groupId) => GetAliveMonstersByGroup(groupId).Count();
 }

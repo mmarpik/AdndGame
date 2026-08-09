@@ -1615,30 +1615,75 @@ inspect.ShowDialog(this);
         if (string.Equals(monsterName, "No Encounter", StringComparison.OrdinalIgnoreCase))
             return;
 
-        var monster = _monsterRepository.GetAll().FirstOrDefault(m => string.Equals(m.Name, monsterName, StringComparison.OrdinalIgnoreCase));
-        int numberOfMonsters;
-        if (monster != null)
-        {
-            numberOfMonsters = _random.Next(monster.NumberOfAppearancesMin, monster.NumberOfAppearancesMax + 1);
-        }
-        else
-        {
-            numberOfMonsters = _random.Next(1, 7); // 1d6 fallback
-        }
-
         var party = LoadEncounterParty();
         if (party.Count == 0)
         {
             MessageBox.Show(
                 this,
-                $"Encounter!\n\n{numberOfMonsters} x {monsterName}\n\n(No active party members found)",
+                $"Encounter!\n\n{monsterName}\n\n(No active party members found)",
                 "Monsters",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
             return;
         }
 
-        var outcome = _combatCoordinator.StartEncounter(this, monsterName, numberOfMonsters, party, _characterRepository, _currentDungeonLevel);
+        // Determine number of monster groups that appear
+        // 60% = 1 group, 25% = 2 groups, 10% = 3 groups, 5% = 4 groups
+        int numberOfGroups = 1;
+        var roll = _random.NextDouble();
+        if (roll < 0.05) // 5%
+        {
+            numberOfGroups = 4;
+        }
+        else if (roll < 0.15) // 10% (0.05 + 0.10)
+        {
+            numberOfGroups = 3;
+        }
+        else if (roll < 0.40) // 25% (0.15 + 0.25)
+        {
+            numberOfGroups = 2;
+        }
+        // else: 60% (remaining) = 1 group
+
+        CombatOutcome outcome;
+        if (numberOfGroups > 1)
+        {
+            // Generate multiple groups
+            var monsterNames = new string[numberOfGroups];
+            monsterNames[0] = monsterName;
+
+            for (int i = 1; i < numberOfGroups; i++)
+            {
+                var additionalMonsterName = RollDungeonMonsterForLevel(_currentDungeonLevel);
+                if (string.IsNullOrWhiteSpace(additionalMonsterName))
+                    additionalMonsterName = LevelOneMonsters[_random.Next(LevelOneMonsters.Length)];
+                monsterNames[i] = additionalMonsterName;
+            }
+
+            outcome = _combatCoordinator.StartEncounterWithMultipleGroups(
+                this, 
+                monsterNames, 
+                party, 
+                _characterRepository, 
+                _monsterRepository,
+                _currentDungeonLevel);
+        }
+        else
+        {
+            // Single group encounter
+            var monster = _monsterRepository.GetAll().FirstOrDefault(m => string.Equals(m.Name, monsterName, StringComparison.OrdinalIgnoreCase));
+            int numberOfMonsters;
+            if (monster != null)
+            {
+                numberOfMonsters = _random.Next(monster.NumberOfAppearancesMin, monster.NumberOfAppearancesMax + 1);
+            }
+            else
+            {
+                numberOfMonsters = _random.Next(1, 7); // 1d6 fallback
+            }
+
+            outcome = _combatCoordinator.StartEncounter(this, monsterName, numberOfMonsters, party, _characterRepository, _currentDungeonLevel);
+        }
         if (outcome == CombatOutcome.Defeat)
         {
             HandlePartyDefeatAtCurrentCell();

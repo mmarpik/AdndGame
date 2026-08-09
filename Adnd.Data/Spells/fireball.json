@@ -1,0 +1,13 @@
+{
+  "Id": "fireball",
+  "Name": "Fireball",
+  "Class": "MagicUser",
+  "Level": 3,
+  "Description": "An explosive burst of flame that detonates with a low roar.",
+  "RangeType": "Enemy",
+  "Targeting": "Multiple",
+  "TargetingScope": "SingleGroup",
+  "CastContext": "Combat",
+  "EffectType": "Damage",
+  "EffectDescription": "Deals 1d6 damage per caster level (max 10d6) to all monsters in the targeted group."
+}

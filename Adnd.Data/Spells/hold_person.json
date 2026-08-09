@@ -6,6 +6,7 @@
   "Description": "Paralyzes one humanoid target.",
   "RangeType": "Enemy",
   "Targeting": "Single",
+  "TargetingScope": "SingleTarget",
   "CastContext": "Combat",
   "EffectType": "Damage",
   "EffectDescription": "Divine force locks a humanoid target in place."

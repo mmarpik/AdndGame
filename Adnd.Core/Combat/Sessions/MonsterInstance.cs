@@ -6,10 +6,11 @@ public sealed class MonsterInstance
 {
     private readonly Dictionary<MonsterStatus, int> _statusDurations = new();
 
-    public MonsterInstance(Monster template, int index)
+    public MonsterInstance(Monster template, int index, string groupId = "default")
     {
         Template = template;
         Index = index;
+        GroupId = groupId;
         Name = template.Name;
         CurrentHitPoints = template.HitPoints;
         ArmorClass = template.ArmorClass;
@@ -17,12 +18,14 @@ public sealed class MonsterInstance
 
     public Monster Template { get; }
     public int Index { get; }
+    public string GroupId { get; }
     public string Name { get; }
     public int CurrentHitPoints { get; set; }
     public int ArmorClass { get; }
     public bool IsAlive => CurrentHitPoints > 0;
 
     public string DisplayName => $"{Name} #{Index}";
+    public string DisplayNameWithGroup => $"{Name} #{Index} (Group {GroupId})";
 
     public bool HasStatus(MonsterStatus status)
     {

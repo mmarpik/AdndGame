@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Forms;
 using Adnd.Core.Characters;
 using Adnd.Core.Combat.Actions;
+using Adnd.Core.Combat.Sessions;
 using Adnd.Core.Spells;
 using Adnd.Core.Spells.Casting;
 using Adnd.Data.Spells;
@@ -19,8 +20,11 @@ public sealed class EncounterForm : Form
     private readonly int _asleepMonsterCount;
     private readonly int _roundNumber;
     private readonly List<Character> _party;
+    private readonly CombatSession? _session;
+    private readonly bool _multipleGroups;
     private readonly Dictionary<string, CombatAction> _actions = new(StringComparer.OrdinalIgnoreCase);
     private readonly Image? _monsterImage;
+    private readonly List<(string Name, Image? Image)> _monsterImages = new();
     private readonly SpellRepository _spellRepo = new("Data/Spells");
 
     public IReadOnlyDictionary<string, CombatAction> SelectedActions => _actions;
@@ -33,6 +37,7 @@ public sealed class EncounterForm : Form
     private readonly Panel _monsterPanel;
     private readonly ListView _partyList;
 
+    // Constructor for single group encounters (backward compatibility)
     public EncounterForm(string monsterName, int monsterCount, int asleepMonsterCount, List<Character> party, int roundNumber, int? dungeonLevel = null)
     {
         _monsterName = monsterName;
@@ -135,6 +140,128 @@ public sealed class EncounterForm : Form
         UpdatePartyList();
     }
 
+    // Constructor for multiple group encounters
+    public EncounterForm(CombatSession session, int? dungeonLevel = null)
+    {
+        _session = session;
+        _multipleGroups = true;
+        _party = session.Party;
+        _roundNumber = session.RoundNumber;
+
+        var groups = session.GetDistinctGroupIds().ToList();
+        var groupDescriptions = groups.Select(groupId =>
+        {
+            var monstersInGroup = session.GetAliveMonstersByGroup(groupId).ToList();
+            if (monstersInGroup.Count == 0)
+                return null;
+            var name = monstersInGroup.First().Name;
+            var count = monstersInGroup.Count;
+            var asleepCount = monstersInGroup.Count(m => m.HasStatus(MonsterStatus.Asleep));
+
+            // Load image for this monster type
+            var image = TryLoadMonsterImage(name, dungeonLevel);
+            _monsterImages.Add((name, image));
+
+            return $"{count} {name}" + (asleepCount > 0 ? $" ({asleepCount} asleep)" : "");
+        }).Where(d => d != null).ToList();
+
+        _monsterName = string.Join(" and ", groupDescriptions);
+        _monsterCount = session.AliveMonsters.Count();
+        _asleepMonsterCount = session.AliveMonsters.Count(m => m.HasStatus(MonsterStatus.Asleep));
+
+        Text = "Encounter";
+        StartPosition = FormStartPosition.CenterParent;
+        ClientSize = new Size(980, 620);
+        BackColor = Color.Black;
+        ForeColor = Color.White;
+        FormBorderStyle = FormBorderStyle.FixedDialog;
+        MaximizeBox = false;
+        MinimizeBox = false;
+        KeyPreview = true;
+
+        _headerLabel = new Label
+        {
+            Left = 16,
+            Top = 12,
+            Width = 940,
+            Height = 40,
+            ForeColor = Color.White,
+            BackColor = Color.Black,
+            Font = new Font("Consolas", 18f, FontStyle.Bold),
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+
+        _optionsTitleLabel = new Label
+        {
+            Left = 16,
+            Top = 64,
+            Width = 940,
+            Height = 40,
+            ForeColor = Color.White,
+            BackColor = Color.Black,
+            Font = new Font("Consolas", 18f, FontStyle.Bold),
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+
+        _optionsLegendLabel = new Label
+        {
+            Left = 16,
+            Top = 108,
+            Width = 940,
+            Height = 56,
+            ForeColor = Color.White,
+            BackColor = Color.Black,
+            Font = new Font("Consolas", 16f, FontStyle.Bold),
+            Text = "F)IGHT   U)SE ITEM   R)UN\nS)PELL   P)ARRY      T)AKE BACK\nG)ROUP   (Select Target Group)",
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+
+        _monsterPanel = new Panel
+        {
+            Left = 16,
+            Top = 172,
+            Width = 940,
+            Height = 180,
+            BackColor = Color.Black,
+            BorderStyle = BorderStyle.FixedSingle
+        };
+        _monsterPanel.Paint += MonsterPanel_Paint;
+
+        _partyList = new ListView
+        {
+            Left = 16,
+            Top = 362,
+            Width = 940,
+            Height = 236,
+            BackColor = Color.Black,
+            ForeColor = Color.White,
+            View = View.Details,
+            FullRowSelect = true,
+            GridLines = true,
+            HeaderStyle = ColumnHeaderStyle.Nonclickable,
+            Font = new Font("Consolas", 14f, FontStyle.Bold)
+        };
+
+        _partyList.Columns.Add("#", 50);
+        _partyList.Columns.Add("Character Name", 280);
+        _partyList.Columns.Add("Class", 140);
+        _partyList.Columns.Add("AC", 80);
+        _partyList.Columns.Add("Hits", 100);
+        _partyList.Columns.Add("Status", 220);
+
+        Controls.Add(_headerLabel);
+        Controls.Add(_optionsTitleLabel);
+        Controls.Add(_optionsLegendLabel);
+        Controls.Add(_monsterPanel);
+        Controls.Add(_partyList);
+
+        KeyDown += EncounterForm_KeyDown;
+
+        _currentIndex = FindNextActionableIndex(-1);
+        UpdateHeader();
+        UpdatePartyList();
+    }
+
     private void EncounterForm_KeyDown(object? sender, KeyEventArgs e)
     {
         switch (e.KeyCode)
@@ -167,6 +294,10 @@ public sealed class EncounterForm : Form
             case Keys.S:
                 ChooseSpellAction();
                 break;
+            case Keys.G:
+                if (_multipleGroups && _session != null)
+                    ChooseTargetGroup();
+                break;
         }
     }
 
@@ -188,7 +319,32 @@ public sealed class EncounterForm : Form
             return;
         }
 
-        _actions[_party[_currentIndex].Name] = CombatAction.OfType(action);
+        var character = _party[_currentIndex];
+        var combatAction = CombatAction.OfType(action);
+
+        // If Fight action and multiple groups exist, prompt for target group
+        if (action == CombatActionType.Fight && _multipleGroups && _session != null)
+        {
+            var groups = _session.GetDistinctGroupIds()
+                .Where(g => _session.GetAliveCountByGroup(g) > 0)
+                .ToList();
+
+            if (groups.Count > 1)
+            {
+                var targetGroupId = PromptGroupSelection(character);
+                if (targetGroupId == null)
+                    return; // User cancelled
+
+                combatAction.TargetGroupId = targetGroupId;
+            }
+            else if (groups.Count == 1)
+            {
+                // Only one group, automatically target it
+                combatAction.TargetGroupId = groups[0];
+            }
+        }
+
+        _actions[character.Name] = combatAction;
         AdvanceActor();
     }
 
@@ -224,18 +380,59 @@ public sealed class EncounterForm : Form
                 return;
             target = SpellCastTarget.Ally(ally);
         }
-        else
+        else // Enemy spells
         {
-            if (string.Equals(spell.Id, "sleep", StringComparison.OrdinalIgnoreCase))
+            // Determine targeting based on TargetingScope
+            if (spell.TargetingScope == SpellTargetingScope.SingleTarget)
             {
-                target = null;
+                // SingleTarget: pick a random target within a group
+                // If multiple groups exist, ask which group to target
+                if (_multipleGroups && _session != null)
+                {
+                    var targetGroupId = PromptGroupSelection(caster);
+                    if (targetGroupId == null)
+                        return;
+                    target = SpellCastTarget.EnemyGroup(targetGroupId);
+                }
+                else
+                {
+                    // Single group or no session - use default targeting (random will be picked by handler)
+                    target = SpellCastTarget.EnemyGroup("default");
+                }
             }
-            else
+            else if (spell.TargetingScope == SpellTargetingScope.SingleGroup)
             {
-                var enemyIndex = PromptEnemyTarget();
-                if (!enemyIndex.HasValue)
-                    return;
-                target = SpellCastTarget.Enemy(enemyIndex.Value);
+                // SingleGroup: affects all monsters in one group
+                // If multiple groups exist, ask which group to target
+                if (_multipleGroups && _session != null)
+                {
+                    var groups = _session.GetDistinctGroupIds()
+                        .Where(g => _session.GetAliveCountByGroup(g) > 0)
+                        .ToList();
+
+                    if (groups.Count > 1)
+                    {
+                        var targetGroupId = PromptGroupSelection(caster);
+                        if (targetGroupId == null)
+                            return;
+                        target = SpellCastTarget.EnemyGroup(targetGroupId);
+                    }
+                    else
+                    {
+                        // Only one group left
+                        target = SpellCastTarget.EnemyGroup(groups.FirstOrDefault() ?? "default");
+                    }
+                }
+                else
+                {
+                    // Single group encounter
+                    target = SpellCastTarget.EnemyGroup("default");
+                }
+            }
+            else // AllGroups
+            {
+                // AllGroups: affects all monsters in all groups, no targeting needed
+                target = null;
             }
         }
 
@@ -279,6 +476,79 @@ public sealed class EncounterForm : Form
     {
         var enemyLines = string.Join(Environment.NewLine, Enumerable.Range(1, _monsterCount).Select(i => $"{i}. {_monsterName} #{i}"));
         return PromptForNumber("Choose Enemy Target", enemyLines, 1, _monsterCount);
+    }
+
+    private string? PromptGroupSelection(Character caster)
+    {
+        if (_session == null)
+            return "default";
+
+        var groups = _session.GetDistinctGroupIds()
+            .Where(groupId => _session.GetAliveCountByGroup(groupId) > 0)
+            .ToList();
+
+        if (groups.Count <= 1)
+            return groups.FirstOrDefault() ?? "default";
+
+        var groupDescriptions = new List<string>();
+        for (int i = 0; i < groups.Count; i++)
+        {
+            var groupId = groups[i];
+            var monstersInGroup = _session.GetAliveMonstersByGroup(groupId).ToList();
+            var name = monstersInGroup.First().Name;
+            var count = monstersInGroup.Count;
+            var asleepCount = monstersInGroup.Count(m => m.HasStatus(MonsterStatus.Asleep));
+            groupDescriptions.Add($"{i + 1}. {groupId}: {count} {name}" + (asleepCount > 0 ? $" ({asleepCount} asleep)" : ""));
+        }
+
+        var groupLines = string.Join(Environment.NewLine, groupDescriptions);
+        var selected = PromptForNumber("Select Target Group", $"Which group should {caster.Name} target?\n\n{groupLines}", 1, groups.Count);
+
+        if (!selected.HasValue)
+            return null;
+
+        return groups[selected.Value - 1];
+    }
+
+    private void ChooseTargetGroup()
+    {
+        if (_session == null || _currentIndex < 0 || _currentIndex >= _party.Count)
+            return;
+
+        var character = _party[_currentIndex];
+        if (!IsActionable(character))
+            return;
+
+        var groups = _session.GetDistinctGroupIds()
+            .Where(groupId => _session.GetAliveCountByGroup(groupId) > 0)
+            .ToList();
+
+        if (groups.Count <= 1)
+        {
+            MessageBox.Show(this, "Only one group remains.", "Group Selection", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        var groupDescriptions = new List<string>();
+        for (int i = 0; i < groups.Count; i++)
+        {
+            var groupId = groups[i];
+            var monstersInGroup = _session.GetAliveMonstersByGroup(groupId).ToList();
+            var name = monstersInGroup.First().Name;
+            var count = monstersInGroup.Count;
+            var asleepCount = monstersInGroup.Count(m => m.HasStatus(MonsterStatus.Asleep));
+            groupDescriptions.Add($"{i + 1}. {groupId}: {count} {name}" + (asleepCount > 0 ? $" ({asleepCount} asleep)" : ""));
+        }
+
+        var groupLines = string.Join(Environment.NewLine, groupDescriptions);
+        var selected = PromptForNumber("Select Target Group", $"Which group should {character.Name} target?\n\n{groupLines}", 1, groups.Count);
+
+        if (selected.HasValue)
+        {
+            var selectedGroupId = groups[selected.Value - 1];
+            MessageBox.Show(this, $"{character.Name} will target {selectedGroupId}", "Group Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            // Store group preference (for now, just show message - actual targeting handled in combat resolver)
+        }
     }
 
     private List<Spell> GetCastableCombatSpells(Character caster)
@@ -496,6 +766,14 @@ public sealed class EncounterForm : Form
 
         var rect = _monsterPanel.ClientRectangle;
 
+        // Handle multiple group images
+        if (_monsterImages.Count > 0)
+        {
+            DrawMultipleMonsterImages(g, rect, _monsterImages);
+            return;
+        }
+
+        // Handle single monster image
         if (_monsterImage is not null)
         {
             DrawMonsterImage(g, rect, _monsterImage);
@@ -517,6 +795,68 @@ public sealed class EncounterForm : Form
             default:
                 DrawRat(g, pen, cx, cy);
                 break;
+        }
+    }
+
+    private static void DrawMultipleMonsterImages(Graphics g, Rectangle bounds, List<(string Name, Image? Image)> monsterImages)
+    {
+        const int padding = 10;
+        const int spacing = 15;
+
+        if (monsterImages.Count == 0)
+            return;
+
+        // Calculate available space for each image/slot
+        var totalSpacing = spacing * (monsterImages.Count - 1);
+        var availableWidth = bounds.Width - (2 * padding) - totalSpacing;
+        var slotWidth = availableWidth / monsterImages.Count;
+
+        // Draw each monster in its slot
+        for (int i = 0; i < monsterImages.Count; i++)
+        {
+            var image = monsterImages[i].Image;
+            var name = monsterImages[i].Name;
+
+            // Calculate the slot bounds
+            var slotX = bounds.X + padding + (i * (slotWidth + spacing));
+            var slotBounds = new Rectangle(slotX, bounds.Y + padding, slotWidth, bounds.Height - (2 * padding));
+
+            if (image != null)
+            {
+                // Draw image if available
+                var scale = Math.Min(slotBounds.Width / (float)image.Width, (slotBounds.Height - 20) / (float)image.Height);
+                var drawWidth = (int)(image.Width * scale);
+                var drawHeight = (int)(image.Height * scale);
+                var drawX = slotBounds.X + ((slotBounds.Width - drawWidth) / 2);
+                var drawY = slotBounds.Y + ((slotBounds.Height - 20 - drawHeight) / 2);
+
+                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+                g.DrawImage(image, new Rectangle(drawX, drawY, drawWidth, drawHeight));
+            }
+            else
+            {
+                // Draw simple placeholder if no image
+                using var pen = new Pen(Color.White, 2f);
+                var cx = slotBounds.X + (slotBounds.Width / 2f);
+                var cy = slotBounds.Y + (slotBounds.Height / 2f);
+
+                // Draw a simple creature shape based on name
+                if (name.ToLowerInvariant().Contains("skeleton"))
+                    DrawSkeleton(g, pen, cx, cy);
+                else if (name.ToLowerInvariant().Contains("goblin"))
+                    DrawHumanoid(g, pen, cx, cy);
+                else
+                    DrawRat(g, pen, cx, cy);
+            }
+
+            // Draw monster name label below
+            using var font = new Font("Consolas", 10f, FontStyle.Bold);
+            using var brush = new SolidBrush(Color.White);
+            var textSize = g.MeasureString(name, font);
+            var textX = slotBounds.X + ((slotBounds.Width - textSize.Width) / 2);
+            var textY = slotBounds.Bottom - textSize.Height;
+            g.DrawString(name, font, brush, textX, textY);
         }
     }
 

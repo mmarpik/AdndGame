@@ -24,6 +24,7 @@ public class PartyMenu
         var resolver = new SpellResolver(new ISpellEffectHandler[]
         {
             new CureLightWoundsHandler(),
+            new CureSeriousWoundsHandler(),
             new MagicMissileHandler(),
             new BlessHandler(),
             new SleepHandler(),

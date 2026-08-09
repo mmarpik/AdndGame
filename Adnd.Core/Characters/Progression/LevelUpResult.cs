@@ -11,6 +11,7 @@ public sealed class LevelUpResult
     public int ExperienceAfter { get; set; }
     public int HitPointsGained { get; set; }
     public List<(SpellClass SpellClass, List<int> OldSlots, List<int> NewSlots)> SpellSlotChanges { get; set; } = new();
+    public List<string> SpellsLearned { get; set; } = new();
 
     public bool LeveledUp => NewLevel > OldLevel;
     public int LevelsGained => Math.Max(0, NewLevel - OldLevel);

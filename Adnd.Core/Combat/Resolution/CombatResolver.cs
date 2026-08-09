@@ -98,7 +98,7 @@ public sealed class CombatResolver
             switch (action.Type)
             {
                 case CombatActionType.Fight:
-                    ResolvePartyAttack(session, member, events);
+                    ResolvePartyAttack(session, member, action, events);
                     break;
                 case CombatActionType.Parry:
                     parrying.Add(member.Name);
@@ -253,9 +253,26 @@ public sealed class CombatResolver
         return events;
     }
 
-    private void ResolvePartyAttack(CombatSession session, Character member, List<CombatEvent> events)
+    private void ResolvePartyAttack(CombatSession session, Character member, CombatAction action, List<CombatEvent> events)
     {
-        var target = session.AliveMonsters.FirstOrDefault();
+        // Determine target from the specified group or default to first alive monster
+        Combat.Sessions.MonsterInstance? target = null;
+
+        if (!string.IsNullOrEmpty(action.TargetGroupId))
+        {
+            // Attack a monster from the specified group
+            var groupMonsters = session.GetAliveMonstersByGroup(action.TargetGroupId).ToList();
+            if (groupMonsters.Count > 0)
+            {
+                target = groupMonsters.First();
+            }
+        }
+        else
+        {
+            // Default to first alive monster (backward compatibility)
+            target = session.AliveMonsters.FirstOrDefault();
+        }
+
         if (target is null)
             return;
 

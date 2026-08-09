@@ -6,6 +6,7 @@
   "Description": "Puts creatures into a magical slumber.",
   "RangeType": "Enemy",
   "Targeting": "Multiple",
+  "TargetingScope": "SingleGroup",
   "CastContext": "Combat",
   "EffectType": "Damage",
   "EffectDescription": "A wave of enchantment causes affected enemies to fall asleep."

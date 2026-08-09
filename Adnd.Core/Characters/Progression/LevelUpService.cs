@@ -1,10 +1,18 @@
+using Adnd.Core.Spells;
+
 namespace Adnd.Core.Characters.Progression;
 
 public sealed class LevelUpService
 {
     private readonly SpellProgressionService _spellProgressionService = new();
+    private readonly SpellLearningService _spellLearningService;
 
-    public LevelUpResult ApplyExperienceAndAutoLevel(Character character, int gainedXp)
+    public LevelUpService(SpellLearningService? spellLearningService = null)
+    {
+        _spellLearningService = spellLearningService ?? new SpellLearningService();
+    }
+
+    public LevelUpResult ApplyExperienceAndAutoLevel(Character character, int gainedXp, List<Spell>? availableSpells = null)
     {
         if (gainedXp < 0)
             gainedXp = 0;
@@ -62,6 +70,12 @@ public sealed class LevelUpService
         result.ExperienceAfter = character.Experience;
 
         result.SpellSlotChanges = _spellProgressionService.RecalculateFromClassProgressions(character);
+
+        // Attempt to learn new spells for INT-based casters
+        if (result.LeveledUp && availableSpells != null && availableSpells.Count > 0)
+        {
+            result.SpellsLearned = _spellLearningService.AttemptLearnSpellsOnLevelUp(character, result.OldLevel, result.NewLevel, availableSpells);
+        }
 
         return result;
     }

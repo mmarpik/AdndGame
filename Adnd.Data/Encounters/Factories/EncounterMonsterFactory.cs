@@ -15,6 +15,11 @@ public sealed class EncounterMonsterFactory
 
     public List<MonsterInstance> CreateGroup(string monsterName, int count)
     {
+        return CreateGroup(monsterName, count, "default");
+    }
+
+    public List<MonsterInstance> CreateGroup(string monsterName, int count, string groupId)
+    {
         count = Math.Max(1, count);
 
         var template = _monsterRepository
@@ -24,9 +29,21 @@ public sealed class EncounterMonsterFactory
 
         var list = new List<MonsterInstance>(count);
         for (int i = 1; i <= count; i++)
-            list.Add(new MonsterInstance(CloneMonster(template), i));
+            list.Add(new MonsterInstance(CloneMonster(template), i, groupId));
 
         return list;
+    }
+
+    public List<MonsterInstance> CreateMultipleGroups(List<(string monsterName, int count)> groups)
+    {
+        var allMonsters = new List<MonsterInstance>();
+        for (int groupIndex = 0; groupIndex < groups.Count; groupIndex++)
+        {
+            var (monsterName, count) = groups[groupIndex];
+            var groupId = $"Group{groupIndex + 1}";
+            allMonsters.AddRange(CreateGroup(monsterName, count, groupId));
+        }
+        return allMonsters;
     }
 
     private static Monster BuildFallback(string monsterName)

@@ -13,6 +13,7 @@ using Adnd.Core.Treasure;
 using Adnd.Data.Characters;
 using Adnd.Data.Encounters.Factories;
 using Adnd.Data.Items;
+using Adnd.Data.Monsters;
 using Adnd.Data.Party;
 using Adnd.Data.Spells;
 using Adnd.Data.Treasure;
@@ -25,6 +26,7 @@ public sealed class CombatCoordinator
     private readonly CombatResolver _combatResolver;
     private readonly PartyRepository _partyRepository = new();
     private readonly LevelUpService _levelUpService = new();
+    private readonly SpellRepository _spellRepository = new("Data/Spells");
     private readonly TreasureService _treasureService;
     private readonly ItemRepository _itemRepository = new("Data/Items");
     private readonly Random _random = new();
@@ -36,10 +38,13 @@ public sealed class CombatCoordinator
         var resolver = new SpellResolver(new ISpellEffectHandler[]
         {
             new CureLightWoundsHandler(),
+            new CureSeriousWoundsHandler(),
             new MagicMissileHandler(),
+            new HoldPersonHandler(),
             new BlessHandler(),
             new SleepHandler(),
             new InvisibilityHandler(),
+            new FireballHandler(),
         });
 
         var spellCastingService = new SpellCastingService(resolver, spellRepo.LoadAll());
@@ -69,6 +74,64 @@ public sealed class CombatCoordinator
             if (dialogResult != DialogResult.OK)
             {
                 // If player closes dialog, treat as escape to avoid dead-end.
+                session.Outcome = CombatOutcome.Escaped;
+                break;
+            }
+
+            var roundEvents = _combatResolver.ResolveRound(session, encounterForm.SelectedActions);
+            ShowRoundEvents(owner, roundEvents);
+
+            MoveDeadPartyMembersToEnd(session.Party);
+        }
+
+        if (session.Outcome == CombatOutcome.Victory)
+        {
+            ApplyVictoryRewards(owner, session);
+        }
+
+        RemoveTemporaryCombatEffects(session);
+
+        foreach (var character in party)
+            characterRepository.Save(character);
+
+        MoveDeadPartyMembersToEnd(session.Party);
+        ShowFinalOutcome(owner, session.Outcome);
+        return session.Outcome;
+    }
+
+    public CombatOutcome StartEncounterWithMultipleGroups(IWin32Window owner, string[] monsterNames, List<Character> party, CharacterRepository characterRepository, MonsterRepository monsterRepository, int? dungeonLevel = null)
+    {
+        var groups = new List<(string name, int count)>();
+        foreach (var monsterName in monsterNames)
+        {
+            var monster = monsterRepository.GetAll().FirstOrDefault(m => string.Equals(m.Name, monsterName, StringComparison.OrdinalIgnoreCase));
+            int count;
+            if (monster != null)
+            {
+                count = _random.Next(monster.NumberOfAppearancesMin, monster.NumberOfAppearancesMax + 1);
+            }
+            else
+            {
+                count = _random.Next(1, 4); // Smaller groups when multiple
+            }
+            groups.Add((monsterName, count));
+        }
+
+        var monsters = _monsterFactory.CreateMultipleGroups(groups);
+        var session = new CombatSession(party, monsters);
+
+        while (session.Outcome == CombatOutcome.InProgress)
+        {
+            if (!session.AliveParty.Any())
+            {
+                session.Outcome = CombatOutcome.Defeat;
+                break;
+            }
+
+            using var encounterForm = new EncounterForm(session, dungeonLevel);
+            var dialogResult = encounterForm.ShowDialog(owner);
+            if (dialogResult != DialogResult.OK)
+            {
                 session.Outcome = CombatOutcome.Escaped;
                 break;
             }
@@ -135,6 +198,7 @@ public sealed class CombatCoordinator
         var xpMultiplier = GameRulesProvider.Current.XpMultiplier;
 
         var levelUpResults = new List<LevelUpResult>();
+        var allSpells = _spellRepository.LoadAll();
         for (int i = 0; i < survivors.Count; i++)
         {
             var baseGain = xpEach + (i < xpRemainder ? 1 : 0);
@@ -142,7 +206,7 @@ public sealed class CombatCoordinator
             if (gain < 0)
                 gain = 0;
 
-            levelUpResults.Add(_levelUpService.ApplyExperienceAndAutoLevel(survivors[i], gain));
+            levelUpResults.Add(_levelUpService.ApplyExperienceAndAutoLevel(survivors[i], gain, allSpells));
         }
 
         var totalAwardedXp = levelUpResults.Sum(r => r.ExperienceAfter - r.ExperienceBefore);
@@ -236,6 +300,11 @@ public sealed class CombatCoordinator
                     var oldSlots = change.OldSlots.Count == 0 ? "none" : string.Join(",", change.OldSlots);
                     var newSlots = change.NewSlots.Count == 0 ? "none" : string.Join(",", change.NewSlots);
                     sb.AppendLine($"    {change.SpellClass} slots: [{oldSlots}] -> [{newSlots}]");
+                }
+
+                if (r.SpellsLearned.Count > 0)
+                {
+                    sb.AppendLine($"    Spells learned: {string.Join(", ", r.SpellsLearned)}");
                 }
             }
         }

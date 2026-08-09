@@ -6,6 +6,7 @@
   "Description": "Creates magical missiles that automatically hit targets.",
   "RangeType": "Enemy",
   "Targeting": "Single",
+  "TargetingScope": "SingleTarget",
   "CastContext": "Combat",
   "EffectType": "Damage",
   "EffectDescription": "Arcane missiles streak toward a target and strike unerringly."

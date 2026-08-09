@@ -10,15 +10,35 @@ public sealed class MagicMissileHandler : ISpellEffectHandler
         if (spell == null)
             return SpellCastResult.Failure("Missing spell definition.");
 
-        var targetRef = request.Targets.FirstOrDefault(t => t.Type == SpellCastTargetType.Enemy);
-        var target = targetRef?.MonsterIndex is int idx
-            ? request.MonsterTargets.FirstOrDefault(m => m.Index == idx && m.IsAlive)
-            : request.MonsterTargets.FirstOrDefault(m => m.IsAlive);
+        var session = request.CombatSession;
+        var rng = request.Rng ?? Random.Shared;
+
+        // Determine target
+        Combat.Sessions.MonsterInstance? target = null;
+
+        // If a group was specified, pick a random target from that group
+        var firstTarget = request.Targets.FirstOrDefault();
+        if (firstTarget?.TargetGroupId != null && session != null)
+        {
+            var groupTargets = session.GetAliveMonstersByGroup(firstTarget.TargetGroupId).ToList();
+            if (groupTargets.Count > 0)
+            {
+                target = groupTargets[rng.Next(groupTargets.Count)];
+            }
+        }
+
+        // Fallback to old behavior
+        if (target == null)
+        {
+            var targetRef = request.Targets.FirstOrDefault(t => t.Type == SpellCastTargetType.Enemy);
+            target = targetRef?.MonsterIndex is int idx
+                ? request.MonsterTargets.FirstOrDefault(m => m.Index == idx && m.IsAlive)
+                : request.MonsterTargets.FirstOrDefault(m => m.IsAlive);
+        }
 
         if (target == null)
             return SpellCastResult.Failure("No valid enemy target selected.");
 
-        var rng = request.Rng ?? Random.Shared;
         var damageRoll = rng.Next(1, 5);
         var damage = damageRoll + 1; // 1d4+1
         var before = target.CurrentHitPoints;

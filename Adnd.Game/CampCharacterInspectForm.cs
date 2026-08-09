@@ -31,6 +31,7 @@ public sealed class CampCharacterInspectForm : Form
         var resolver = new SpellResolver(new ISpellEffectHandler[]
         {
             new CureLightWoundsHandler(),
+            new CureSeriousWoundsHandler(),
             new MagicMissileHandler(),
             new BlessHandler(),
             new SleepHandler(),
