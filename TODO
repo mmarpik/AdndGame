@@ -1,0 +1,44 @@
+To do 
+
+Test (to do)
+Mulit class, dual wield, higher level balance between monsters and parties
+
+Character creation (to do)
+Use a windows form when creating charater. Radio buttons for Race and class, 
+show different pictures depensing on selected gender, race and class.
+
+Bank (optional to do)
+. Individual or common account? only money or items also?
+keep cp,sp, ep, gp and pp or only have gp? if keeping, implement change function.
+
+City (to do)
+Create windows forms for all city location and navigarion instead of commandlines
+
+Spells (to do)
+implement many more spells, for example damage over time and damage shield
+
+Treasure (to do)
+Tweak treasure found, for example reduce number of cp, sp found.
+
+Treasure chest (to do)
+Traps, inspect Traps, disarm Traps, graphis
+
+Maze (to do)
+implement doors, traps, darkness one way doors, secret doors and thin walls. Decorations, such as tourches on the wall, bars etc.
+
+Maze (optional to do)
+out door graphis and encounter. maybe see monsers in a distance and use range weapons.
+
+Monsters (to do)
+Let the monsters have special effects, such as poison, paralze and some spell casting
+define combinations of groups that belong together, for example goblin and goblin leader.
+
+Item (to do)
+Special effects on items, for example bag of holding, dagger of poison, staff of fireball, scroll of cure light wounds.
+
+
+
+
+
+
+
