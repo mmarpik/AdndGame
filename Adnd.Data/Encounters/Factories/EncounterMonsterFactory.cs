@@ -90,6 +90,8 @@ public sealed class EncounterMonsterFactory
             XPValue = source.XPValue,
             TreasureType = source.TreasureType,
             TreasureChanceOverride = source.TreasureChanceOverride,
+            Source = source.Source, // Important: Copy the Source property!
+            DungeonLevel = source.DungeonLevel, // Also copy DungeonLevel
             Attacks = source.Attacks
                 .Select(a => new MonsterAttack
                 {

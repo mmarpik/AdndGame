@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using Adnd.Core.Characters;
 using Adnd.Core.Combat.Actions;
 using Adnd.Core.Combat.Sessions;
+using Adnd.Core.Config;
+using Adnd.Core.Monsters;
 using Adnd.Core.Spells;
 using Adnd.Core.Spells.Casting;
 using Adnd.Data.Spells;
@@ -38,14 +40,17 @@ public sealed class EncounterForm : Form
     private readonly ListView _partyList;
 
     // Constructor for single group encounters (backward compatibility)
-    public EncounterForm(string monsterName, int monsterCount, int asleepMonsterCount, List<Character> party, int roundNumber, int? dungeonLevel = null)
+    public EncounterForm(string monsterName, int monsterCount, int asleepMonsterCount, List<Character> party, int roundNumber, int? dungeonLevel = null, Monster? monsterTemplate = null)
     {
         _monsterName = monsterName;
         _monsterCount = monsterCount;
         _asleepMonsterCount = asleepMonsterCount;
         _roundNumber = roundNumber;
         _party = party;
-        _monsterImage = TryLoadMonsterImage(monsterName, dungeonLevel);
+
+        // Check if we should use Wizardry suffix
+        bool useWizSuffix = monsterTemplate != null && ShouldUseWizardrySuffix(monsterTemplate);
+        _monsterImage = TryLoadMonsterImage(monsterName, dungeonLevel, useWizSuffix);
 
         Text = "Encounter";
         StartPosition = FormStartPosition.CenterParent;
@@ -158,8 +163,11 @@ public sealed class EncounterForm : Form
             var count = monstersInGroup.Count;
             var asleepCount = monstersInGroup.Count(m => m.HasStatus(MonsterStatus.Asleep));
 
+            // Check if we should use Wizardry suffix
+            bool useWizSuffix = ShouldUseWizardrySuffix(monstersInGroup.First().Template);
+
             // Load image for this monster type
-            var image = TryLoadMonsterImage(name, dungeonLevel);
+            var image = TryLoadMonsterImage(name, dungeonLevel, useWizSuffix);
             _monsterImages.Add((name, image));
 
             return $"{count} {name}" + (asleepCount > 0 ? $" ({asleepCount} asleep)" : "");
@@ -876,7 +884,7 @@ public sealed class EncounterForm : Form
         g.DrawImage(image, new Rectangle(drawX, drawY, drawWidth, drawHeight));
     }
 
-    private static System.Drawing.Image? TryLoadMonsterImage(string monsterName, int? dungeonLevel = null)
+    private static System.Drawing.Image? TryLoadMonsterImage(string monsterName, int? dungeonLevel = null, bool useWizardrySuffix = false)
     {
         var slug = monsterName.Trim().ToLowerInvariant().Replace(" ", "_");
         var camelCase = monsterName.Trim().Replace(" ", "");
@@ -885,63 +893,71 @@ public sealed class EncounterForm : Form
         var baseDir = AppContext.BaseDirectory;
         var candidates = new List<string>();
 
+        // Helper function to add candidates with optional _Wiz suffix
+        void AddCandidates(string folder, string baseName, bool tryWizFirst)
+        {
+            foreach (var ext in exts)
+            {
+                // If Wizardry suffix should be used, try _Wiz version first
+                if (tryWizFirst)
+                {
+                    candidates.Add(Path.Combine(folder, baseName + "_Wiz" + ext));
+                }
+                candidates.Add(Path.Combine(folder, baseName + ext));
+            }
+        }
+
         // If dungeonLevel is provided, search in level-specific folder first
         if (dungeonLevel.HasValue)
         {
             var levelFolder = $"Level{dungeonLevel.Value}";
+            var baseFolder = Path.Combine(baseDir, "Assets", "Monsters", levelFolder);
 
-            foreach (var ext in exts)
-            {
-                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, slug + ext));
-                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, camelCase + ext));
-                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, monsterName + ext));
-            }
+            AddCandidates(baseFolder, slug, useWizardrySuffix);
+            AddCandidates(baseFolder, camelCase, useWizardrySuffix);
+            AddCandidates(baseFolder, monsterName, useWizardrySuffix);
 
-            foreach (var ext in exts)
-            {
-                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, slug + ext));
-                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, camelCase + ext));
-                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, slug + ext));
-                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, camelCase + ext));
-            }
+            // Source paths
+            var sourceFolder1 = Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder);
+            var sourceFolder2 = Path.Combine("Assets", "Monsters", levelFolder);
+
+            AddCandidates(sourceFolder1, slug, useWizardrySuffix);
+            AddCandidates(sourceFolder1, camelCase, useWizardrySuffix);
+            AddCandidates(sourceFolder2, slug, useWizardrySuffix);
+            AddCandidates(sourceFolder2, camelCase, useWizardrySuffix);
         }
 
         // Also search in all level folders (Level1-Level10) if not found yet
         for (int level = 1; level <= 10; level++)
         {
             var levelFolder = $"Level{level}";
+            var baseFolder = Path.Combine(baseDir, "Assets", "Monsters", levelFolder);
 
-            foreach (var ext in exts)
-            {
-                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, slug + ext));
-                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, camelCase + ext));
-                candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", levelFolder, monsterName + ext));
-            }
+            AddCandidates(baseFolder, slug, useWizardrySuffix);
+            AddCandidates(baseFolder, camelCase, useWizardrySuffix);
+            AddCandidates(baseFolder, monsterName, useWizardrySuffix);
 
-            foreach (var ext in exts)
-            {
-                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, slug + ext));
-                candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder, camelCase + ext));
-                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, slug + ext));
-                candidates.Add(Path.Combine("Assets", "Monsters", levelFolder, camelCase + ext));
-            }
+            // Source paths
+            var sourceFolder1 = Path.Combine("Adnd.Game", "Assets", "Monsters", levelFolder);
+            var sourceFolder2 = Path.Combine("Assets", "Monsters", levelFolder);
+
+            AddCandidates(sourceFolder1, slug, useWizardrySuffix);
+            AddCandidates(sourceFolder1, camelCase, useWizardrySuffix);
+            AddCandidates(sourceFolder2, slug, useWizardrySuffix);
+            AddCandidates(sourceFolder2, camelCase, useWizardrySuffix);
         }
 
         // Fallback: search in root Monsters folder
-        foreach (var ext in exts)
-        {
-            candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", slug + ext));
-            candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", camelCase + ext));
-            candidates.Add(Path.Combine(baseDir, "Assets", "Monsters", monsterName + ext));
-        }
+        var rootFolder = Path.Combine(baseDir, "Assets", "Monsters");
+        AddCandidates(rootFolder, slug, useWizardrySuffix);
+        AddCandidates(rootFolder, camelCase, useWizardrySuffix);
+        AddCandidates(rootFolder, monsterName, useWizardrySuffix);
 
-        foreach (var ext in exts)
-        {
-            candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", slug + ext));
-            candidates.Add(Path.Combine("Adnd.Game", "Assets", "Monsters", camelCase + ext));
-            candidates.Add(Path.Combine("Assets", "Monsters", slug + ext));
-            candidates.Add(Path.Combine("Assets", "Monsters", camelCase + ext));
-        }
+        // Source root paths
+        AddCandidates(Path.Combine("Adnd.Game", "Assets", "Monsters"), slug, useWizardrySuffix);
+        AddCandidates(Path.Combine("Adnd.Game", "Assets", "Monsters"), camelCase, useWizardrySuffix);
+        AddCandidates(Path.Combine("Assets", "Monsters"), slug, useWizardrySuffix);
+        AddCandidates(Path.Combine("Assets", "Monsters"), camelCase, useWizardrySuffix);
 
         var path = candidates.FirstOrDefault(File.Exists);
         if (path is null)
@@ -988,6 +1004,15 @@ public sealed class EncounterForm : Form
         g.DrawEllipse(pen, cx - 34, cy - 26, 68, 36);
         g.DrawEllipse(pen, cx + 24, cy - 22, 22, 18);
         g.DrawLine(pen, cx - 36, cy - 8, cx - 72, cy - 24);
+    }
+
+    private static bool ShouldUseWizardrySuffix(Monster monster)
+    {
+        // Use Wizardry suffix when:
+        // 1. The monster source is WizardryAndAdnd
+        // 2. AND the game is set to OnlyWizardry mode
+        var sourceOption = GameRulesProvider.Current.MonsterSourceOptions;
+        return monster.Source == Sources.WizardryAndAdnd && sourceOption == SourceOptions.OnlyWizardry;
     }
 
     protected override void Dispose(bool disposing)

@@ -33,7 +33,7 @@ public static class MonsterImporter
             XPValue = json.XPValue,
             TreasureType = string.IsNullOrWhiteSpace(json.TreasureType) ? "None" : json.TreasureType,
             TreasureChanceOverride = json.TreasureChanceOverride,
-            Source = Enum.TryParse<Sources>(json.Source, out var s) ? s : Sources.Adnd,
+            Source = ParseSource(json),
 
             Movement = new MonsterMovement
             {
@@ -71,5 +71,18 @@ public static class MonsterImporter
                 Description = sa.Description
             }).ToList()
         };
+    }
+
+    private static Sources ParseSource(MonsterJsonModel json)
+    {
+        if (string.IsNullOrWhiteSpace(json.Source))
+            return Sources.Adnd;
+
+        // Try to parse the source value
+        if (Enum.TryParse<Sources>(json.Source, ignoreCase: true, out var result))
+            return result;
+
+        // Default to Adnd if parsing fails
+        return Sources.Adnd;
     }
 }

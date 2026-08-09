@@ -29,13 +29,17 @@ public class SettingsMenu
             Console.WriteLine("L<-eave");
 
             Console.Write("Choose #: ");
-            var selected = InputHelper.ReadNumber(1, properties.Length);
-            if (!selected.HasValue)
+            var input = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(input))
                 break;
 
-            EditProperty(rules, properties[selected.Value - 1]);
-            GameRulesProvider.Current = rules;
-            GameRulesProvider.Save();
+            if (int.TryParse(input.Trim(), out int selected) && selected >= 1 && selected <= properties.Length)
+            {
+                EditProperty(rules, properties[selected - 1]);
+                GameRulesProvider.Current = rules;
+                GameRulesProvider.Save();
+            }
         }
     }
 

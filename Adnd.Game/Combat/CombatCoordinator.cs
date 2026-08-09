@@ -69,7 +69,8 @@ public sealed class CombatCoordinator
 
             var aliveMonsters = session.AliveMonsters.ToList();
             var asleepMonsters = aliveMonsters.Count(m => m.HasStatus(MonsterStatus.Asleep));
-            using var encounterForm = new EncounterForm(monsterName, aliveMonsters.Count, asleepMonsters, session.Party, session.RoundNumber, dungeonLevel);
+            var monsterTemplate = aliveMonsters.FirstOrDefault()?.Template;
+            using var encounterForm = new EncounterForm(monsterName, aliveMonsters.Count, asleepMonsters, session.Party, session.RoundNumber, dungeonLevel, monsterTemplate);
             var dialogResult = encounterForm.ShowDialog(owner);
             if (dialogResult != DialogResult.OK)
             {

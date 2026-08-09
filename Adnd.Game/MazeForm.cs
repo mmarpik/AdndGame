@@ -1716,7 +1716,7 @@ inspect.ShowDialog(this);
         return sourceOption switch
         {
             SourceOptions.OnlyAdnd => monsters.Where(m => m.Source == Sources.Adnd).ToList(),
-            SourceOptions.OnlyWizardry => monsters.Where(m => m.Source == Sources.Wizardry).ToList(),
+            SourceOptions.OnlyWizardry => monsters.Where(m => m.Source == Sources.Wizardry || m.Source == Sources.WizardryAndAdnd).ToList(),
             SourceOptions.AllButWizardry => monsters.Where(m => m.Source != Sources.Wizardry).ToList(),
             SourceOptions.All => monsters,
             _ => monsters
