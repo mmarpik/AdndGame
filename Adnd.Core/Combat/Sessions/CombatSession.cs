@@ -17,6 +17,7 @@ public sealed class CombatSession
 
     // Temporary round-combat effects only (not persisted).
     public HashSet<string> BlessedPartyMembers { get; } = new(StringComparer.OrdinalIgnoreCase);
+    public HashSet<string> InvisiblyBuffedPartyMembers { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     public bool IsBlessed(string characterName) => BlessedPartyMembers.Contains(characterName);
 

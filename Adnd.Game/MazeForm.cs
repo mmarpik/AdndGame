@@ -1737,6 +1737,7 @@ inspect.ShowDialog(this);
         if (c.HasStatus(CharacterStatus.Asleep)) statuses.Add("Asleep");
         if (c.HasStatus(CharacterStatus.Ashes)) statuses.Add("Ashes");
         if (c.HasStatus(CharacterStatus.Lost)) statuses.Add("Lost");
+        if (c.HasStatus(CharacterStatus.Invisible)) statuses.Add("Invisible");
         return string.Join(", ", statuses);
     }
 

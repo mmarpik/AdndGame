@@ -16,6 +16,7 @@ public sealed class EncounterForm : Form
 {
     private readonly string _monsterName;
     private readonly int _monsterCount;
+    private readonly int _asleepMonsterCount;
     private readonly int _roundNumber;
     private readonly List<Character> _party;
     private readonly Dictionary<string, CombatAction> _actions = new(StringComparer.OrdinalIgnoreCase);
@@ -32,10 +33,11 @@ public sealed class EncounterForm : Form
     private readonly Panel _monsterPanel;
     private readonly ListView _partyList;
 
-    public EncounterForm(string monsterName, int monsterCount, List<Character> party, int roundNumber, int? dungeonLevel = null)
+    public EncounterForm(string monsterName, int monsterCount, int asleepMonsterCount, List<Character> party, int roundNumber, int? dungeonLevel = null)
     {
         _monsterName = monsterName;
         _monsterCount = monsterCount;
+        _asleepMonsterCount = asleepMonsterCount;
         _roundNumber = roundNumber;
         _party = party;
         _monsterImage = TryLoadMonsterImage(monsterName, dungeonLevel);
@@ -210,7 +212,7 @@ public sealed class EncounterForm : Form
         if (spell == null)
             return;
 
-        SpellCastTarget target;
+        SpellCastTarget? target;
         if (spell.RangeType == SpellRangeType.Self)
         {
             target = SpellCastTarget.Ally(caster);
@@ -224,10 +226,17 @@ public sealed class EncounterForm : Form
         }
         else
         {
-            var enemyIndex = PromptEnemyTarget();
-            if (!enemyIndex.HasValue)
-                return;
-            target = SpellCastTarget.Enemy(enemyIndex.Value);
+            if (string.Equals(spell.Id, "sleep", StringComparison.OrdinalIgnoreCase))
+            {
+                target = null;
+            }
+            else
+            {
+                var enemyIndex = PromptEnemyTarget();
+                if (!enemyIndex.HasValue)
+                    return;
+                target = SpellCastTarget.Enemy(enemyIndex.Value);
+            }
         }
 
         _actions[caster.Name] = new CombatAction
@@ -301,10 +310,6 @@ public sealed class EncounterForm : Form
                 if (!isDivine)
                 {
                     if (!state.KnownSpellIds.Contains(spell.Id, StringComparer.OrdinalIgnoreCase))
-                        continue;
-
-                    var prepared = state.PreparedSpells.Any(ps => string.Equals(ps.SpellId, spell.Id, StringComparison.OrdinalIgnoreCase) && ps.Count > 0);
-                    if (!prepared)
                         continue;
                 }
 
@@ -398,7 +403,8 @@ public sealed class EncounterForm : Form
 
     private void UpdateHeader()
     {
-        _headerLabel.Text = $"1)  {_monsterCount}  {_monsterName.ToUpperInvariant()}";
+        var asleepText = _asleepMonsterCount > 0 ? $"  ({_asleepMonsterCount} ASLEEP)" : string.Empty;
+        _headerLabel.Text = $"1)  {_monsterCount}  {_monsterName.ToUpperInvariant()}{asleepText}";
 
         if (_currentIndex >= 0 && _currentIndex < _party.Count)
             _optionsTitleLabel.Text = $"{_party[_currentIndex].Name.ToUpperInvariant()}'S OPTIONS";
@@ -421,7 +427,7 @@ public sealed class EncounterForm : Form
             item.SubItems.Add(c.Name);
             item.SubItems.Add(GetClassCode(c));
             item.SubItems.Add(c.ArmorClass.ToString());
-            item.SubItems.Add(c.CurrentHitPoints.ToString());
+            item.SubItems.Add(c.CurrentHitPoints.ToString()+ "/"+c.MaxHitPoints.ToString()); ;// Add max hit points as a separate subitem
             item.SubItems.Add(action);
 
             _partyList.Items.Add(item);

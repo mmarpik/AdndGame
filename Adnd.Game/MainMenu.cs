@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Adnd.Core.Characters;
 using Adnd.Core.Config;
 using Adnd.Core.Spells;
 using Adnd.Data.Characters;
@@ -96,10 +97,22 @@ public class MainMenu
 
         foreach (var character in roster)
         {
-            if (character.Spellcasting == null || character.Spellcasting.Count == 0)
-                continue;
-
             var changed = false;
+
+            if (character.HasStatus(CharacterStatus.Invisible))
+            {
+                character.RemoveStatus(CharacterStatus.Invisible);
+                character.ArmorClass += 4;
+                changed = true;
+            }
+
+            if (character.Spellcasting == null || character.Spellcasting.Count == 0)
+            {
+                if (changed)
+                    _charRepo.Save(character);
+                continue;
+            }
+
             foreach (var state in character.Spellcasting)
             {
                 if (state.SlotsPerDay.Count == 0)

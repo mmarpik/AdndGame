@@ -14,5 +14,8 @@ public enum CharacterStatus
     Petrified = 1 << 3, // Character is turned to stone
     Asleep = 1 << 4,    // Character is asleep/unconscious
     Ashes = 1 << 5,     // Character has turned to ashes
-    Lost = 1 << 6       // Character is permanently lost and cannot be revived
+    Lost = 1 << 6,       // Character is permanently lost and cannot be revived
+    Encumbered = 1 << 7,      // Character is encumbered
+    Invisible = 1 << 8        // Character is invisible
+
 }

@@ -151,14 +151,6 @@ public sealed class CombatResolver
                 continue;
             }
 
-            var target = session.AliveParty.FirstOrDefault();
-            if (target is null)
-            {
-                session.Outcome = CombatOutcome.Defeat;
-                events.Add(new CombatEvent("The party is defeated."));
-                return FinalizeRound(session, events);
-            }
-
             var attacks = monster.Template.Attacks.Count > 0 ? monster.Template.Attacks : new List<Adnd.Core.Monsters.MonsterAttack> { new() { NumberOfAttacks = 1, Damage = "1d4", Name = "Claw" } };
 
             foreach (var attack in attacks)
@@ -166,15 +158,12 @@ public sealed class CombatResolver
                 int attackCount = Math.Max(1, attack.NumberOfAttacks);
                 for (int i = 0; i < attackCount; i++)
                 {
-                    if (!IsAlive(target))
+                    var target = SelectMonsterTarget(session);
+                    if (target is null)
                     {
-                        target = session.AliveParty.FirstOrDefault();
-                        if (target is null)
-                        {
-                            session.Outcome = CombatOutcome.Defeat;
-                            events.Add(new CombatEvent("The party is defeated."));
-                            return FinalizeRound(session, events);
-                        }
+                        session.Outcome = CombatOutcome.Defeat;
+                        events.Add(new CombatEvent("The party is defeated."));
+                        return FinalizeRound(session, events);
                     }
 
                     var blessedAcAdjustment = session.IsBlessed(target.Name) ? -1 : 0;
@@ -305,6 +294,19 @@ public sealed class CombatResolver
     private int GetMonsterThac0(MonsterInstance monster)
     {
         return Math.Max(10, 20 - Math.Max(0, monster.Template.HitDice - 1));
+    }
+
+    private Character? SelectMonsterTarget(CombatSession session)
+    {
+        var frontline = session.Party.Take(3).Where(IsAlive).ToList();
+        if (frontline.Count == 0)
+            frontline = session.AliveParty.ToList();
+
+        if (frontline.Count == 0)
+            return null;
+
+        var index = _dice.Roll(frontline.Count) - 1;
+        return frontline[index];
     }
 
     private int RollDamage(string damageExpression)

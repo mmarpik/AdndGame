@@ -1,0 +1,12 @@
+{
+  "Id": "improved_invisibility",
+  "Name": "Improved Invisibility",
+  "Class": "MagicUser",
+  "Level": 4,
+  "Description": "Renders one target unseen with stronger persistence.",
+  "RangeType": "Ally",
+  "Targeting": "Single",
+  "CastContext": "Both",
+  "EffectType": "Heal",
+  "EffectDescription": "Greater arcane veil hides the target from sight."
+}

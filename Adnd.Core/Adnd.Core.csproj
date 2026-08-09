@@ -10,4 +10,8 @@
     <Folder Include="World\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="1.3.2" />
+  </ItemGroup>
+
 </Project>

@@ -38,7 +38,8 @@ public sealed class CombatCoordinator
             new CureLightWoundsHandler(),
             new MagicMissileHandler(),
             new BlessHandler(),
-            new SleepHandler()
+            new SleepHandler(),
+            new InvisibilityHandler(),
         });
 
         var spellCastingService = new SpellCastingService(resolver, spellRepo.LoadAll());
@@ -61,7 +62,9 @@ public sealed class CombatCoordinator
                 break;
             }
 
-            using var encounterForm = new EncounterForm(monsterName, session.AliveMonsters.Count(), session.Party, session.RoundNumber, dungeonLevel);
+            var aliveMonsters = session.AliveMonsters.ToList();
+            var asleepMonsters = aliveMonsters.Count(m => m.HasStatus(MonsterStatus.Asleep));
+            using var encounterForm = new EncounterForm(monsterName, aliveMonsters.Count, asleepMonsters, session.Party, session.RoundNumber, dungeonLevel);
             var dialogResult = encounterForm.ShowDialog(owner);
             if (dialogResult != DialogResult.OK)
             {
@@ -93,9 +96,6 @@ public sealed class CombatCoordinator
 
     private static void RemoveTemporaryCombatEffects(CombatSession session)
     {
-        if (session.BlessedPartyMembers.Count == 0)
-            return;
-
         foreach (var name in session.BlessedPartyMembers)
         {
             var c = session.Party.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
@@ -103,7 +103,21 @@ public sealed class CombatCoordinator
                 c.ArmorClass += 1;
         }
 
+        foreach (var name in session.InvisiblyBuffedPartyMembers)
+        {
+            var c = session.Party.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+            if (c == null)
+                continue;
+
+            if (c.HasStatus(CharacterStatus.Invisible))
+            {
+                c.RemoveStatus(CharacterStatus.Invisible);
+                c.ArmorClass += 4;
+            }
+        }
+
         session.BlessedPartyMembers.Clear();
+        session.InvisiblyBuffedPartyMembers.Clear();
     }
 
     private void ApplyVictoryRewards(IWin32Window owner, CombatSession session)

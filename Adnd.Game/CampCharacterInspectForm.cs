@@ -33,7 +33,8 @@ public sealed class CampCharacterInspectForm : Form
             new CureLightWoundsHandler(),
             new MagicMissileHandler(),
             new BlessHandler(),
-            new SleepHandler()
+            new SleepHandler(),
+            new InvisibilityHandler()
         });
         _spellCastingService = new SpellCastingService(resolver, _spellRepository.LoadAll());
 
@@ -399,8 +400,7 @@ public sealed class CampCharacterInspectForm : Form
                 if (isAutoMemorizedClass)
                     return true;
                 var knows = state.KnownSpellIds.Contains(spell.Id);
-                var prepared = state.PreparedSpells.Any(ps => ps.SpellId == spell.Id && ps.Count > 0);
-                return knows && prepared;
+                return knows;
             })
             .OrderBy(s => s.Level)
             .ThenBy(s => s.Name)

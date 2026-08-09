@@ -195,6 +195,7 @@ public class Character
         if (HasStatus(CharacterStatus.Asleep)) statuses.Add("Asleep");
         if (HasStatus(CharacterStatus.Ashes)) statuses.Add("Ashes");
         if (HasStatus(CharacterStatus.Lost)) statuses.Add("Lost");
+        if (HasStatus(CharacterStatus.Invisible)) statuses.Add("Invisible");
         return string.Join(", ", statuses);
     }
 

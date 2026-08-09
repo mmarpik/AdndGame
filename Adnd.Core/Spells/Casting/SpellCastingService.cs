@@ -53,14 +53,6 @@ public sealed class SpellCastingService
         if (!isDivine && !state.KnownSpellIds.Contains(spell.Id, StringComparer.OrdinalIgnoreCase))
             return SpellCastResult.Failure($"{request.Caster.Name} does not know {spell.Name}.");
 
-        PreparedSpell? prepared = null;
-        if (!isDivine)
-        {
-            prepared = state.PreparedSpells.FirstOrDefault(ps => string.Equals(ps.SpellId, spell.Id, StringComparison.OrdinalIgnoreCase) && ps.Count > 0);
-            if (prepared == null)
-                return SpellCastResult.Failure($"{spell.Name} is not prepared.");
-        }
-
         var targetValidation = ValidateTargets(spell, request);
         if (!targetValidation.Success)
             return targetValidation;
@@ -70,13 +62,6 @@ public sealed class SpellCastingService
             return result;
 
         state.SlotsUsed[levelIndex] += 1;
-
-        if (!isDivine && prepared != null)
-        {
-            prepared.Count -= 1;
-            if (prepared.Count <= 0)
-                state.PreparedSpells.Remove(prepared);
-        }
 
         result.SlotConsumed = true;
         return result;
@@ -103,9 +88,7 @@ public sealed class SpellCastingService
         if (isDivine)
             return true;
 
-        var knows = state.KnownSpellIds.Contains(spell.Id, StringComparer.OrdinalIgnoreCase);
-        var prepared = state.PreparedSpells.Any(ps => string.Equals(ps.SpellId, spell.Id, StringComparison.OrdinalIgnoreCase) && ps.Count > 0);
-        return knows && prepared;
+        return state.KnownSpellIds.Contains(spell.Id, StringComparer.OrdinalIgnoreCase);
     }
 
     private static bool IsContextAllowed(Spell spell, SpellUseContext context)
