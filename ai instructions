@@ -188,3 +188,12 @@ when parsing json in Monsters make sure NumberOfAppearancesMin and all other att
 "Manually added most attriubes from monster manual to the monster class and told ai to parse it inderectly when fixing a bug"
 
 when selling somthing in the shop instead of showing  [Out of stock] don't show the item at all, and when something has StockQuantity >0 in the  shop show the item even if IsShopBuyable is false
+
+ai instructions 260808-09
+when monsters hit the party radomly distirute the hits among the first 3 party members
+when some monsters are asleep shown in the encounter window how many monsters that are asleep
+when casting sleep dont ask about target since all monsters can be affected
+the same spell should be possible to cast several times the same day only the number of spellpoints should restrict if it could be cast or not
+create .md doc for Treasure
+when casting invisibilty the selected friendly targets ac should be lowered with 4.
+add a status to the charater class: invisible that the target should be after hit by an invisibilty spell. aftter the battle the invisibility should be removed. Ihe insisibilty does not stack, so when cast twice ac does not go down further. Add a new level 4 spell for magic users: Impoved invisibility that when cast, lowers the friendly target ac until as long as the party stays in the maze
