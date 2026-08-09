@@ -7,6 +7,22 @@ public enum AbilityRollMethod
     BestOfSixSets
 }
 
+public enum Sources
+{
+    Adnd,
+    Wizardry,
+    WizardryAndAdnd,
+    Other
+}
+
+public enum SourceOptions
+{
+    OnlyAdnd,
+    OnlyWizardry,
+    AllButWizardry,// this will include WizardryAndAdnd
+    All
+}
+
 public class GameRules
 {
     public double TreasureFindChance { get; set; } = 0.80;      // 0.0 - 1.0
@@ -18,4 +34,8 @@ public class GameRules
     public bool AutoMemorizeArcaneSpellsDaily { get; set; } = true;
     public int NumberOfItemsThatCouldBeFound { get; set; } = 5;
     public float ProbabilityFindingEachItem { get; set; } = 0.0f;
+    public SourceOptions ItemSourceOptions { get; set; } = SourceOptions.All;
+    public SourceOptions MonsterSourceOptions { get; set; } = SourceOptions.All;
+
+
 }

@@ -2,42 +2,44 @@
   "Level": 2,
   "Monsters": [
     {
-      "Name": "Hobgoblin",
-      "Type": "Humanoid",
-      "ArmorClass": 5,
-      "HitDice": 1,
-      "HitPoints": 6,
-      "Movement": {
-        "Walk": 30,
-        "Fly": 0,
-        "Swim": 0,
-        "Burrow": 0,
-        "Climb": 0
-      },
-      "SavingThrows": {
-        "ParalyzationPoisonDeath": 13,
-        "RodStaffWand": 14,
-        "PetrificationPolymorph": 15,
-        "BreathWeapon": 16,
-        "Spell": 16
-      },
-      "Morale": {
-        "Value": 9
-      },
-      "Attacks": [
-        {
-          "Name": "Long Sword",
-          "NumberOfAttacks": 1,
-          "Damage": "1d8"
-        }
-      ],
-      "SpecialAbilities": [],
-      "XPValue": 25,
-      "TreasureType": "B"
+        "Name": "Hobgoblin",
+        "Type": "Humanoid",
+        "Frequency": "Uncommon",
+        "ArmorClass": 5,
+        "HitDice": 1,
+        "HitPoints": 6,
+        "Movement": {
+            "Walk": 30,
+            "Fly": 0,
+            "Swim": 0,
+            "Burrow": 0,
+            "Climb": 0
+        },
+        "SavingThrows": {
+            "ParalyzationPoisonDeath": 13,
+            "RodStaffWand": 14,
+            "PetrificationPolymorph": 15,
+            "BreathWeapon": 16,
+            "Spell": 16
+        },
+        "Morale": {
+            "Value": 9
+        },
+        "Attacks": [
+            {
+                "Name": "Long Sword",
+                "NumberOfAttacks": 1,
+                "Damage": "1d8"
+            }
+        ],
+        "SpecialAbilities": [],
+        "XPValue": 25,
+        "TreasureType": "B"
     },
     {
       "Name": "Zombie",
       "Type": "Undead",
+      "Frequency": "Uncommon",
       "ArmorClass": 8,
       "HitDice": 2,
       "HitPoints": 12,
@@ -72,6 +74,7 @@
     {
       "Name": "Giant Spider",
       "Type": "Animal",
+      "Frequency": "Uncommon",
       "ArmorClass": 4,
       "HitDice": 2,
       "HitPoints": 10,
@@ -111,6 +114,7 @@
     {
       "Name": "Bandit",
       "Type": "Humanoid",
+      "Frequency": "Uncommon",
       "ArmorClass": 7,
       "HitDice": 1,
       "HitPoints": 5,
@@ -145,6 +149,7 @@
     {
       "Name": "Wolf",
       "Type": "Animal",
+      "Frequency": "Uncommon",
       "ArmorClass": 7,
       "HitDice": 2,
       "HitPoints": 9,

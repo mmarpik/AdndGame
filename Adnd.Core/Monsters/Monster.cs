@@ -1,4 +1,6 @@
-﻿namespace Adnd.Core.Monsters;
+﻿using Adnd.Core.Config;
+
+namespace Adnd.Core.Monsters;
 
 public class Monster
 {
@@ -19,6 +21,8 @@ public class Monster
     public string MagicResistance { get; set; } = string.Empty;//TBD string should be an enum
     public string Size { get; set; } = string.Empty;//TBD string should be an enum
     public int HitPoints { get; set; }
+    public int DungeonLevel { get; set; } // Dungeon level where this monster appears
+    public Sources Source { get; set; } = Sources.Adnd;
     /*Example of a monster in JSON format:
             "ClimateTerain": "Temperate",
         "Frequency": "Common",

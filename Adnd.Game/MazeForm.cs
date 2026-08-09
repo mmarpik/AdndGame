@@ -1692,46 +1692,79 @@ inspect.ShowDialog(this);
 
     private string? RollDungeonMonsterForLevel(int level)
     {
-        var table = LoadDungeonEncounterTable(level);
-        if (table == null || table.Entries == null || table.Entries.Count == 0)
+        // Get all monsters for this dungeon level
+        var monstersForLevel = _monsterRepository.GetAll()
+            .Where(m => m.DungeonLevel == level)
+            .ToList();
+
+        if (monstersForLevel.Count == 0)
             return null;
 
-        var totalChance = table.Entries.Sum(e => Math.Max(0, e.Chance));
-        if (totalChance <= 0)
+        // Filter by source based on game rules
+        var sourceOption = GameRulesProvider.Current.MonsterSourceOptions;
+        var filteredMonsters = FilterMonstersBySource(monstersForLevel, sourceOption);
+
+        if (filteredMonsters.Count == 0)
             return null;
 
-        var roll = _random.Next(1, totalChance + 1);
-        var cumulative = 0;
-
-        foreach (var entry in table.Entries)
-        {
-            cumulative += Math.Max(0, entry.Chance);
-            if (roll <= cumulative)
-                return entry.Monster;
-        }
-
-        return table.Entries.Last().Monster;
+        // Use frequency-based weighted selection
+        return SelectMonsterByFrequencyWeight(filteredMonsters)?.Name;
     }
 
-    private static EncounterJsonModel? LoadDungeonEncounterTable(int level)
+    private List<Monster> FilterMonstersBySource(List<Monster> monsters, SourceOptions sourceOption)
     {
-        var fileName = $"Dungeon_Level{level}.json";
-
-        var runtimePath = Path.Combine("Data", "Encounters", "Dungeon", fileName);
-        if (File.Exists(runtimePath))
+        return sourceOption switch
         {
-            var json = File.ReadAllText(runtimePath);
-            return JsonSerializer.Deserialize<EncounterJsonModel>(json);
+            SourceOptions.OnlyAdnd => monsters.Where(m => m.Source == Sources.Adnd).ToList(),
+            SourceOptions.OnlyWizardry => monsters.Where(m => m.Source == Sources.Wizardry).ToList(),
+            SourceOptions.AllButWizardry => monsters.Where(m => m.Source != Sources.Wizardry).ToList(),
+            SourceOptions.All => monsters,
+            _ => monsters
+        };
+    }
+
+    private Monster? SelectMonsterByFrequencyWeight(List<Monster> monsters)
+    {
+        // Define frequency weights (similar to rarity weights for items)
+        var frequencyWeights = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "Common", 50 },
+            { "Uncommon", 30 },
+            { "Rare", 15 },
+            { "Very Rare", 4 },
+            { "Legendary", 1 }
+        };
+
+        // Calculate total weight
+        var totalWeight = 0;
+        var monsterWeights = new List<(Monster monster, int weight)>();
+
+        foreach (var monster in monsters)
+        {
+            var weight = frequencyWeights.ContainsKey(monster.Frequency) 
+                ? frequencyWeights[monster.Frequency] 
+                : frequencyWeights["Common"]; // Default to Common if frequency not recognized
+
+            monsterWeights.Add((monster, weight));
+            totalWeight += weight;
         }
 
-        var sourcePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../Adnd.Data/Encounters/Dungeon", fileName));
-        if (File.Exists(sourcePath))
+        if (totalWeight == 0)
+            return monsters[_random.Next(monsters.Count)]; // Fallback to uniform random
+
+        // Select random monster based on weight
+        var randomValue = _random.Next(totalWeight);
+        var cumulativeWeight = 0;
+
+        foreach (var (monster, weight) in monsterWeights)
         {
-            var json = File.ReadAllText(sourcePath);
-            return JsonSerializer.Deserialize<EncounterJsonModel>(json);
+            cumulativeWeight += weight;
+            if (randomValue < cumulativeWeight)
+                return monster;
         }
 
-        return null;
+        // Fallback (should never reach here)
+        return monsters[_random.Next(monsters.Count)];
     }
 
     private void HandlePartyDefeatAtCurrentCell()

@@ -33,6 +33,7 @@ public class MonsterJsonModel
 
     public string TreasureType { get; set; } = "None";
     public double? TreasureChanceOverride { get; set; }
+    public string Source { get; set; } = "Adnd";
 }
 
 public class MonsterLevelJsonModel

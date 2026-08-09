@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Adnd.Core.Monsters;
+using Adnd.Core.Config;
 
 namespace Adnd.Data.Monsters;
 
@@ -32,6 +33,7 @@ public static class MonsterImporter
             XPValue = json.XPValue,
             TreasureType = string.IsNullOrWhiteSpace(json.TreasureType) ? "None" : json.TreasureType,
             TreasureChanceOverride = json.TreasureChanceOverride,
+            Source = Enum.TryParse<Sources>(json.Source, out var s) ? s : Sources.Adnd,
 
             Movement = new MonsterMovement
             {

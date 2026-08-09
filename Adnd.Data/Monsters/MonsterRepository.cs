@@ -28,7 +28,11 @@ public class MonsterRepository
                 foreach (var m in grouped.Monsters)
                 {
                     if (m != null)
-                        monsters.Add(MonsterImporter.Convert(m));
+                    {
+                        var monster = MonsterImporter.Convert(m);
+                        monster.DungeonLevel = grouped.Level; // Set the dungeon level
+                        monsters.Add(monster);
+                    }
                 }
 
                 continue;
@@ -37,7 +41,9 @@ public class MonsterRepository
             var jsonModel = JsonSerializer.Deserialize<MonsterJsonModel>(jsonText);
             if (jsonModel != null)
             {
-                monsters.Add(MonsterImporter.Convert(jsonModel));
+                var monster = MonsterImporter.Convert(jsonModel);
+                monster.DungeonLevel = 0; // Default to 0 for monsters without a level file
+                monsters.Add(monster);
             }
         }
 

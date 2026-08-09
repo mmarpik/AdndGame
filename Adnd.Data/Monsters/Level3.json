@@ -4,6 +4,7 @@
         {
             "Name": "Ghoul",
             "Type": "Undead",
+            "Frequency": "Uncommon",
             "ArmorClass": 6,
             "HitDice": 2,
             "HitPoints": 10,
@@ -50,6 +51,7 @@
         {
             "Name": "Wight",
             "Type": "Undead",
+            "Frequency": "Uncommon",
             "ArmorClass": 5,
             "HitDice": 4,
             "HitPoints": 20,
@@ -91,6 +93,7 @@
         {
             "Name": "Giant Centipede",
             "Type": "Vermin",
+            "Frequency": "Uncommon",
             "ArmorClass": 9,
             "HitDice": 1,
             "HitPoints": 4,
@@ -128,6 +131,7 @@
         {
             "Name": "Giant Toad",
             "Type": "Animal",
+            "Frequency": "Uncommon",
             "ArmorClass": 6,
             "HitDice": 2,
             "HitPoints": 12,
@@ -165,6 +169,7 @@
         {
             "Name": "Hobgoblin Captain",
             "Type": "Humanoid",
+            "Frequency": "Uncommon",
             "ArmorClass": 5,
             "HitDice": 2,
             "HitPoints": 14,
@@ -239,6 +244,7 @@
         {
             "Name": "Troll",
             "Type": "Giant",
+            "Frequency": "Uncommon",
             "ArmorClass": 4,
             "HitDice": 6,
             "HitPoints": 33,
