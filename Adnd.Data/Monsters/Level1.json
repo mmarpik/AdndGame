@@ -176,7 +176,6 @@
         "Name": "Kobold",
         "Type": "Humanoid",
         "Frequency": "Legendary",
-        "wwws": null,
         "NumberOfAppearancesMin": 1,
         "NumberOfAppearancesMax": 3,
         "ArmorClass": 7,
@@ -220,29 +219,11 @@
         "Name": "Creeping Coin",
         "Type": "Other",
         "Frequency": "Legendary",
-        "wwws": null,
         "NumberOfAppearancesMin": 4,
         "NumberOfAppearancesMax": 24,
         "ArmorClass": 10,
         "HitDice": 1,
         "HitPoints": 4,
-        "Movement": {
-            "Walk": 20,
-            "Fly": 0,
-            "Swim": 0,
-            "Burrow": 0,
-            "Climb": 0
-        },
-        "SavingThrows": {
-            "ParalyzationPoisonDeath": 14,
-            "RodStaffWand": 15,
-            "PetrificationPolymorph": 16,
-            "BreathWeapon": 17,
-            "Spell": 17
-        },
-        "Morale": {
-            "Value": 6
-        },
         "Attacks": [
             {
                 "Name": "Breath",
@@ -259,29 +240,11 @@
         "Name": "Bubbly Slime",
         "Type": "Other",
         "Frequency": "Common",
-        "wwws": null,
         "NumberOfAppearancesMin": 1,
         "NumberOfAppearancesMax": 6,
         "ArmorClass": 12,
         "HitDice": 1,
         "HitPoints": 4,
-        "Movement": {
-            "Walk": 20,
-            "Fly": 0,
-            "Swim": 0,
-            "Burrow": 0,
-            "Climb": 0
-        },
-        "SavingThrows": {
-            "ParalyzationPoisonDeath": 14,
-            "RodStaffWand": 15,
-            "PetrificationPolymorph": 16,
-            "BreathWeapon": 17,
-            "Spell": 17
-        },
-        "Morale": {
-            "Value": 6
-        },
         "Attacks": [
             {
                 "Name": "Slime",
@@ -298,29 +261,11 @@
         "Name": "Lvl 1 Mage",
         "Type": "Humanoid",
         "Frequency": "Uncommon",
-        "wwws": null,
         "NumberOfAppearancesMin": 1,
         "NumberOfAppearancesMax": 2,
         "ArmorClass": 4,
         "HitDice": 1,
         "HitPoints": 4,
-        "Movement": {
-            "Walk": 20,
-            "Fly": 0,
-            "Swim": 0,
-            "Burrow": 0,
-            "Climb": 0
-        },
-        "SavingThrows": {
-            "ParalyzationPoisonDeath": 14,
-            "RodStaffWand": 15,
-            "PetrificationPolymorph": 16,
-            "BreathWeapon": 17,
-            "Spell": 17
-        },
-        "Morale": {
-            "Value": 6
-        },
         "Attacks": [
             {
                 "Name": "Magic Missile",
@@ -337,34 +282,37 @@
         "Name": "Lvl 1 Priest",
         "Type": "Humanoid",
         "Frequency": "Uncommon",
-        "wwws": null,
         "NumberOfAppearancesMin": 1,
         "NumberOfAppearancesMax": 2,
         "ArmorClass": 4,
         "HitDice": 1,
         "HitPoints": 4,
-        "Movement": {
-            "Walk": 20,
-            "Fly": 0,
-            "Swim": 0,
-            "Burrow": 0,
-            "Climb": 0
-        },
-        "SavingThrows": {
-            "ParalyzationPoisonDeath": 14,
-            "RodStaffWand": 15,
-            "PetrificationPolymorph": 16,
-            "BreathWeapon": 17,
-            "Spell": 17
-        },
-        "Morale": {
-            "Value": 6
-        },
         "Attacks": [
             {
                 "Name": "Cause Light Wounds",
                 "NumberOfAttacks": 1,
                 "Damage": "1d8"
+            }
+        ],
+        "SpecialAbilities": [],
+        "XPValue": 15,
+        "TreasureType": "J",
+        "Source": "Wizardry"
+    },
+    {
+        "Name": "Undead Kobold",
+        "Type": "Undead",
+        "Frequency": "Uncommon",
+        "NumberOfAppearancesMin": 1,
+        "NumberOfAppearancesMax": 2,
+        "ArmorClass": 10,
+        "HitDice": 1,
+        "HitPoints": 4,
+        "Attacks": [
+            {
+                "Name": "Bite",
+                "NumberOfAttacks": 1,
+                "Damage": "1d4+1"
             }
         ],
         "SpecialAbilities": [],
