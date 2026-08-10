@@ -7,6 +7,7 @@ using Adnd.Data.Encounters;
 using Adnd.Data.Monsters;
 using Adnd.Data.Party;
 using Adnd.Game.Combat;
+using Adnd.Game.Viewer;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -54,6 +55,7 @@ public sealed class MazeForm : Form
     private readonly CombatCoordinator _combatCoordinator = new();
     private bool _partyOverlayVisible = true;
     private int _currentDungeonLevel = 1;
+    private readonly TabletopViewerBridge _viewer = new();
 
     private void BuildMazeForLevel(int level)
     {
@@ -714,6 +716,10 @@ redesign level 3 to have only one boarder corridor and to have 2 more rooms and 
                 ShowElevatorDialog();
                 Invalidate();
             }
+
+            // Lay the party out as soon as the maze is on screen, so the table is not empty until
+            // the first step. After the elevator dialog, so it reflects the level actually chosen.
+            PublishToViewer();
         };
     }
 
@@ -1192,6 +1198,10 @@ inspect.ShowDialog(this);
                 Invalidate();
                 break;
         }
+
+        // One call covers moving, turning and anything else a key changed. Overlay toggles publish
+        // an identical snapshot, which the viewer simply reconciles to no change.
+        PublishToViewer();
     }
 
     protected override void OnPaint(PaintEventArgs e)
@@ -1557,6 +1567,53 @@ inspect.ShowDialog(this);
         return _maze[tile.X, tile.Y] == CellType.Floor;
     }
 
+    /// <summary>
+    /// Hand the current state to the tabletop viewer. Safe to call as often as we like: the
+    /// viewer takes a whole snapshot each time and works out the difference itself.
+    /// </summary>
+    private void PublishToViewer(IReadOnlyList<TabletopViewerBridge.MonsterGroupView>? groups = null)
+    {
+        if (_maze is null)
+            return;
+
+        var heading = _direction switch
+        {
+            Direction.North => "North",
+            Direction.East => "East",
+            Direction.South => "South",
+            _ => "West"
+        };
+
+        _viewer.Publish(
+            _currentDungeonLevel,
+            (x, y) => x >= 0 && x < _maze.GetLength(0)
+                   && y >= 0 && y < _maze.GetLength(1)
+                   && _maze[x, y] == CellType.Floor,
+            _maze.GetLength(0),
+            _maze.GetLength(1),
+            _position.X,
+            _position.Y,
+            heading,
+            GetViewerParty(),
+            groups);
+    }
+
+    /// <summary>The party in marching order, skipping names the roster no longer knows.</summary>
+    private List<Character> GetViewerParty()
+    {
+        var party = _partyRepository.Load();
+        var roster = _characterRepository.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+        var ordered = new List<Character>();
+        foreach (var memberName in party.Members)
+        {
+            if (roster.TryGetValue(memberName, out var c))
+                ordered.Add(c);
+        }
+
+        return ordered;
+    }
+
     private void TryMoveForward()
     {
         var v = GetForwardVector(_direction);
@@ -1660,11 +1717,14 @@ inspect.ShowDialog(this);
                 monsterNames[i] = additionalMonsterName;
             }
 
+            // No monsters on the table for this path yet: how many appear per group is rolled
+            // inside StartEncounterWithMultipleGroups, and re-rolling it here would stand up a
+            // different number of figures than the ones actually being fought.
             outcome = _combatCoordinator.StartEncounterWithMultipleGroups(
-                this, 
-                monsterNames, 
-                party, 
-                _characterRepository, 
+                this,
+                monsterNames,
+                party,
+                _characterRepository,
                 _monsterRepository,
                 _currentDungeonLevel);
         }
@@ -1682,12 +1742,23 @@ inspect.ShowDialog(this);
                 numberOfMonsters = _random.Next(1, 7); // 1d6 fallback
             }
 
+            // Stand the monsters up before the modal combat window takes over. Combat cannot be
+            // followed round by round yet, so the table shows the encounter as it forms and then
+            // the aftermath once the window closes.
+            PublishToViewer(new[]
+            {
+                new TabletopViewerBridge.MonsterGroupView(monsterName, numberOfMonsters, numberOfMonsters, 0)
+            });
+
             outcome = _combatCoordinator.StartEncounter(this, monsterName, numberOfMonsters, party, _characterRepository, _currentDungeonLevel);
         }
         if (outcome == CombatOutcome.Defeat)
         {
             HandlePartyDefeatAtCurrentCell();
         }
+
+        // The fight is over: clear the monsters and show the damage taken.
+        PublishToViewer();
     }
 
     private string? RollDungeonMonsterForLevel(int level)
@@ -1898,5 +1969,9 @@ inspect.ShowDialog(this);
         BuildMazeForLevel(_currentDungeonLevel);
         _position = new Point(1, 2);
         _direction = Direction.North;
+
+        // Publish here rather than waiting for the next keypress, so the table swaps levels as the
+        // elevator doors close. The viewer clears the old level when it sees the new number.
+        PublishToViewer();
     }
 }
