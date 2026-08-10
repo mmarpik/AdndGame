@@ -1,4 +1,5 @@
 using Adnd.Core.Characters;
+using Adnd.Core.Combat.Actions;
 using Adnd.Core.Combat.Sessions;
 using Adnd.Core.Config;
 using Adnd.Core.Monsters;
@@ -708,6 +709,15 @@ redesign level 3 to have only one boarder corridor and to have 2 more rooms and 
         PruneUnavailablePartyMembers();
         BuildMazeForLevel(_currentDungeonLevel);
         KeyDown += MazeForm_KeyDown;
+
+        // Follow the fight. These are observers: combat neither waits for them nor changes course.
+        _combatCoordinator.EncounterStarted += session =>
+        {
+            _viewer.ResetCombatMemory();   // or last fight's corpses read as fresh deaths
+            PublishCombatToViewer(session);
+        };
+        _combatCoordinator.ActionsChosen += (session, actions) => PublishCombatToViewer(session, actions);
+        _combatCoordinator.RoundResolved += session => PublishCombatToViewer(session);
 
         Shown += (_, _) =>
         {
@@ -1598,6 +1608,41 @@ inspect.ShowDialog(this);
             groups);
     }
 
+    /// <summary>
+    /// Publish a combat round. Party comes from the session rather than the roster on disk, because
+    /// mid-fight hit points only exist in memory until the encounter ends.
+    /// </summary>
+    private void PublishCombatToViewer(
+        CombatSession session,
+        IReadOnlyDictionary<string, CombatAction>? actions = null)
+    {
+        if (_maze is null || session is null)
+            return;
+
+        var heading = _direction switch
+        {
+            Direction.North => "North",
+            Direction.East => "East",
+            Direction.South => "South",
+            _ => "West"
+        };
+
+        _viewer.PublishCombat(
+            _currentDungeonLevel,
+            (x, y) => x >= 0 && x < _maze.GetLength(0)
+                   && y >= 0 && y < _maze.GetLength(1)
+                   && _maze[x, y] == CellType.Floor,
+            _maze.GetLength(0),
+            _maze.GetLength(1),
+            _position.X,
+            _position.Y,
+            heading,
+            session.Party,
+            session.Monsters,
+            session.RoundNumber,
+            actions);
+    }
+
     /// <summary>The party in marching order, skipping names the roster no longer knows.</summary>
     private List<Character> GetViewerParty()
     {
@@ -1717,9 +1762,6 @@ inspect.ShowDialog(this);
                 monsterNames[i] = additionalMonsterName;
             }
 
-            // No monsters on the table for this path yet: how many appear per group is rolled
-            // inside StartEncounterWithMultipleGroups, and re-rolling it here would stand up a
-            // different number of figures than the ones actually being fought.
             outcome = _combatCoordinator.StartEncounterWithMultipleGroups(
                 this,
                 monsterNames,
@@ -1742,14 +1784,8 @@ inspect.ShowDialog(this);
                 numberOfMonsters = _random.Next(1, 7); // 1d6 fallback
             }
 
-            // Stand the monsters up before the modal combat window takes over. Combat cannot be
-            // followed round by round yet, so the table shows the encounter as it forms and then
-            // the aftermath once the window closes.
-            PublishToViewer(new[]
-            {
-                new TabletopViewerBridge.MonsterGroupView(monsterName, numberOfMonsters, numberOfMonsters, 0)
-            });
-
+            // Monsters reach the table from the coordinator's own events, which carry the real
+            // instances — no need to guess counts here.
             outcome = _combatCoordinator.StartEncounter(this, monsterName, numberOfMonsters, party, _characterRepository, _currentDungeonLevel);
         }
         if (outcome == CombatOutcome.Defeat)

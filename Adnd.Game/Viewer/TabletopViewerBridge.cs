@@ -19,6 +19,8 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Adnd.Core.Characters;
+using Adnd.Core.Combat.Actions;
+using Adnd.Core.Combat.Sessions;
 
 namespace Adnd.Game.Viewer;
 
@@ -60,6 +62,155 @@ public sealed class TabletopViewerBridge
 
     /// <summary>One monster group as the viewer wants to hear about it.</summary>
     public sealed record MonsterGroupView(string MonsterId, int Total, int Alive, int Asleep);
+
+    // Who was alive and how hurt, as of the last combat publish. Round-to-round changes are found
+    // by comparing against this: CombatEvent carries only a display string, so nothing structured
+    // can be recovered from the round's own output.
+    private readonly Dictionary<string, int> _lastHp = new();
+    private readonly HashSet<string> _lastDead = new();
+
+    /// <summary>
+    /// Publish a combat round: the monsters actually in the session, plus beats for what the party
+    /// chose to do and who died. Beats are theatre — the viewer animates them but reconciles to the
+    /// state either way, so a dropped one costs nothing.
+    /// </summary>
+    public void PublishCombat(
+        int level,
+        Func<int, int, bool> isFloor,
+        int width,
+        int height,
+        int cellX,
+        int cellY,
+        string facing,
+        IReadOnlyList<Character> party,
+        IReadOnlyList<MonsterInstance> monsters,
+        int roundNumber,
+        IReadOnlyDictionary<string, CombatAction> chosenActions = null)
+    {
+        if (!_enabled) return;
+
+        try
+        {
+            var beats = new List<object>();
+
+            // What the party chose. These are ids and enum names, never display text.
+            if (chosenActions != null)
+            {
+                foreach (var kv in chosenActions)
+                {
+                    var action = kv.Value;
+                    if (action == null) continue;
+
+                    // Only actions that are a visible gesture get a beat. Parry, Run and UseItem
+                    // are choices, not motions, and inventing a lunge for them would misreport
+                    // what the character did.
+                    string type;
+                    switch (action.Type)
+                    {
+                        case CombatActionType.Fight: type = "attack"; break;
+                        case CombatActionType.Spell:
+                        case CombatActionType.CastSpell: type = "cast"; break;
+                        default: continue;
+                    }
+
+                    // The chosen target is a group, not an individual: which monster gets hit is
+                    // decided during resolution. Lean toward the first living member of the group
+                    // so the gesture points the right way without inventing a victim.
+                    var target = FirstAliveIn(monsters, action.TargetGroupId);
+
+                    beats.Add(new
+                    {
+                        T = type,
+                        By = "char:" + kv.Key,
+                        At = target,
+                        SpellId = action.SpellId,
+                    });
+                }
+            }
+
+            // Deaths and damage, found by diffing rather than by reading round messages.
+            foreach (var m in monsters)
+            {
+                var id = MonsterId(m);
+                if (!m.IsAlive && _lastDead.Add(id))
+                    beats.Add(new { T = "death", At = id });
+            }
+
+            foreach (var c in party)
+            {
+                var id = "char:" + c.Name;
+                var dead = c.CurrentHitPoints <= 0 || c.Status.HasFlag(CharacterStatus.Dead);
+                if (dead)
+                {
+                    if (_lastDead.Add(id)) beats.Add(new { T = "death", At = id });
+                }
+                else if (_lastHp.TryGetValue(id, out var was) && c.CurrentHitPoints < was)
+                {
+                    beats.Add(new
+                    {
+                        T = "damage",
+                        At = id,
+                        Amount = was - c.CurrentHitPoints,
+                        Hp = new[] { c.CurrentHitPoints, c.MaxHitPoints },
+                    });
+                }
+                _lastHp[id] = c.CurrentHitPoints;
+            }
+
+            var groups = GroupsOf(monsters);
+            var payload = BuildPayload(level, isFloor, width, height, cellX, cellY, facing,
+                                       party, groups, monsters, roundNumber, beats);
+            Post(JsonSerializer.Serialize(payload));
+        }
+        catch
+        {
+            // Never spoil a fight for the sake of a picture.
+        }
+    }
+
+    /// <summary>Forget the previous fight, so the next one's first round is not read as deaths.</summary>
+    public void ResetCombatMemory()
+    {
+        _lastHp.Clear();
+        _lastDead.Clear();
+    }
+
+    private static string MonsterId(MonsterInstance m) => $"mon:{m.GroupId}#{m.Index}";
+
+    private static string FirstAliveIn(IReadOnlyList<MonsterInstance> monsters, string groupId)
+    {
+        foreach (var m in monsters)
+        {
+            if (!m.IsAlive) continue;
+            if (groupId != null && m.GroupId != groupId) continue;
+            return MonsterId(m);
+        }
+
+        // No group named, or that group is wiped: any living monster will do for a direction.
+        foreach (var m in monsters)
+            if (m.IsAlive) return MonsterId(m);
+
+        return null;
+    }
+
+    /// <summary>Real groups, real counts — taken from the session rather than re-rolled.</summary>
+    private static List<MonsterGroupView> GroupsOf(IReadOnlyList<MonsterInstance> monsters)
+    {
+        var byGroup = new Dictionary<string, (string Name, int Total, int Alive, int Asleep)>();
+        foreach (var m in monsters)
+        {
+            byGroup.TryGetValue(m.GroupId, out var acc);
+            var name = acc.Name ?? m.Name;
+            var asleep = acc.Asleep + (m.IsAlive && m.HasStatus(MonsterStatus.Asleep) ? 1 : 0);
+            byGroup[m.GroupId] = (name, acc.Total + 1, acc.Alive + (m.IsAlive ? 1 : 0), asleep);
+        }
+
+        var result = new List<MonsterGroupView>(byGroup.Count);
+        foreach (var kv in byGroup)
+            result.Add(new MonsterGroupView(kv.Value.Name, kv.Value.Total, kv.Value.Alive, kv.Value.Asleep));
+
+        return result;
+    }
 
     /// <summary>
     /// Tell the viewer where the party is standing and what it can see.
@@ -107,7 +258,10 @@ public sealed class TabletopViewerBridge
         int cellY,
         string facing,
         IReadOnlyList<Character> party,
-        IReadOnlyList<MonsterGroupView>? groups)
+        IReadOnlyList<MonsterGroupView>? groups,
+        IReadOnlyList<MonsterInstance>? monsters = null,
+        int roundNumber = 1,
+        List<object>? beats = null)
     {
         // '#' is solid, anything else is walkable. The viewer only ever asks "is this floor".
         var rows = new string[height];
@@ -156,51 +310,66 @@ public sealed class TabletopViewerBridge
         }
 
         object? encounter = null;
-        if (groups is { Count: > 0 })
+        if (monsters is { Count: > 0 })
         {
-            var groupViews = new List<object>(groups.Count);
-            for (int gi = 0; gi < groups.Count; gi++)
+            // Straight from the session: every standee is a real MonsterInstance, so its id is
+            // stable across rounds and the viewer can topple the one that actually died.
+            var byGroup = new Dictionary<string, List<MonsterInstance>>();
+            foreach (var m in monsters)
             {
-                var g = groups[gi];
-                var groupId = "g" + gi;
-                var monsterMembers = new List<object>(Math.Max(0, g.Total));
-                for (int i = 0; i < g.Total; i++)
+                if (!byGroup.TryGetValue(m.GroupId, out var list))
                 {
-                    monsterMembers.Add(new
+                    list = new List<MonsterInstance>();
+                    byGroup[m.GroupId] = list;
+                }
+                list.Add(m);
+            }
+
+            var groupViews = new List<object>(byGroup.Count);
+            foreach (var kv in byGroup)
+            {
+                var groupMembers = new List<object>(kv.Value.Count);
+                var alive = 0;
+                var asleep = 0;
+                foreach (var m in kv.Value)
+                {
+                    if (m.IsAlive) alive++;
+                    var isAsleep = m.IsAlive && m.HasStatus(MonsterStatus.Asleep);
+                    if (isAsleep) asleep++;
+
+                    groupMembers.Add(new
                     {
-                        Id = $"mon:{groupId}#{i}",
-                        Index = i,
-                        Alive = i < g.Alive,
-                        Status = i >= g.Alive - g.Asleep && i < g.Alive
-                            ? new List<string> { "Asleep" }
-                            : new List<string>(),
+                        Id = MonsterId(m),
+                        m.Index,
+                        Alive = m.IsAlive,
+                        Status = isAsleep ? new List<string> { "Asleep" } : new List<string>(),
                     });
                 }
 
                 groupViews.Add(new
                 {
-                    GroupId = groupId,
-                    g.MonsterId,
-                    g.Alive,
-                    g.Asleep,
-                    Members = monsterMembers,
+                    GroupId = kv.Key,
+                    MonsterId = kv.Value.Count > 0 ? kv.Value[0].Name : kv.Key,
+                    Alive = alive,
+                    Asleep = asleep,
+                    Members = groupMembers,
                 });
             }
 
-            encounter = new { Round = 1, Groups = groupViews };
+            encounter = new { Round = roundNumber, Groups = groupViews };
         }
 
         return new
         {
             SchemaVersion = 1,
             Seq = ++_seq,
-            Phase = groups is { Count: > 0 } ? "combat" : "maze",
+            Phase = encounter != null ? "combat" : "maze",
             Level = level,
             Grid = new { Width = width, Height = height, Rows = rows },
             Explored = seen.Select(c => c.X + "," + c.Y).ToArray(),
             Party = members,
             Encounter = encounter,
-            Log = Array.Empty<object>(),
+            Log = beats ?? new List<object>(),
         };
     }
 
