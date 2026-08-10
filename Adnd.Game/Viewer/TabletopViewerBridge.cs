@@ -168,6 +168,55 @@ public sealed class TabletopViewerBridge
         }
     }
 
+    /// <summary>
+    /// Tell the viewer the party is above ground and where. No grid and no cells: which places
+    /// exist and where they sit on the table is the viewer's business, so this sends only the id.
+    /// </summary>
+    public void PublishTown(string locationId, IReadOnlyList<Character> party)
+    {
+        if (!_enabled) return;
+
+        try
+        {
+            var members = new List<object>(party.Count);
+            for (int i = 0; i < party.Count; i++)
+            {
+                var c = party[i];
+                members.Add(new
+                {
+                    Id = "char:" + c.Name,
+                    c.Name,
+                    ClassId = c.Class.ToString(),
+                    RaceId = c.Race.ToString(),
+                    Slot = i,
+                    Cell = (int[])null,
+                    Facing = "North",
+                    Hp = new[] { c.CurrentHitPoints, c.MaxHitPoints },
+                    Ac = c.ArmorClass,
+                    Status = StatusNames(c.Status),
+                });
+            }
+
+            Post(JsonSerializer.Serialize(new
+            {
+                SchemaVersion = 1,
+                Seq = ++_seq,
+                Phase = "town",
+                Level = (int?)null,
+                Grid = (object)null,
+                Explored = Array.Empty<string>(),
+                Location = locationId,
+                Party = members,
+                Encounter = (object)null,
+                Log = Array.Empty<object>(),
+            }));
+        }
+        catch
+        {
+            // As everywhere here: the town is not worth a crash.
+        }
+    }
+
     /// <summary>Forget the previous fight, so the next one's first round is not read as deaths.</summary>
     public void ResetCombatMemory()
     {
