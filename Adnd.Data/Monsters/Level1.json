@@ -56,7 +56,6 @@
         "NumberOfAppearancesMax": 3,
         "ArmorClass": 6,
         "HitDice": 1,
-        "HitPoints": 5,
         "Movement": {
             "Walk": 30,
             "Fly": 0,
@@ -94,7 +93,6 @@
         "NumberOfAppearancesMax": 3,
         "ArmorClass": 7,
         "HitDice": 1,
-        "HitPoints": 3,
         "Movement": {
             "Walk": 30,
             "Fly": 0,
@@ -137,7 +135,6 @@
         "NumberOfAppearancesMax": 2,
         "ArmorClass": 9,
         "HitDice": 1,
-        "HitPoints": 8,
         "Movement": {
             "Walk": 10,
             "Fly": 0,
@@ -180,7 +177,6 @@
         "NumberOfAppearancesMax": 3,
         "ArmorClass": 7,
         "HitDice": 1,
-        "HitPoints": 4,
         "Movement": {
             "Walk": 20,
             "Fly": 0,
@@ -223,7 +219,6 @@
         "NumberOfAppearancesMax": 24,
         "ArmorClass": 10,
         "HitDice": 1,
-        "HitPoints": 4,
         "Attacks": [
             {
                 "Name": "Breath",
@@ -244,7 +239,6 @@
         "NumberOfAppearancesMax": 6,
         "ArmorClass": 12,
         "HitDice": 1,
-        "HitPoints": 4,
         "Attacks": [
             {
                 "Name": "Slime",
@@ -265,7 +259,6 @@
         "NumberOfAppearancesMax": 2,
         "ArmorClass": 4,
         "HitDice": 1,
-        "HitPoints": 4,
         "Attacks": [
             {
                 "Name": "Magic Missile",
@@ -286,7 +279,6 @@
         "NumberOfAppearancesMax": 2,
         "ArmorClass": 4,
         "HitDice": 1,
-        "HitPoints": 4,
         "Attacks": [
             {
                 "Name": "Cause Light Wounds",
@@ -304,10 +296,9 @@
         "Type": "Undead",
         "Frequency": "Uncommon",
         "NumberOfAppearancesMin": 1,
-        "NumberOfAppearancesMax": 2,
+        "NumberOfAppearancesMax": 6,
         "ArmorClass": 10,
         "HitDice": 1,
-        "HitPoints": 4,
         "Attacks": [
             {
                 "Name": "Bite",

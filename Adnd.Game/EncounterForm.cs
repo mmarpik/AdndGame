@@ -126,11 +126,11 @@ public sealed class EncounterForm : Form
         };
 
         _partyList.Columns.Add("#", 50);
-        _partyList.Columns.Add("Character Name", 280);
+        _partyList.Columns.Add("Character Name", 220);
         _partyList.Columns.Add("Class", 140);
         _partyList.Columns.Add("AC", 80);
         _partyList.Columns.Add("Hits", 100);
-        _partyList.Columns.Add("Status", 220);
+        _partyList.Columns.Add("Status", 280);
 
         Controls.Add(_headerLabel);
         Controls.Add(_optionsTitleLabel);
@@ -251,11 +251,11 @@ public sealed class EncounterForm : Form
         };
 
         _partyList.Columns.Add("#", 50);
-        _partyList.Columns.Add("Character Name", 280);
+        _partyList.Columns.Add("Character Name", 220);
         _partyList.Columns.Add("Class", 140);
         _partyList.Columns.Add("AC", 80);
         _partyList.Columns.Add("Hits", 100);
-        _partyList.Columns.Add("Status", 220);
+        _partyList.Columns.Add("Status", 280);
 
         Controls.Add(_headerLabel);
         Controls.Add(_optionsTitleLabel);
@@ -278,6 +278,20 @@ public sealed class EncounterForm : Form
                 DialogResult = DialogResult.Cancel;
                 Close();
                 break;
+            case Keys.Enter:
+            {
+                // Enter means Fight for chars 1-3, Parry for chars 4-6
+                var rank = GetActionableRank(_currentIndex);
+                if (rank is >= 1 and <= 3)
+                {
+                    ChooseAction(CombatActionType.Fight);
+                }
+                else if (rank is >= 4 and <= 6)
+                {
+                    ChooseAction(CombatActionType.Parry);
+                }
+                break;
+            }
             case Keys.F:
             {
                 var rank = GetActionableRank(_currentIndex);
@@ -685,9 +699,46 @@ public sealed class EncounterForm : Form
         _headerLabel.Text = $"1)  {_monsterCount}  {_monsterName.ToUpperInvariant()}{asleepText}";
 
         if (_currentIndex >= 0 && _currentIndex < _party.Count)
+        {
             _optionsTitleLabel.Text = $"{_party[_currentIndex].Name.ToUpperInvariant()}'S OPTIONS";
+            UpdateOptionsLegend();
+        }
         else
+        {
             _optionsTitleLabel.Text = "NO ACTIONS (ALL CHARACTERS DOWN)";
+        }
+    }
+
+    private void UpdateOptionsLegend()
+    {
+        var rank = GetActionableRank(_currentIndex);
+
+        // Determine which action is mapped to Enter
+        string fightText, parryText;
+        if (rank is >= 1 and <= 3)
+        {
+            fightText = "F<-IGHT";  // Enter for Fight
+            parryText = "P)ARRY";
+        }
+        else if (rank is >= 4 and <= 6)
+        {
+            fightText = "F)IGHT";
+            parryText = "P<-ARRY";  // Enter for Parry
+        }
+        else
+        {
+            fightText = "F)IGHT";
+            parryText = "P)ARRY";
+        }
+
+        if (_multipleGroups)
+        {
+            _optionsLegendLabel.Text = $"{fightText}   U)SE ITEM   R)UN\nS)PELL   {parryText}      T)AKE BACK\nG)ROUP   (Select Target Group)";
+        }
+        else
+        {
+            _optionsLegendLabel.Text = $"{fightText}   U)SE ITEM   R)UN\nS)PELL   {parryText}      T)AKE BACK";
+        }
     }
 
     private void UpdatePartyList()
@@ -697,9 +748,20 @@ public sealed class EncounterForm : Form
         for (int i = 0; i < _party.Count; i++)
         {
             var c = _party[i];
-            var action = c.CurrentHitPoints <= 0 || c.HasStatus(CharacterStatus.Dead)
-                ? "DEAD"
-                : (_actions.TryGetValue(c.Name, out var a) ? a.Type.ToString() : "??????");
+            string action;
+
+            if (c.CurrentHitPoints <= 0 || c.HasStatus(CharacterStatus.Dead))
+            {
+                action = "DEAD";
+            }
+            else if (_actions.TryGetValue(c.Name, out var a))
+            {
+                action = GetDetailedActionStatus(a);
+            }
+            else
+            {
+                action = "??????";
+            }
 
             var item = new ListViewItem((i + 1).ToString());
             item.SubItems.Add(c.Name);
@@ -713,6 +775,39 @@ public sealed class EncounterForm : Form
 
         if (_currentIndex >= 0 && _currentIndex < _partyList.Items.Count)
             _partyList.Items[_currentIndex].Selected = true;
+    }
+
+    private string GetDetailedActionStatus(CombatAction action)
+    {
+        var baseAction = action.Type.ToString();
+
+        // If casting a spell, show the spell name
+        if ((action.Type == CombatActionType.Spell || action.Type == CombatActionType.CastSpell) && !string.IsNullOrEmpty(action.SpellId))
+        {
+            var allSpells = _spellRepo.LoadAll();
+            var spell = allSpells.FirstOrDefault(s => s.Id == action.SpellId);
+            if (spell != null)
+            {
+                baseAction = $"Spell: {spell.Name}";
+            }
+        }
+
+        // If fighting or targeting a specific group, show the group
+        if (!string.IsNullOrEmpty(action.TargetGroupId) && _multipleGroups)
+        {
+            // Get the monster name from the target group
+            if (_session != null)
+            {
+                var groupMonsters = _session.GetMonstersByGroup(action.TargetGroupId).ToList();
+                if (groupMonsters.Any())
+                {
+                    var monsterName = groupMonsters.First().Name;
+                    baseAction += $" -> {monsterName}";
+                }
+            }
+        }
+
+        return baseAction;
     }
 
     private int FindNextActionableIndex(int fromIndex)

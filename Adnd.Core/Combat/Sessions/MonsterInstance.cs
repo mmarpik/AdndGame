@@ -1,4 +1,5 @@
 using Adnd.Core.Monsters;
+using Adnd.Core.Characters;
 
 namespace Adnd.Core.Combat.Sessions;
 
@@ -12,8 +13,18 @@ public sealed class MonsterInstance
         Index = index;
         GroupId = groupId;
         Name = template.Name;
-        CurrentHitPoints = template.HitPoints;
+
+        // Roll HP based on HitDice (1d8 per hit die)
+        CurrentHitPoints = RollHitPoints(template.HitDice);
         ArmorClass = template.ArmorClass;
+    }
+
+    private static int RollHitPoints(int hitDice)
+    {
+        if (hitDice <= 0)
+            return 1; // Minimum 1 HP
+
+        return DiceRoller.Roll(hitDice, 8);
     }
 
     public Monster Template { get; }
