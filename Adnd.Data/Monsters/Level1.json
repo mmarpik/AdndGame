@@ -53,7 +53,7 @@
         "Type": "Humanoid",
         "Frequency": "Uncommon",
         "NumberOfAppearancesMin": 1,
-        "NumberOfAppearancesMax": 3,
+        "NumberOfAppearancesMax": 6,
         "ArmorClass": 6,
         "HitDice": 1,
         "Movement": {
@@ -90,7 +90,7 @@
         "Type": "Animal",
         "Frequency": "Common",
         "NumberOfAppearancesMin": 1,
-        "NumberOfAppearancesMax": 3,
+        "NumberOfAppearancesMax": 6,
         "ArmorClass": 7,
         "HitDice": 1,
         "Movement": {
@@ -132,7 +132,7 @@
         "Type": "Undead",
         "Frequency": "Very Rare",
         "NumberOfAppearancesMin": 1,
-        "NumberOfAppearancesMax": 2,
+        "NumberOfAppearancesMax": 5,
         "ArmorClass": 9,
         "HitDice": 1,
         "Movement": {
@@ -174,7 +174,7 @@
         "Type": "Humanoid",
         "Frequency": "Legendary",
         "NumberOfAppearancesMin": 1,
-        "NumberOfAppearancesMax": 3,
+        "NumberOfAppearancesMax": 6,
         "ArmorClass": 7,
         "HitDice": 1,
         "Movement": {
@@ -256,7 +256,7 @@
         "Type": "Humanoid",
         "Frequency": "Uncommon",
         "NumberOfAppearancesMin": 1,
-        "NumberOfAppearancesMax": 2,
+        "NumberOfAppearancesMax": 1,
         "ArmorClass": 4,
         "HitDice": 1,
         "Attacks": [
@@ -303,7 +303,7 @@
             {
                 "Name": "Bite",
                 "NumberOfAttacks": 1,
-                "Damage": "1d4+1"
+                "Damage": "1d4"
             }
         ],
         "SpecialAbilities": [],
