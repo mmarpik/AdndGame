@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6460cb5e22ef004478c1109b6d42dce5
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: c359c34a817674e4992d9728f63fc4c2, type: 3}
+  unitScale: 0.001
+  zUp: 1
+  fitHeight: 0
+  originAtBase: 1
+  weldVertices: 0

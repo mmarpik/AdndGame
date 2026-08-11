@@ -22,3 +22,16 @@ Depening on Abilities and race selected, different classes can be selected
 <img width="1208" height="788" alt="image" src="https://github.com/user-attachments/assets/c4d3fb61-b779-4c16-874f-af4f30cf9ca7" />
 
 Happy Gaming!
+
+## The tabletop viewer (optional)
+
+`WizardryViewer/` is a Unity project that watches the game and lays it out as a miniatures
+table — the party as figures on 1-inch tiles, walking the corridors and fighting in real time,
+on a second monitor. The game works exactly as before without it: it publishes a snapshot to
+`127.0.0.1:8787` each turn and nothing minds if no one is listening.
+
+Needs Unity 6000.4. See `WizardryViewer/README.md` to build it, then start both halves with:
+
+```powershell
+.\play-wizardry.ps1
+```

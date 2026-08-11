@@ -61,3 +61,32 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+###############################################################################
+# Unity — WizardryViewer
+#
+# Unity writes its YAML assets with LF and rewrites a file wholesale whenever it
+# saves it. With core.autocrlf=true a checkout would hand Unity CRLF, so the
+# first save of any scene or prefab would show up as a whole-file diff. Pin them
+# to LF so the diffs stay honest.
+###############################################################################
+/WizardryViewer/**/*.meta        text eol=lf
+/WizardryViewer/**/*.asset       text eol=lf
+/WizardryViewer/**/*.unity       text eol=lf
+/WizardryViewer/**/*.prefab      text eol=lf
+/WizardryViewer/**/*.mat         text eol=lf
+/WizardryViewer/**/*.shader      text eol=lf
+/WizardryViewer/**/*.shadergraph text eol=lf
+/WizardryViewer/**/*.cginc       text eol=lf
+/WizardryViewer/**/*.hlsl        text eol=lf
+/WizardryViewer/**/*.json        text eol=lf
+
+# Byte-exact. The .stl pair is one ASCII and one binary file, so the extension is
+# pinned binary rather than risking normalisation of the binary one.
+/WizardryViewer/**/*.psd binary
+/WizardryViewer/**/*.jpg binary
+/WizardryViewer/**/*.png binary
+/WizardryViewer/**/*.ttf binary
+/WizardryViewer/**/*.TTF binary
+/WizardryViewer/**/*.stl binary
+/WizardryViewer/**/*.txt         text eol=lf
