@@ -259,6 +259,13 @@
         "NumberOfAppearancesMax": 2,
         "ArmorClass": 4,
         "HitDice": 1,
+        "SavingThrows": {
+            "ParalyzationPoisonDeath": 13,
+            "RodStaffWand": 14,
+            "PetrificationPolymorph": 15,
+            "BreathWeapon": 16,
+            "Spell": 16
+        },
         "Attacks": [
             {
                 "Name": "Magic Missile",
@@ -279,6 +286,13 @@
         "NumberOfAppearancesMax": 2,
         "ArmorClass": 4,
         "HitDice": 1,
+        "SavingThrows": {
+            "ParalyzationPoisonDeath": 13,
+            "RodStaffWand": 14,
+            "PetrificationPolymorph": 15,
+            "BreathWeapon": 16,
+            "Spell": 16
+        },
         "Attacks": [
             {
                 "Name": "Cause Light Wounds",
