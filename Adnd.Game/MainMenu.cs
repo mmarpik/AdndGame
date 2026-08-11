@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Adnd.Core.Characters;
+using Adnd.Game.Viewer;
 using Adnd.Core.Config;
 using Adnd.Core.Spells;
 using Adnd.Data.Characters;
@@ -20,12 +22,17 @@ public class MainMenu
     private readonly PartyRepository _partyRepo = new("Data/Party");
     private readonly CharacterRepository _charRepo = new("Data/Characters");
     private readonly SpellRepository _spellRepo = new("Data/Spells");
+    private readonly TabletopViewerBridge _viewer = new();
 
     public void Show()
     {
         while (true)
         {
             RestoreDailySpellPointsInTown();
+
+            // Back at the hub: put the party on the town board. Publishing on every pass through
+            // the loop keeps the table right after any location returns, with no per-menu hooks.
+            PublishTown("EdgeOfTown");
 
             Console.Clear();
             Console.WriteLine("=== WELCOME TO THE CITY OF MYTHGAR ===\n");
@@ -42,10 +49,12 @@ public class MainMenu
             switch (key)
             {
                 case ConsoleKey.T:
+                    PublishTown("TrainingGrounds");
                     _cityMenu.Show();
                     break;
 
                 case ConsoleKey.G:
+                    PublishTown("Tavern");
                     _partyMenu.Show();
                     break;
 
@@ -56,6 +65,7 @@ public class MainMenu
                         break;
                     }
 
+                    PublishTown("Temple");
                     _templeMenu.Show();
                     break;
 
@@ -66,6 +76,7 @@ public class MainMenu
                         break;
                     }
 
+                    PublishTown("Shop");
                     _shopMenu.Show(0,10,true);
                     break;
 
@@ -89,6 +100,25 @@ public class MainMenu
                     return;
             }
         }
+    }
+
+    /// <summary>
+    /// Show the party at a place in town. Silent no-op when no viewer is listening, and a missing
+    /// roster entry is skipped rather than guessed at.
+    /// </summary>
+    private void PublishTown(string locationId)
+    {
+        var party = _partyRepo.Load();
+        var roster = _charRepo.GetAll().ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+        var ordered = new List<Character>();
+        foreach (var name in party.Members)
+        {
+            if (roster.TryGetValue(name, out var c))
+                ordered.Add(c);
+        }
+
+        _viewer.PublishTown(locationId, ordered);
     }
 
     private void RestoreDailySpellPointsInTown()
