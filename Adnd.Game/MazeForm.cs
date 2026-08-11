@@ -765,7 +765,7 @@ redesign level 3 to have only one boarder corridor and to have 2 more rooms and 
 
         if (activeMembers.Count == 0)
         {
-            MessageBox.Show(this, "No party members to camp with.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "No party members to camp with.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -857,7 +857,7 @@ redesign level 3 to have only one boarder corridor and to have 2 more rooms and 
     {
         if (activeMembers.Count < 2)
         {
-            MessageBox.Show(this, "Need at least two party members to reorder.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Need at least two party members to reorder.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -1007,7 +1007,7 @@ redesign level 3 to have only one boarder corridor and to have 2 more rooms and 
         {
             if (picked.Count != activeMembers.Count)
             {
-                MessageBox.Show(form, "Move all members into New order before confirming.", "Reorder Party", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(form, "Move all members into New order before confirming.", "Reorder Party", MessageBoxButtons.OK, MessageBoxIcon.None);
                 return;
             }
 
@@ -1059,7 +1059,7 @@ redesign level 3 to have only one boarder corridor and to have 2 more rooms and 
 
         party.Members = reorderedResult;
         _partyRepository.Save(party);
-        MessageBox.Show(this, "Party order updated.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(this, "Party order updated.", "Camp", MessageBoxButtons.OK, MessageBoxIcon.None);
         Invalidate();
     }
 
@@ -1084,7 +1084,7 @@ redesign level 3 to have only one boarder corridor and to have 2 more rooms and 
 
         using var inspect = new CampCharacterInspectForm(selectedCharacter.Name, activeMembers);
 inspect.ShowDialog(this);
-//        MessageBox.Show(this, selectedCharacter.ToString(), $"Inspect - {selectedCharacter.Name}", MessageBoxButtons.OK, MessageBoxIcon.Information);
+//        MessageBox.Show(this, selectedCharacter.ToString(), $"Inspect - {selectedCharacter.Name}", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private int? PromptForNumber(string title, string text, int min, int max)
@@ -1544,7 +1544,7 @@ inspect.ShowDialog(this);
         foreach (var line in GetPartyLines())
             sb.AppendLine(line);
 
-        MessageBox.Show(this, sb.ToString(), title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(this, sb.ToString(), title, MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private static RectangleF[] BuildFrames(RectangleF viewport, int maxDepth)
@@ -1725,7 +1725,7 @@ inspect.ShowDialog(this);
                 $"Encounter!\n\n{monsterName}\n\n(No active party members found)",
                 "Monsters",
                 MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+                MessageBoxIcon.None);
             return;
         }
 
