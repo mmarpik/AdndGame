@@ -336,7 +336,7 @@ public sealed class CombatCoordinator
             }
         }
 
-        MessageBox.Show(owner, sb.ToString(), "Combat Rewards", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(owner, sb.ToString(), "Combat Rewards", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private MagicAwardResult AwardMagicItemsFromPlaceholders(List<Character> survivors, List<TreasureMagicPlaceholderResult> placeholders)
@@ -593,7 +593,7 @@ public sealed class CombatCoordinator
         foreach (var e in events)
             sb.AppendLine(e.Message);
 
-        MessageBox.Show(owner, sb.ToString(), "Combat Round", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(owner, sb.ToString(), "Combat Round", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private static void ShowFinalOutcome(IWin32Window owner, CombatOutcome outcome)
@@ -606,7 +606,7 @@ public sealed class CombatCoordinator
             _ => "Combat ended."
         };
 
-        MessageBox.Show(owner, text, "Combat Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(owner, text, "Combat Result", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private static void DistributeCoin(List<Character> survivors, int totalAmount, Action<Character, int> add)

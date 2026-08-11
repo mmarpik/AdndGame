@@ -298,7 +298,7 @@ public sealed class EncounterForm : Form
                 if (rank is >= 1 and <= 3)
                     ChooseAction(CombatActionType.Fight);
                 else
-                    MessageBox.Show(this, "Only the first three living characters may choose Fight.", "Action not allowed", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(this, "Only the first three living characters may choose Fight.", "Action not allowed", MessageBoxButtons.OK, MessageBoxIcon.None);
                 break;
             }
             case Keys.P:
@@ -382,7 +382,7 @@ public sealed class EncounterForm : Form
         var castable = GetCastableCombatSpells(caster);
         if (castable.Count == 0)
         {
-            MessageBox.Show(this, $"{caster.Name} has no castable spells.", "Spell", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, $"{caster.Name} has no castable spells.", "Spell", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -547,7 +547,7 @@ public sealed class EncounterForm : Form
 
         if (groups.Count <= 1)
         {
-            MessageBox.Show(this, "Only one group remains.", "Group Selection", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Only one group remains.", "Group Selection", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -568,7 +568,7 @@ public sealed class EncounterForm : Form
         if (selected.HasValue)
         {
             var selectedGroupId = groups[selected.Value - 1];
-            MessageBox.Show(this, $"{character.Name} will target {selectedGroupId}", "Group Selected", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, $"{character.Name} will target {selectedGroupId}", "Group Selected", MessageBoxButtons.OK, MessageBoxIcon.None);
             // Store group preference (for now, just show message - actual targeting handled in combat resolver)
         }
     }
