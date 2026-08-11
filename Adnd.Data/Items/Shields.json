@@ -9,7 +9,9 @@
       "Weight": 6,
       "ArmorClassBonus": 1,
       "Damage": "",
-      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard"]
+      "AllowedClasses": ["Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard"],
+      "IsShopBuyable": true,
+      "StockQuantity": 6
     }
   ]
 }
