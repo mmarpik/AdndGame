@@ -42,9 +42,12 @@ public sealed class TabletopViewerBridge
     private readonly string _endpoint;
     private readonly bool _enabled;
 
-    // The viewer drops any snapshot not newer than the highest sequence it has seen, so this must
-    // increase on every publish or later ones are silently ignored.
-    private long _seq;
+    // The viewer drops any snapshot whose Seq is not greater than the last one it accepted, so this
+    // must increase on every publish. Process-wide, NOT per instance: two bridges counting
+    // independently means whichever starts later is ignored until its count overtakes the other's.
+    // That showed up as the maze refusing to appear until the party moved, because the town
+    // publishes had already run the number up.
+    private static long _seq;
 
     // Cells the party has stood in, per level. The game keeps no fog of war of its own and the
     // viewer lays only what has been mapped, so that memory lives here.
@@ -200,7 +203,7 @@ public sealed class TabletopViewerBridge
             Post(JsonSerializer.Serialize(new
             {
                 SchemaVersion = 1,
-                Seq = ++_seq,
+                Seq = System.Threading.Interlocked.Increment(ref _seq),
                 Phase = "town",
                 Level = (int?)null,
                 Grid = (object)null,
@@ -411,7 +414,7 @@ public sealed class TabletopViewerBridge
         return new
         {
             SchemaVersion = 1,
-            Seq = ++_seq,
+            Seq = System.Threading.Interlocked.Increment(ref _seq),
             Phase = encounter != null ? "combat" : "maze",
             Level = level,
             Grid = new { Width = width, Height = height, Rows = rows },
