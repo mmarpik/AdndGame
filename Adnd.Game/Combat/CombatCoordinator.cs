@@ -2,6 +2,8 @@ using System.Text;
 using System.Windows.Forms;
 using Adnd.Core.Characters;
 using Adnd.Core.Characters.Progression;
+using Adnd.Core.Combat.Actions;
+using Adnd.Core.Combat.Events;
 using Adnd.Core.Combat.Resolution;
 using Adnd.Core.Combat.Sessions;
 using Adnd.Core.Config;
@@ -32,6 +34,22 @@ public sealed class CombatCoordinator
     private readonly Random _random = new();
     private readonly IDice _dice = new SystemDice();
 
+    /// <summary>
+    /// Raised when an encounter is set up, before the first round is fought. Observers only —
+    /// combat does not wait on them and nothing they do changes its outcome.
+    /// </summary>
+    public event Action<CombatSession>? EncounterStarted;
+
+    /// <summary>Raised once the player has chosen this round's actions, before they resolve.</summary>
+    public event Action<CombatSession, IReadOnlyDictionary<string, CombatAction>>? ActionsChosen;
+
+    /// <summary>
+    /// Raised after a round resolves. Carries only the session: what changed is read by comparing
+    /// it against the previous state, because <see cref="CombatEvent"/> is a display string and
+    /// nothing structured can be recovered from it.
+    /// </summary>
+    public event Action<CombatSession>? RoundResolved;
+
     public CombatCoordinator()
     {
         var spellRepo = new SpellRepository("Data/Spells");
@@ -58,6 +76,7 @@ public sealed class CombatCoordinator
     {
         var monsters = _monsterFactory.CreateGroup(monsterName, monsterCount);
         var session = new CombatSession(party, monsters);
+        EncounterStarted?.Invoke(session);
 
         while (session.Outcome == CombatOutcome.InProgress)
         {
@@ -79,7 +98,10 @@ public sealed class CombatCoordinator
                 break;
             }
 
+            ActionsChosen?.Invoke(session, encounterForm.SelectedActions);
+
             var roundEvents = _combatResolver.ResolveRound(session, encounterForm.SelectedActions);
+            RoundResolved?.Invoke(session);
             ShowRoundEvents(owner, roundEvents);
 
             MoveDeadPartyMembersToEnd(session.Party);
@@ -120,6 +142,7 @@ public sealed class CombatCoordinator
 
         var monsters = _monsterFactory.CreateMultipleGroups(groups);
         var session = new CombatSession(party, monsters);
+        EncounterStarted?.Invoke(session);
 
         while (session.Outcome == CombatOutcome.InProgress)
         {
@@ -137,7 +160,10 @@ public sealed class CombatCoordinator
                 break;
             }
 
+            ActionsChosen?.Invoke(session, encounterForm.SelectedActions);
+
             var roundEvents = _combatResolver.ResolveRound(session, encounterForm.SelectedActions);
+            RoundResolved?.Invoke(session);
             ShowRoundEvents(owner, roundEvents);
 
             MoveDeadPartyMembersToEnd(session.Party);
@@ -310,7 +336,7 @@ public sealed class CombatCoordinator
             }
         }
 
-        MessageBox.Show(owner, sb.ToString(), "Combat Rewards", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(owner, sb.ToString(), "Combat Rewards", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private MagicAwardResult AwardMagicItemsFromPlaceholders(List<Character> survivors, List<TreasureMagicPlaceholderResult> placeholders)
@@ -567,7 +593,7 @@ public sealed class CombatCoordinator
         foreach (var e in events)
             sb.AppendLine(e.Message);
 
-        MessageBox.Show(owner, sb.ToString(), "Combat Round", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(owner, sb.ToString(), "Combat Round", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private static void ShowFinalOutcome(IWin32Window owner, CombatOutcome outcome)
@@ -580,7 +606,7 @@ public sealed class CombatCoordinator
             _ => "Combat ended."
         };
 
-        MessageBox.Show(owner, text, "Combat Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(owner, text, "Combat Result", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private static void DistributeCoin(List<Character> survivors, int totalAmount, Action<Character, int> add)

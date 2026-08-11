@@ -176,7 +176,7 @@ public sealed class CampCharacterInspectForm : Form
 
         if (equipable.Count == 0)
         {
-            MessageBox.Show(this, "No equipable items in inventory.", "Equip", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "No equipable items in inventory.", "Equip", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -221,7 +221,7 @@ public sealed class CampCharacterInspectForm : Form
         }
         else
         {
-            MessageBox.Show(this, $"{c.Name} cannot equip {item.Name}.", "Equip", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, $"{c.Name} cannot equip {item.Name}.", "Equip", MessageBoxButtons.OK, MessageBoxIcon.None);
         }
     }
 
@@ -245,7 +245,7 @@ public sealed class CampCharacterInspectForm : Form
         var equipped = c.Equipment.Where(kv => kv.Value != null).Select(kv => kv.Key).ToList();
         if (equipped.Count == 0)
         {
-            MessageBox.Show(this, "No equipped items.", "Unequip", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "No equipped items.", "Unequip", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -268,7 +268,7 @@ public sealed class CampCharacterInspectForm : Form
 
         if (c.Inventory.Count == 0)
         {
-            MessageBox.Show(this, "Inventory empty.", "Drop", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Inventory empty.", "Drop", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -302,7 +302,7 @@ public sealed class CampCharacterInspectForm : Form
         receiver.GoldPieces += pooled;
         _characterRepository.Save(receiver);
         RefreshView();
-        MessageBox.Show(this, $"Pooled {pooled} gp to {receiver.Name}.", "Pool Gold", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show(this, $"Pooled {pooled} gp to {receiver.Name}.", "Pool Gold", MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private void MemorizeSpellAction()
@@ -313,7 +313,7 @@ public sealed class CampCharacterInspectForm : Form
 
         if (!CanUseMemorizeAction(c))
         {
-            MessageBox.Show(this, "This character cannot memorize spells.", "Memorize", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "This character cannot memorize spells.", "Memorize", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -436,7 +436,7 @@ public sealed class CampCharacterInspectForm : Form
         }
         else
         {
-            MessageBox.Show(this, "Enemy-target spells require combat.", "Cast Spell", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Enemy-target spells require combat.", "Cast Spell", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -450,7 +450,7 @@ public sealed class CampCharacterInspectForm : Form
             MonsterTargets = new List<Adnd.Core.Combat.Sessions.MonsterInstance>()
         });
 
-        MessageBox.Show(this, string.Join(Environment.NewLine, result.Events), "Cast Spell", MessageBoxButtons.OK, result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+        MessageBox.Show(this, string.Join(Environment.NewLine, result.Events), "Cast Spell", MessageBoxButtons.OK, result.Success ? MessageBoxIcon.None : MessageBoxIcon.Warning);
 
         if (result.Success)
         {
@@ -517,7 +517,7 @@ public sealed class CampCharacterInspectForm : Form
 
     private static void NotImplemented(string actionName)
     {
-        MessageBox.Show($"[{actionName} action not yet implemented]", actionName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        MessageBox.Show($"[{actionName} action not yet implemented]", actionName, MessageBoxButtons.OK, MessageBoxIcon.None);
     }
 
     private int? PromptChoice(string title, List<string> options)
@@ -565,7 +565,7 @@ public sealed class CampCharacterInspectForm : Form
 
         if (giver.Inventory.Count == 0)
         {
-            MessageBox.Show(this, "No items to trade.", "Trade", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "No items to trade.", "Trade", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -576,7 +576,7 @@ public sealed class CampCharacterInspectForm : Form
 
         if (recipients.Count == 0)
         {
-            MessageBox.Show(this, "No other party member to trade with.", "Trade", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "No other party member to trade with.", "Trade", MessageBoxButtons.OK, MessageBoxIcon.None);
             return;
         }
 
@@ -598,7 +598,7 @@ public sealed class CampCharacterInspectForm : Form
                 $"{receiver.Name} cannot carry more weight ({receiver.CurrentCarryWeight}/{receiver.MaxCarryWeight}).",
                 "Trade",
                 MessageBoxButtons.OK,
-                MessageBoxIcon.Information);
+                MessageBoxIcon.None);
             return;
         }
 
@@ -614,6 +614,6 @@ public sealed class CampCharacterInspectForm : Form
             $"Traded {item.Name} from {giver.Name} to {receiver.Name}.",
             "Trade",
             MessageBoxButtons.OK,
-            MessageBoxIcon.Information);
+            MessageBoxIcon.None);
     }
 }

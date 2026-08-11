@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Adnd.Data.Items;
 using Adnd.Data.Party;
@@ -63,7 +63,11 @@ public class ShopMenu
 
             var party = _partyRepo.Load();
             var shopper = GetCurrentShopper(party);
-            if (numberOfItems > 48) numberOfItems = 48;//max 48 items in shop
+            // One page can hold at most 26 rows, because a row is named by a single letter A-Z and
+            // every letter has to mean exactly one visible item. The old limit of 48 needed a
+            // second, lower-case range to label the overflow, which made 'a' and 'A' different
+            // items on the same screen. Paging reaches the rest.
+            if (numberOfItems > 26) numberOfItems = 26;
 
             if (shopper != null)
                 Console.WriteLine($"Shopper: {shopper.Name} - GP: {shopper.GoldPieces}\n");
@@ -83,7 +87,7 @@ public class ShopMenu
                     var it = items[i];
                     var notEquipableTag = shopper != null && !IsEquipableBy(shopper, it) ? " - (Not Equipable)" : string.Empty;
                     var stockText = GetStockDisplay(it);
-                    var label = GetShopLabel(i);
+                    var label = GetShopLabel(i - startIndex);
                     Console.WriteLine($"{label}. {it.Name}{notEquipableTag} - Cost: {it.Cost} gp - Stock: {stockText}");
             }
 
@@ -95,7 +99,7 @@ public class ShopMenu
             if (startIndex + numberOfItems < items.Count) Console.WriteLine("N)ext items in shop");
             if (startIndex > 0) Console.WriteLine("G)o to previous items in shop");
             Console.WriteLine("I)nitial items in shop");
-            Console.WriteLine("F)ilther items in shop");
+            Console.WriteLine("F)ilter items in shop");
             Console.WriteLine("L<-eave");
 
             var key = Console.ReadKey(true).Key;
@@ -179,12 +183,12 @@ public class ShopMenu
             var notEquipableTag = !IsEquipableBy(buyer, it) ? " (Not Equipable)" : string.Empty;
             var stockText = GetStockDisplay(it);
             var soldOutText = it.StockQuantity.HasValue && it.StockQuantity.Value <= 0 ? " [Out of stock]" : string.Empty;
-            var label = GetShopLabel(i);
+            var label = GetShopLabel(i - startIndex);
             Console.WriteLine($"{label}. {it.Name}{notEquipableTag} ({it.Cost} gp) - Stock: {stockText}{soldOutText}");
         }
 
         Console.Write("\nChoose letter: ");
-        var sel = ReadShopLetterIndex(items.Count);
+        var sel = ReadShopLetterIndex(startIndex, numberOfItems, items.Count);
         if (sel.HasValue)
         {
             var it = items[sel.Value];
@@ -242,33 +246,45 @@ public class ShopMenu
         Console.ReadKey(true);
     }
 
-    private static string GetShopLabel(int index)
+    /// <summary>
+    /// Letter shown beside an item, counted from the top of the page rather than the top of the
+    /// whole catalogue, so the first row on screen is always A. Only one page is ever visible, so
+    /// there is nothing for a second lettering range to reach.
+    /// </summary>
+    private static string GetShopLabel(int indexOnPage)
     {
-        if (index >= 0 && index < 26)
-            return ((char)('A' + index)).ToString();
-
-        if (index >= 26 && index < 52)
-            return ((char)('a' + (index - 26))).ToString();
+        if (indexOnPage >= 0 && indexOnPage < 26)
+            return ((char)('A' + indexOnPage)).ToString();
 
         return "?";
     }
 
-    private static int? ReadShopLetterIndex(int count)
+    /// <summary>
+    /// Read a letter and turn it into an index into the full item list.
+    ///
+    /// Case-insensitive on purpose. The labels are printed as capitals, and typing the letter you
+    /// can see without holding Shift used to mean something else entirely: 'a' was item 27, not
+    /// item 1. On a short list that produced "Invalid" for every lowercase key, and on a longer one
+    /// it silently bought an item from a page you were not looking at.
+    ///
+    /// The letter is relative to the page on display, so it selects the row beside it whatever page
+    /// you are on.
+    /// </summary>
+    private static int? ReadShopLetterIndex(int startIndex, int pageSize, int count)
     {
         var key = Console.ReadKey(true);
         if (key.Key == ConsoleKey.Enter)
             return null;
 
-        var ch = key.KeyChar;
-        int idx;
-
-        if (ch >= 'A' && ch <= 'Z')
-            idx = ch - 'A';
-        else if (ch >= 'a' && ch <= 'z')
-            idx = 26 + (ch - 'a');
-        else
+        var ch = char.ToUpperInvariant(key.KeyChar);
+        if (ch < 'A' || ch > 'Z')
             return null;
 
+        var indexOnPage = ch - 'A';
+        if (indexOnPage >= pageSize)
+            return null;
+
+        var idx = startIndex + indexOnPage;
         if (idx < 0 || idx >= count)
             return null;
 
