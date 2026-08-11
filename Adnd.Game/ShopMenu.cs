@@ -63,7 +63,11 @@ public class ShopMenu
 
             var party = _partyRepo.Load();
             var shopper = GetCurrentShopper(party);
-            if (numberOfItems > 48) numberOfItems = 48;//max 48 items in shop
+            // One page can hold at most 26 rows, because a row is named by a single letter A-Z and
+            // every letter has to mean exactly one visible item. The old limit of 48 needed a
+            // second, lower-case range to label the overflow, which made 'a' and 'A' different
+            // items on the same screen. Paging reaches the rest.
+            if (numberOfItems > 26) numberOfItems = 26;
 
             if (shopper != null)
                 Console.WriteLine($"Shopper: {shopper.Name} - GP: {shopper.GoldPieces}\n");
@@ -95,7 +99,7 @@ public class ShopMenu
             if (startIndex + numberOfItems < items.Count) Console.WriteLine("N)ext items in shop");
             if (startIndex > 0) Console.WriteLine("G)o to previous items in shop");
             Console.WriteLine("I)nitial items in shop");
-            Console.WriteLine("F)ilther items in shop");
+            Console.WriteLine("F)ilter items in shop");
             Console.WriteLine("L<-eave");
 
             var key = Console.ReadKey(true).Key;
