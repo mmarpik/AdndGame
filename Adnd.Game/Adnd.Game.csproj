@@ -49,6 +49,36 @@
     </Content>
   </ItemGroup>
 
+  <!--
+    Reference data. The repositories load these by relative path at runtime ("Data/Items",
+    "Data/Spells", and so on), but nothing copied them to the output directory, so a freshly
+    cloned and built game had no Data folder at all and had to have one assembled by hand.
+
+    Save state is deliberately absent from this list. "Data/Characters", "Data/Party" and
+    "Data/Config" are written by the game, exist only in the output directory, and are not in
+    source control. A copy rule covering them would overwrite a player's roster on every build.
+
+    PreserveNewest also means a shop that has sold stock down keeps its counts across rebuilds,
+    since the output file is then newer than the source.
+  -->
+  <ItemGroup>
+    <Content Include="..\Adnd.Data\Items\*.json" Link="Data\Items\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Adnd.Data\Monsters\*.json" Link="Data\Monsters\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Adnd.Data\Spells\*.json" Link="Data\Spells\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Adnd.Data\Treasure\*.json" Link="Data\Treasure\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Adnd.Data\Encounters\**\*.json" Link="Data\Encounters\%(RecursiveDir)%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <Content Include="..\..\..\..\..\..\dev\Images\Monsters\Level6\basilisk.jpg" Link="Assets\Monsters\Level6\basilisk.jpg" />
     <Content Include="..\..\..\..\..\..\dev\Images\Monsters\Level6\giantant(warrior).png" Link="Assets\Monsters\Level6\giantant%28warrior%29.png" />
