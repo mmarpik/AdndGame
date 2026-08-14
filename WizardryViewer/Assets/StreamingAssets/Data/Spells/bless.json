@@ -1,0 +1,12 @@
+{
+  "Id": "bless",
+  "Name": "Bless",
+  "Class": "Cleric",
+  "Level": 1,
+  "Description": "Grants allies a morale and combat bonus.",
+  "RangeType": "Self",
+  "Targeting": "Multiple",
+  "CastContext": "Both",
+  "EffectType": "Heal",
+  "EffectDescription": "Blesses allies, improving their effectiveness in combat."
+}

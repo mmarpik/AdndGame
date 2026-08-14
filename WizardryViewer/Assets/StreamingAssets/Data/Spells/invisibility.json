@@ -1,0 +1,12 @@
+{
+  "Id": "invisibility",
+  "Name": "Invisibility",
+  "Class": "MagicUser",
+  "Level": 2,
+  "Description": "Renders one target unseen.",
+  "RangeType": "Ally",
+  "Targeting": "Single",
+  "CastContext": "Both",
+  "EffectType": "Heal",
+  "EffectDescription": "Arcane veil hides the target from sight."
+}

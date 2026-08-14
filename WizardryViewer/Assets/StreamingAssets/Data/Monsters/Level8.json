@@ -1,0 +1,287 @@
+{
+    "Level": 8,
+    "Monsters": [
+        {
+            "Name": "Stone Giant",
+            "Type": "Giant",
+            "ArmorClass": 3,
+            "HitDice": 8,
+            "HitPoints": 48,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 9,
+                "RodStaffWand": 10,
+                "PetrificationPolymorph": 11,
+                "BreathWeapon": 12,
+                "Spell": 12
+            },
+            "Morale": { "Value": 12 },
+            "Attacks": [
+                {
+                    "Name": "Rock Throw",
+                    "NumberOfAttacks": 1,
+                    "Damage": "3d6"
+                },
+                {
+                    "Name": "Club",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d8"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Rock Mastery",
+                    "Description": "+2 to hit with thrown rocks."
+                }
+            ],
+            "XPValue": 1500,
+            "TreasureType": "I"
+        },
+        {
+            "Name": "Giant Spider (Phase)",
+            "Type": "Vermin",
+            "ArmorClass": 2,
+            "HitDice": 7,
+            "HitPoints": 40,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 40
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 9,
+                "RodStaffWand": 10,
+                "PetrificationPolymorph": 11,
+                "BreathWeapon": 12,
+                "Spell": 12
+            },
+            "Morale": { "Value": 10 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Phase Shift",
+                    "Description": "Can become ethereal for 1 round, 3/day."
+                },
+                {
+                    "Name": "Poison Bite",
+                    "Description": "Save vs poison or death."
+                }
+            ],
+            "XPValue": 1200,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Giant Bear (Cave)",
+            "Type": "Animal",
+            "ArmorClass": 5,
+            "HitDice": 7,
+            "HitPoints": 45,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 10,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 10,
+                "RodStaffWand": 11,
+                "PetrificationPolymorph": 12,
+                "BreathWeapon": 13,
+                "Spell": 13
+            },
+            "Morale": { "Value": 11 },
+            "Attacks": [
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d8"
+                },
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Mauling Frenzy",
+                    "Description": "If both claws hit, extra 2d8 damage."
+                }
+            ],
+            "XPValue": 900,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Wyvern",
+            "Type": "Dragonkin",
+            "ArmorClass": 3,
+            "HitDice": 7,
+            "HitPoints": 42,
+            "Movement": {
+                "Walk": 20,
+                "Fly": 40,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 9,
+                "RodStaffWand": 10,
+                "PetrificationPolymorph": 11,
+                "BreathWeapon": 12,
+                "Spell": 12
+            },
+            "Morale": { "Value": 12 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                },
+                {
+                    "Name": "Sting",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Venomous Sting",
+                    "Description": "Sting forces save vs poison or death."
+                }
+            ],
+            "XPValue": 1300,
+            "TreasureType": "J"
+        },
+        {
+            "Name": "Giant Snake (Sea Serpent)",
+            "Type": "Animal",
+            "ArmorClass": 4,
+            "HitDice": 8,
+            "HitPoints": 50,
+            "Movement": {
+                "Walk": 0,
+                "Fly": 0,
+                "Swim": 40,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 9,
+                "RodStaffWand": 10,
+                "PetrificationPolymorph": 11,
+                "BreathWeapon": 12,
+                "Spell": 12
+            },
+            "Morale": { "Value": 11 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "3d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Capsize",
+                    "Description": "Can attempt to overturn small boats; crew must save vs death or fall overboard."
+                }
+            ],
+            "XPValue": 1400,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Giant Slug",
+            "Type": "Monstrous",
+            "ArmorClass": 6,
+            "HitDice": 8,
+            "HitPoints": 48,
+            "Movement": {
+                "Walk": 10,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 10,
+                "RodStaffWand": 11,
+                "PetrificationPolymorph": 12,
+                "BreathWeapon": 13,
+                "Spell": 13
+            },
+            "Morale": { "Value": 10 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d8"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Acid Spit",
+                    "Description": "Ranged attack, 2d6 damage; metal armor suffers corrosion."
+                }
+            ],
+            "XPValue": 1200,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Spectre",
+            "Type": "Undead",
+            "ArmorClass": 2,
+            "HitDice": 7,
+            "HitPoints": 42,
+            "Movement": {
+                "Walk": 0,
+                "Fly": 30,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 8,
+                "RodStaffWand": 9,
+                "PetrificationPolymorph": 10,
+                "BreathWeapon": 11,
+                "Spell": 11
+            },
+            "Morale": { "Value": 13 },
+            "Attacks": [
+                {
+                    "Name": "Chilling Touch",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d8"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Energy Drain",
+                    "Description": "Target loses 2 levels unless save vs death."
+                },
+                {
+                    "Name": "Incorporeal",
+                    "Description": "Immune to non-magical weapons."
+                }
+            ],
+            "XPValue": 2000,
+            "TreasureType": "K"
+        }
+    ]
+}

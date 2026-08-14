@@ -1,0 +1,33 @@
+{
+  "Name": "Treasure Type B",
+  "Coins": {
+    "CopperPieces": { "Amount": "0", "Chance": 0 },
+    "SilverPieces": { "Amount": "5d10*100", "Chance": 30 },
+    "ElectrumPieces": { "Amount": "0", "Chance": 0 },
+    "GoldPieces": { "Amount": "2d8*100", "Chance": 50 },
+    "PlatinumPieces": { "Amount": "0", "Chance": 0 }
+  },
+  "Gems": {
+    "Amount": "1d6",
+    "Chance": 15,
+    "MinValueGp": 10,
+    "MaxValueGp": 100
+  },
+  "Jewelry": {
+    "Amount": "0",
+    "Chance": 0,
+    "MinValueGp": 0,
+    "MaxValueGp": 0
+  },
+  "Art": {
+    "Amount": "0",
+    "Chance": 0,
+    "MinValueGp": 0,
+    "MaxValueGp": 0
+  },
+  "Magic": {
+    "Rolls": [
+      { "Table": "Scroll", "Amount": "1", "Chance": 5 }
+    ]
+  }
+}

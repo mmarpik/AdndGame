@@ -1,0 +1,297 @@
+{
+    "Level": 7,
+    "Monsters": [
+        {
+            "Name": "Manticore",
+            "Type": "Monstrous",
+            "ArmorClass": 4,
+            "HitDice": 6,
+            "HitPoints": 36,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 30,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 10,
+                "RodStaffWand": 11,
+                "PetrificationPolymorph": 12,
+                "BreathWeapon": 13,
+                "Spell": 13
+            },
+            "Morale": { "Value": 11 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d4"
+                },
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d4"
+                },
+                {
+                    "Name": "Tail Spikes",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d6 (up to 6 spikes)"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Spike Volley",
+                    "Description": "Can fire tail spikes at range; each volley counts as one attack."
+                }
+            ],
+            "XPValue": 950,
+            "TreasureType": "G"
+        },
+        {
+            "Name": "Owlbear",
+            "Type": "Monstrous Animal",
+            "ArmorClass": 5,
+            "HitDice": 5,
+            "HitPoints": 32,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 11,
+                "RodStaffWand": 12,
+                "PetrificationPolymorph": 13,
+                "BreathWeapon": 14,
+                "Spell": 14
+            },
+            "Morale": { "Value": 11 },
+            "Attacks": [
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d8"
+                },
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Bear Hug",
+                    "Description": "If both claws hit, target takes extra 2d8 damage."
+                }
+            ],
+            "XPValue": 700,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Giant Snake (Giant Python)",
+            "Type": "Animal",
+            "ArmorClass": 5,
+            "HitDice": 7,
+            "HitPoints": 42,
+            "Movement": {
+                "Walk": 20,
+                "Fly": 0,
+                "Swim": 10,
+                "Burrow": 0,
+                "Climb": 10
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 10,
+                "RodStaffWand": 11,
+                "PetrificationPolymorph": 12,
+                "BreathWeapon": 13,
+                "Spell": 13
+            },
+            "Morale": { "Value": 10 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d8"
+                },
+                {
+                    "Name": "Constrict",
+                    "NumberOfAttacks": 1,
+                    "Damage": "3d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Crushing Coils",
+                    "Description": "Held targets take automatic constrict damage each round."
+                }
+            ],
+            "XPValue": 750,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Giant Troll",
+            "Type": "Giant",
+            "ArmorClass": 4,
+            "HitDice": 7,
+            "HitPoints": 40,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 10,
+                "RodStaffWand": 11,
+                "PetrificationPolymorph": 12,
+                "BreathWeapon": 13,
+                "Spell": 13
+            },
+            "Morale": { "Value": 12 },
+            "Attacks": [
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d6+2"
+                },
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Greater Regeneration",
+                    "Description": "Heals 4 hp per round; fire/acid needed to kill."
+                }
+            ],
+            "XPValue": 900,
+            "TreasureType": "E"
+        },
+        {
+            "Name": "Giant Spider (Huge)",
+            "Type": "Vermin",
+            "ArmorClass": 3,
+            "HitDice": 6,
+            "HitPoints": 34,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 40
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 11,
+                "RodStaffWand": 12,
+                "PetrificationPolymorph": 13,
+                "BreathWeapon": 14,
+                "Spell": 14
+            },
+            "Morale": { "Value": 9 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Deadly Poison",
+                    "Description": "Bite forces save vs poison or death."
+                },
+                {
+                    "Name": "Web Trap",
+                    "Description": "Can entangle targets; save vs spell to avoid being stuck."
+                }
+            ],
+            "XPValue": 800,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Giant Hyena",
+            "Type": "Animal",
+            "ArmorClass": 6,
+            "HitDice": 5,
+            "HitPoints": 30,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 11,
+                "RodStaffWand": 12,
+                "PetrificationPolymorph": 13,
+                "BreathWeapon": 14,
+                "Spell": 14
+            },
+            "Morale": { "Value": 9 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d4"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Pack Hunter",
+                    "Description": "If fighting with allies, gains +1 to hit."
+                }
+            ],
+            "XPValue": 350,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Lamia",
+            "Type": "Monstrous",
+            "ArmorClass": 3,
+            "HitDice": 7,
+            "HitPoints": 40,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 9,
+                "RodStaffWand": 10,
+                "PetrificationPolymorph": 11,
+                "BreathWeapon": 12,
+                "Spell": 12
+            },
+            "Morale": { "Value": 12 },
+            "Attacks": [
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d4"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Charm",
+                    "Description": "Can cast charm person 3/day."
+                },
+                {
+                    "Name": "Wisdom Drain",
+                    "Description": "On hit, target loses 1 point of Wisdom (temporary)."
+                }
+            ],
+            "XPValue": 1100,
+            "TreasureType": "H"
+        }
+    ]
+}

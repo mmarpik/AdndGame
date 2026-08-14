@@ -1,0 +1,12 @@
+{
+  "Id": "shield_spell",
+  "Name": "Shield",
+  "Class": "MagicUser",
+  "Level": 1,
+  "Description": "Invisible disc grants defensive protection against attacks.",
+  "RangeType": "Self",
+  "Targeting": "Single",
+  "CastContext": "Both",
+  "EffectType": "Heal",
+  "EffectDescription": "Creates a protective magical barrier around the caster."
+}

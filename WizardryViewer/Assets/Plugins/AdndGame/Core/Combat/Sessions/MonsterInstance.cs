@@ -1,0 +1,77 @@
+using Adnd.Core.Monsters;
+using Adnd.Core.Characters;
+
+namespace Adnd.Core.Combat.Sessions;
+
+public sealed class MonsterInstance
+{
+    private readonly Dictionary<MonsterStatus, int> _statusDurations = new();
+
+    public MonsterInstance(Monster template, int index, string groupId = "default")
+    {
+        Template = template;
+        Index = index;
+        GroupId = groupId;
+        Name = template.Name;
+
+        // Roll HP based on HitDice (1d8 per hit die)
+        CurrentHitPoints = RollHitPoints(template.HitDice);
+        ArmorClass = template.ArmorClass;
+    }
+
+    private static int RollHitPoints(int hitDice)
+    {
+        if (hitDice <= 0)
+            return 1; // Minimum 1 HP
+
+        return DiceRoller.Roll(hitDice, 8);
+    }
+
+    public Monster Template { get; }
+    public int Index { get; }
+    public string GroupId { get; }
+    public string Name { get; }
+    public int CurrentHitPoints { get; set; }
+    public int ArmorClass { get; }
+    public bool IsAlive => CurrentHitPoints > 0;
+
+    public string DisplayName => $"{Name} #{Index}";
+    public string DisplayNameWithGroup => $"{Name} #{Index} (Group {GroupId})";
+
+    public bool HasStatus(MonsterStatus status)
+    {
+        return _statusDurations.TryGetValue(status, out var rounds) && rounds > 0;
+    }
+
+    public int GetStatusRounds(MonsterStatus status)
+    {
+        return _statusDurations.TryGetValue(status, out var rounds) ? Math.Max(0, rounds) : 0;
+    }
+
+    public void SetStatus(MonsterStatus status, int rounds)
+    {
+        if (rounds <= 0)
+        {
+            _statusDurations.Remove(status);
+            return;
+        }
+
+        _statusDurations[status] = rounds;
+    }
+
+    public int TickStatus(MonsterStatus status)
+    {
+        if (!_statusDurations.TryGetValue(status, out var rounds) || rounds <= 0)
+            return 0;
+
+        rounds -= 1;
+        if (rounds <= 0)
+        {
+            _statusDurations.Remove(status);
+            return 0;
+        }
+
+        _statusDurations[status] = rounds;
+        return rounds;
+    }
+}

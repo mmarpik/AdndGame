@@ -1,0 +1,12 @@
+{
+  "Id": "barkskin",
+  "Name": "Barkskin",
+  "Class": "Druid",
+  "Level": 2,
+  "Description": "Toughens an ally's skin like bark.",
+  "RangeType": "Ally",
+  "Targeting": "Single",
+  "CastContext": "Both",
+  "EffectType": "Heal",
+  "EffectDescription": "Nature magic hardens the target's skin for improved defense."
+}

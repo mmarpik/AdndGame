@@ -1,0 +1,12 @@
+{
+  "Id": "color_spray",
+  "Name": "Color Spray",
+  "Class": "Illusionist",
+  "Level": 1,
+  "Description": "Cone of clashing colors stuns or blinds targets.",
+  "RangeType": "Enemy",
+  "Targeting": "Multiple",
+  "CastContext": "Combat",
+  "EffectType": "Damage",
+  "EffectDescription": "A cone of prismatic light overwhelms nearby enemies."
+}

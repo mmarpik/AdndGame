@@ -1,0 +1,25 @@
+{
+  "Name": "Forest Level 3",
+  "Entries": [
+    {
+      "Monster": "Orc",
+      "Chance": 25
+    },
+    {
+      "Monster": "Troll",
+      "Chance": 20
+    },
+    {
+      "Monster": "Ogre",
+      "Chance": 20
+    },
+    {
+      "Monster": "Wolf",
+      "Chance": 15
+    },
+    {
+      "Monster": "Giant Spider",
+      "Chance": 20
+    }
+  ]
+}

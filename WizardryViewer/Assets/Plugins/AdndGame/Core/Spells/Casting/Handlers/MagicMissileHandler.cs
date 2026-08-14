@@ -1,0 +1,57 @@
+namespace Adnd.Core.Spells.Casting.Handlers;
+
+public sealed class MagicMissileHandler : ISpellEffectHandler
+{
+    public bool CanHandle(string spellId) => string.Equals(spellId, "magic_missile", StringComparison.OrdinalIgnoreCase);
+
+    public SpellCastResult Resolve(SpellCastRequest request)
+    {
+        var spell = request.Spell;
+        if (spell == null)
+            return SpellCastResult.Failure("Missing spell definition.");
+
+        var session = request.CombatSession;
+        var rng = request.Rng ?? Adnd.Unity.Compat.SharedRandom.Instance;
+
+        // Determine target
+        Combat.Sessions.MonsterInstance? target = null;
+
+        // If a group was specified, pick a random target from that group
+        var firstTarget = request.Targets.FirstOrDefault();
+        if (firstTarget?.TargetGroupId != null && session != null)
+        {
+            var groupTargets = session.GetAliveMonstersByGroup(firstTarget.TargetGroupId).ToList();
+            if (groupTargets.Count > 0)
+            {
+                target = groupTargets[rng.Next(groupTargets.Count)];
+            }
+        }
+
+        // Fallback to old behavior
+        if (target == null)
+        {
+            var targetRef = request.Targets.FirstOrDefault(t => t.Type == SpellCastTargetType.Enemy);
+            target = targetRef?.MonsterIndex is int idx
+                ? request.MonsterTargets.FirstOrDefault(m => m.Index == idx && m.IsAlive)
+                : request.MonsterTargets.FirstOrDefault(m => m.IsAlive);
+        }
+
+        if (target == null)
+            return SpellCastResult.Failure("No valid enemy target selected.");
+
+        var damageRoll = rng.Next(1, 5);
+        var damage = damageRoll + 1; // 1d4+1
+        var before = target.CurrentHitPoints;
+        target.CurrentHitPoints = Math.Max(0, target.CurrentHitPoints - damage);
+        var actual = Math.Max(0, before - target.CurrentHitPoints);
+
+        var result = new SpellCastResult { Success = true };
+        result.Events.Add($"{request.Caster.Name} casts {spell.Name}. {spell.EffectDescription} Damage: {damage} (1d4+1).");
+        result.Events.Add($"{target.DisplayName} takes {actual} damage.");
+        if (!target.IsAlive)
+            result.Events.Add($"{target.DisplayName} is destroyed.");
+
+        result.HpChanges[target.DisplayName] = -actual;
+        return result;
+    }
+}

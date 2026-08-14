@@ -1,0 +1,12 @@
+{
+  "Id": "read_magic",
+  "Name": "Read Magic",
+  "Class": "MagicUser",
+  "Level": 1,
+  "Description": "Allows the caster to read magical inscriptions.",
+  "RangeType": "Self",
+  "Targeting": "Single",
+  "CastContext": "Exploration",
+  "EffectType": "Heal",
+  "EffectDescription": "Reveals and interprets magical writings for the caster."
+}

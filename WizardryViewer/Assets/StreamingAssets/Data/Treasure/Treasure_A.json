@@ -1,0 +1,33 @@
+{
+  "Name": "Treasure Type A",
+  "Coins": {
+    "CopperPieces": { "Amount": "0", "Chance": 0 },
+    "SilverPieces": { "Amount": "10d10*100", "Chance": 30 },
+    "ElectrumPieces": { "Amount": "0", "Chance": 0 },
+    "GoldPieces": { "Amount": "5d10*100", "Chance": 40 },
+    "PlatinumPieces": { "Amount": "0", "Chance": 0 }
+  },
+  "Gems": {
+    "Amount": "2d6",
+    "Chance": 20,
+    "MinValueGp": 10,
+    "MaxValueGp": 100
+  },
+  "Jewelry": {
+    "Amount": "0",
+    "Chance": 0,
+    "MinValueGp": 0,
+    "MaxValueGp": 0
+  },
+  "Art": {
+    "Amount": "0",
+    "Chance": 0,
+    "MinValueGp": 0,
+    "MaxValueGp": 0
+  },
+  "Magic": {
+    "Rolls": [
+      { "Table": "Potion", "Amount": "1", "Chance": 10 }
+    ]
+  }
+}

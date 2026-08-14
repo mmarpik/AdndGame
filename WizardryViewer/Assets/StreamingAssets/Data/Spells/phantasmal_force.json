@@ -1,0 +1,12 @@
+{
+  "Id": "phantasmal_force",
+  "Name": "Phantasmal Force",
+  "Class": "Illusionist",
+  "Level": 2,
+  "Description": "Creates a believable visual illusion.",
+  "RangeType": "Enemy",
+  "Targeting": "Single",
+  "CastContext": "Both",
+  "EffectType": "Damage",
+  "EffectDescription": "Conjures a compelling illusion that confounds the target."
+}

@@ -1,0 +1,53 @@
+{
+  "Category": "MagicItem",
+  "Items": [
+  
+    {
+      "Name": "Ring of Protection +1",
+      "Type": "MagicItem",
+      "Slot": "Ring1",
+      "Cost": 500,
+      "Weight": 0,
+      "StockQuantity": 1,
+      "ArmorClassBonus": 1,
+      "Damage": "",
+      "AllowedClasses": [ "Fighter", "Paladin", "Ranger", "Cleric", "Druid", "Thief", "Assassin", "Bard", "MagicUser", "Illusionist", "Monk" ]
+    },
+    {
+      "Name": "Ring of Protection +2",
+      "Type": "MagicItem",
+      "Slot": "Ring2",
+      "Cost": 2000,
+      "Weight": 0,
+      "StockQuantity": 0,
+      "ArmorClassBonus": 2,
+      "IsShopBuyable": false,
+      "Damage": "",
+      "AllowedClasses": [ "All" ]
+    },
+    {
+      "Name": "Cloak of Protection +1",
+      "Type": "MagicItem",
+      "Slot": "Back",
+      "Cost": 1200,
+      "Weight": 1,
+      "StockQuantity": 0,
+      "ArmorClassBonus": 1,
+      "IsShopBuyable": false,
+      "Damage": "",
+      "AllowedClasses": [ "All" ]
+    },
+    {
+      "Name": "Girdle of Defense +1",
+      "Type": "MagicItem",
+      "Slot": "Belt",
+      "Cost": 800,
+      "Weight": 2,
+      "StockQuantity": 0,
+      "ArmorClassBonus": 1,
+      "IsShopBuyable": false,
+      "Damage": "",
+      "AllowedClasses": [ "All" ]
+    }
+  ]
+}

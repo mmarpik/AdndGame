@@ -392,3 +392,10 @@ FodyWeavers.xsd
 # also hides Unity's manifest.json and packages-lock.json, which pin the package
 # versions this project needs (URP, TextMesh Pro). Those are source too.
 !/WizardryViewer/Packages/*
+
+# And Assets/csc.rsp: the repo-wide "*.rsp" rule further up is for MSBuild/NuGet
+# command-line response files at the solution root. It must not reach into the
+# Unity project either -- csc.rsp there sets -langversion:latest, which several
+# synced Adnd.Core/Adnd.Data files (C# 10 file-scoped namespaces) need to
+# compile at all. Without it committed, a fresh clone fails to build.
+!/WizardryViewer/Assets/csc.rsp

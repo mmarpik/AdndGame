@@ -1,0 +1,292 @@
+{
+    "Level": 10,
+    "Monsters": [
+        {
+            "Name": "Red Dragon (Young Adult)",
+            "Type": "Dragon",
+            "ArmorClass": -1,
+            "HitDice": 10,
+            "HitPoints": 60,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 80,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 6,
+                "RodStaffWand": 7,
+                "PetrificationPolymorph": 8,
+                "BreathWeapon": 9,
+                "Spell": 9
+            },
+            "Morale": { "Value": 14 },
+            "Attacks": [
+                {
+                    "Name": "Claw",
+                    "NumberOfAttacks": 2,
+                    "Damage": "1d8"
+                },
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "3d8"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Fire Breath",
+                    "Description": "Cone of fire, damage equal to current hp (save for half)."
+                },
+                {
+                    "Name": "Dragon Fear",
+                    "Description": "Creatures of less than 5 HD must save vs spell or flee."
+                }
+            ],
+            "XPValue": 5000,
+            "TreasureType": "Hoard"
+        },
+        {
+            "Name": "Stone Giant Elder",
+            "Type": "Giant",
+            "ArmorClass": 2,
+            "HitDice": 10,
+            "HitPoints": 60,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 7,
+                "RodStaffWand": 8,
+                "PetrificationPolymorph": 9,
+                "BreathWeapon": 10,
+                "Spell": 10
+            },
+            "Morale": { "Value": 13 },
+            "Attacks": [
+                {
+                    "Name": "Rock Throw",
+                    "NumberOfAttacks": 1,
+                    "Damage": "3d8"
+                },
+                {
+                    "Name": "Club",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d10"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Rock Mastery",
+                    "Description": "+3 to hit with thrown rocks."
+                }
+            ],
+            "XPValue": 3200,
+            "TreasureType": "L"
+        },
+        {
+            "Name": "Fire Giant Champion",
+            "Type": "Giant",
+            "ArmorClass": 2,
+            "HitDice": 12,
+            "HitPoints": 72,
+            "Movement": {
+                "Walk": 40,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 6,
+                "RodStaffWand": 7,
+                "PetrificationPolymorph": 8,
+                "BreathWeapon": 9,
+                "Spell": 9
+            },
+            "Morale": { "Value": 14 },
+            "Attacks": [
+                {
+                    "Name": "Flaming Greatsword",
+                    "NumberOfAttacks": 1,
+                    "Damage": "3d6+3"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Aura of Flame",
+                    "Description": "Adjacent foes take 1d4 fire damage per round."
+                }
+            ],
+            "XPValue": 3800,
+            "TreasureType": "L"
+        },
+        {
+            "Name": "Hydra (7-Headed)",
+            "Type": "Monstrous",
+            "ArmorClass": 4,
+            "HitDice": 10,
+            "HitPoints": 70,
+            "Movement": {
+                "Walk": 20,
+                "Fly": 0,
+                "Swim": 10,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 7,
+                "RodStaffWand": 8,
+                "PetrificationPolymorph": 9,
+                "BreathWeapon": 10,
+                "Spell": 10
+            },
+            "Morale": { "Value": 13 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 7,
+                    "Damage": "1d8"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Multiple Heads",
+                    "Description": "Can attack up to 7 different targets per round."
+                }
+            ],
+            "XPValue": 3500,
+            "TreasureType": "None"
+        },
+        {
+            "Name": "Wyvern Matriarch",
+            "Type": "Dragonkin",
+            "ArmorClass": 2,
+            "HitDice": 9,
+            "HitPoints": 54,
+            "Movement": {
+                "Walk": 20,
+                "Fly": 50,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 7,
+                "RodStaffWand": 8,
+                "PetrificationPolymorph": 9,
+                "BreathWeapon": 10,
+                "Spell": 10
+            },
+            "Morale": { "Value": 13 },
+            "Attacks": [
+                {
+                    "Name": "Bite",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d8"
+                },
+                {
+                    "Name": "Sting",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d8"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Greater Venom",
+                    "Description": "Sting forces save vs poison or death; success still takes 2d6 damage."
+                }
+            ],
+            "XPValue": 2800,
+            "TreasureType": "J"
+        },
+        {
+            "Name": "Spectre Lord",
+            "Type": "Undead",
+            "ArmorClass": 1,
+            "HitDice": 9,
+            "HitPoints": 54,
+            "Movement": {
+                "Walk": 0,
+                "Fly": 30,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 6,
+                "RodStaffWand": 7,
+                "PetrificationPolymorph": 8,
+                "BreathWeapon": 9,
+                "Spell": 9
+            },
+            "Morale": { "Value": 14 },
+            "Attacks": [
+                {
+                    "Name": "Chilling Touch",
+                    "NumberOfAttacks": 1,
+                    "Damage": "1d10"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Greater Energy Drain",
+                    "Description": "Target loses 2 levels unless save vs death."
+                },
+                {
+                    "Name": "Incorporeal",
+                    "Description": "Immune to non-magical weapons."
+                }
+            ],
+            "XPValue": 4000,
+            "TreasureType": "K"
+        },
+        {
+            "Name": "Minotaur Champion",
+            "Type": "Monstrous Humanoid",
+            "ArmorClass": 4,
+            "HitDice": 9,
+            "HitPoints": 54,
+            "Movement": {
+                "Walk": 30,
+                "Fly": 0,
+                "Swim": 0,
+                "Burrow": 0,
+                "Climb": 0
+            },
+            "SavingThrows": {
+                "ParalyzationPoisonDeath": 7,
+                "RodStaffWand": 8,
+                "PetrificationPolymorph": 9,
+                "BreathWeapon": 10,
+                "Spell": 10
+            },
+            "Morale": { "Value": 13 },
+            "Attacks": [
+                {
+                    "Name": "Great Axe",
+                    "NumberOfAttacks": 1,
+                    "Damage": "3d6"
+                },
+                {
+                    "Name": "Gore",
+                    "NumberOfAttacks": 1,
+                    "Damage": "2d6"
+                }
+            ],
+            "SpecialAbilities": [
+                {
+                    "Name": "Champion of the Labyrinth",
+                    "Description": "+2 to hit in dungeon corridors."
+                }
+            ],
+            "XPValue": 2600,
+            "TreasureType": "D"
+        }
+    ]
+}
